@@ -7,8 +7,9 @@ import { LoadingOverlay } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
 import { startSSH } from "@/shell/startSSH.ts";
-import { EventSendCommandByNoncePayload } from "@/events/payload.ts";
-import { Event, listen } from "@tauri-apps/api/event";
+import type { EventSendCommandByNoncePayload } from "@/events/payload.ts";
+import type { Event } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 import { EventSendCommandByNonceName } from "@/events/name.ts";
 
 interface ShellTerminalProps {

@@ -17,6 +17,8 @@ import type { MouseEvent } from "react";
 
 import CPU from "@/icons/CPU.tsx";
 import RAM from "@/icons/RAM.tsx";
+import SSD from "@/icons/SSD.tsx";
+import Ethernet from "@/icons/Ethernet.tsx";
 
 interface ServerCardProps {
   server: Server;
@@ -119,7 +121,7 @@ const ServerCard = ({ server, onClick, onContextMenu }: ServerCardProps) => {
           </Pill.Group>
         </Flex>
         <Flex direction="column">
-          <Flex gap="md" opacity="80%">
+          <Flex gap="md" opacity="80%" wrap="wrap">
             <Tooltip
               label={`${
                 server.hardware.cpu.count > 1
@@ -158,6 +160,53 @@ const ServerCard = ({ server, onClick, onContextMenu }: ServerCardProps) => {
                   }}
                 />
                 <Text>{server.hardware.memory.size}GB</Text>
+              </Flex>
+            </Tooltip>
+            <Tooltip
+              label={server.hardware.disk
+                .map(
+                  (d) =>
+                    `${d.count > 1 ? `${d.count}×` : ""}${d.size}${d.size_unit} ${d.type}`,
+                )
+                .join(" + ")}
+            >
+              <Flex gap={6}>
+                <SSD
+                  width={24}
+                  height={24}
+                  style={{
+                    flexShrink: 0,
+                  }}
+                />
+                <Text>
+                  {server.hardware.disk.reduce(
+                    (counter, cur) => counter + cur.count,
+                    0,
+                  )}
+                  ×
+                </Text>
+              </Flex>
+            </Tooltip>
+            <Tooltip
+              label={
+                server.traffic.limit
+                  ? `${server.traffic.limit} TB${server.traffic.double_rate ? "*" : ""}`
+                  : "∞"
+              }
+            >
+              <Flex gap={6}>
+                <Ethernet
+                  width={24}
+                  height={24}
+                  style={{
+                    flexShrink: 0,
+                  }}
+                />
+                <Text>
+                  {server.traffic.bandwidth > 1000
+                    ? `${server.traffic.bandwidth / 1000} Gbps`
+                    : `${server.traffic.bandwidth} Mbps`}
+                </Text>
               </Flex>
             </Tooltip>
           </Flex>

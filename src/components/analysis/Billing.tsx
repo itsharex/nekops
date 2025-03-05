@@ -1,7 +1,13 @@
-import { IconBusinessplan, IconCurrencyDollar } from "@tabler/icons-react";
+import {
+  IconBusinessplan,
+  IconCurrencyDollar,
+  IconPlus,
+} from "@tabler/icons-react";
 import {
   Box,
+  Button,
   Card,
+  Divider,
   Flex,
   Group,
   Progress,
@@ -13,7 +19,7 @@ import {
   Tooltip,
   useMantineTheme,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Server } from "@/types/server.ts";
 
 interface SectionData {
@@ -246,24 +252,32 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
   const [MVS, setMVS] = useState<Server[]>([]);
   const [MVSPriceSum, setMVSPriceSum] = useState(0);
 
+  const [isExpand, setIsExpand] = useState(false);
+
+  const serverSortByPrice = useMemo(() => {
+    const s: Server[] = [...servers]; // `servers` state is read-only, so let's make a sortable copy
+    s.sort((a, b) => b.provider.price - a.provider.price); // Could use toSorted() on new browsers, but using sort() is safer
+    return s;
+  }, [servers]);
+
   useEffect(() => {
-    if (servers.length > 0) {
+    if (serverSortByPrice.length > 0) {
       let sum = 0;
-      const serverSortByPrice: Server[] = servers.map((s) => s); // `servers` state is read-only, so let's make a sortable copy
-      serverSortByPrice.sort((a, b) => b.provider.price - a.provider.price); // Could use toSorted() on new browsers, but using sort() is safer
-      const mvs = serverSortByPrice.slice(0, limit);
+      const mvs = isExpand
+        ? serverSortByPrice
+        : serverSortByPrice.slice(0, limit);
       for (const valuableServer of mvs) {
         sum += valuableServer.provider.price;
       }
       setMVS(mvs);
       setMVSPriceSum(sum);
     }
-  }, [servers]);
+  }, [serverSortByPrice, isExpand]);
 
   return (
     <Card withBorder p="md" radius="md">
       <Title c="dimmed" order={3} size="h5" fw={700}>
-        Top {limit} valuable servers
+        {isExpand ? "All servers" : `Top ${limit} valuable servers`}
       </Title>
 
       <Table mt="md">
@@ -294,6 +308,23 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
             </Table.Tr>
           ))}
         </Table.Tbody>
+        {!isExpand && (
+          <Table.Caption>
+            <Divider
+              variant="dotted"
+              label={
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => setIsExpand(true)}
+                  leftSection={<IconPlus size={15} />}
+                >
+                  Expand
+                </Button>
+              }
+            />
+          </Table.Caption>
+        )}
       </Table>
     </Card>
   );

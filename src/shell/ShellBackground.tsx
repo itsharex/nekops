@@ -4,7 +4,7 @@ const ShellBackground = () => (
   <Flex
     w="100%"
     h="100%"
-    pos="absolute"
+    pos="fixed"
     justify="center"
     align="center"
     opacity="20%"

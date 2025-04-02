@@ -97,13 +97,31 @@ const ShellTabs = () => {
   };
 
   // Close (terminate) confirm
-  const doClose = (index: number) => {
+  const doTerminate = (index: number) => {
     tabsDataHandlers.remove(index);
     tabsStateHandlers.remove(index);
     tabsNewMessageHandlers.remove(index);
   };
 
-  const closeTab = (nonce: string) => {
+  const doReconnect = (index: number) => {
+    // Update with a different nonce (so it would be automatically restarted), using # split as counter
+    const serverData = tabsDataRef.current[index];
+    const splits = serverData.nonce.split("#");
+    let counter = 2; // First reconnect is the 2nd connect
+    if (splits.length > 1) {
+      counter = parseInt(splits[1]) + 1;
+    }
+    // Set with new nonce
+    const newNonce = `${splits[0]}#${counter}`;
+    tabsDataHandlers.setItem(index, {
+      ...serverData,
+      nonce: newNonce,
+    });
+    tabsStateHandlers.setItem(index, "loading");
+    setCurrentActiveTab(newNonce);
+  };
+
+  const terminateByNonce = (nonce: string) => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
@@ -123,11 +141,42 @@ const ShellTabs = () => {
           confirmProps: { color: "red" },
           centered: true,
           onConfirm: () => {
-            doClose(index);
+            doTerminate(index);
           },
         });
       } else {
-        doClose(index);
+        doTerminate(index);
+      }
+    }
+  };
+
+  const reconnectByNonce = (nonce: string) => {
+    const index = tabsDataRef.current.findIndex(
+      (state) => state.nonce === nonce,
+    );
+
+    // Check current state
+    if (index != -1) {
+      if (tabsStateRef.current[index] === "active") {
+        modals.openConfirmModal({
+          title: "Reconnect confirmation",
+          children: (
+            <>
+              <Text>Are you sure to reconnect :</Text>
+              <Title order={3} my="md" c="red">
+                {tabsData[index].name}
+              </Title>
+            </>
+          ),
+          labels: { confirm: "Reconnect", cancel: "Cancel" },
+          confirmProps: { color: "red" },
+          centered: true,
+          onConfirm: () => {
+            doReconnect(index);
+          },
+        });
+      } else {
+        doReconnect(index);
       }
     }
   };
@@ -194,7 +243,7 @@ const ShellTabs = () => {
     const len = tabsDataRef.current.length;
     for (let i = len - 1; i >= 0; i--) {
       // Reversely
-      doClose(i);
+      doTerminate(i);
     }
     requestIdleCallback(() => {
       // Destroy window
@@ -330,7 +379,7 @@ const ShellTabs = () => {
                             <ShellTab
                               data={tabData}
                               close={() => {
-                                closeTab(tabData.nonce);
+                                terminateByNonce(tabData.nonce);
                               }}
                               state={tabsState[index]}
                               isNewMessage={tabsNewMessage[index]}
@@ -379,7 +428,7 @@ const ShellTabs = () => {
         pos={contextMenuPos}
         onClickTerminate={() => {
           if (currentSelectedTab.current) {
-            closeTab(currentSelectedTab.current.nonce);
+            terminateByNonce(currentSelectedTab.current.nonce);
           }
         }}
         onClickSelectAll={() => {
@@ -388,6 +437,11 @@ const ShellTabs = () => {
               EventShellSelectAllByNonceName,
               currentSelectedTab.current.nonce,
             );
+          }
+        }}
+        onClickReconnect={() => {
+          if (currentSelectedTab.current) {
+            reconnectByNonce(currentSelectedTab.current.nonce);
           }
         }}
       />

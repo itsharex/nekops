@@ -1,5 +1,5 @@
 import { Menu } from "@mantine/core";
-import { IconCopyPlus, IconLinkOff } from "@tabler/icons-react";
+import { IconCopyPlus, IconLinkOff, IconRotate } from "@tabler/icons-react";
 import { menuIconStyle } from "@/common/actionStyles.ts";
 
 interface ShellTabContextMenuProps {
@@ -12,6 +12,7 @@ interface ShellTabContextMenuProps {
 
   onClickTerminate: () => void;
   onClickSelectAll: () => void;
+  onClickReconnect: () => void;
 }
 const ShellTabContextMenu = ({
   isOpen,
@@ -20,6 +21,7 @@ const ShellTabContextMenu = ({
 
   onClickTerminate,
   onClickSelectAll,
+  onClickReconnect,
 }: ShellTabContextMenuProps) => (
   <Menu opened={isOpen} onChange={setIsOpen} position="bottom-start">
     <Menu.Target>
@@ -44,6 +46,12 @@ const ShellTabContextMenu = ({
         onClick={onClickSelectAll}
       >
         Select All
+      </Menu.Item>
+      <Menu.Item
+        leftSection={<IconRotate style={menuIconStyle} />}
+        onClick={onClickReconnect}
+      >
+        Reconnect
       </Menu.Item>
     </Menu.Dropdown>
   </Menu>

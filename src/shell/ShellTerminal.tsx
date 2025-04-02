@@ -143,6 +143,8 @@ const ShellTerminal = ({
         // Close terminal
         fitAddon?.dispose();
         terminal?.dispose();
+
+        console.log("terminate", nonce);
       };
     }
   }, []);

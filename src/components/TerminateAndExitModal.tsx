@@ -18,7 +18,7 @@ const TerminateAndExitModal = ({
       centered
     >
       <Text>Some shells might still be running...</Text>
-      <Text>Do you sure to terminate them all and exit?</Text>
+      <Text>Are you sure to terminate them all and exit?</Text>
       <Center mt="lg">
         <Group gap="sm">
           <Button variant="default" color="gray" onClick={onClose}>

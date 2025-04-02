@@ -17,4 +17,4 @@ export const EventResponseTabsListName = "responseTabsList";
 
 // Main window pre-close event
 export const EventMainWindowPreCloseName = "mainWindowPreClose";
-export const EventMainWindowDoCloseName = "mainWindowDoClose";
+export const EventShellWindowPreCloseName = "shellWindowPreClose";

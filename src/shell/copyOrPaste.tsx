@@ -36,6 +36,7 @@ export const copyOrPaste = async (instance: Terminal) => {
             </>
           ),
           labels: { confirm: "Confirm", cancel: "Cancel" },
+          centered: true,
           onConfirm: () => {
             instance.paste(clipboardText);
           },

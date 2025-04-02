@@ -5,6 +5,7 @@ import {
   Center,
   Flex,
   Group,
+  List,
   Modal,
   rem,
   ScrollArea,
@@ -19,13 +20,13 @@ import { emit, listen } from "@tauri-apps/api/event";
 import type { WheelEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
-  EventMainWindowDoCloseName,
   EventNewSSHName,
   EventRequestSSHWindowReadyName,
   EventRequestTabsListName,
   EventResponseSSHWindowReadyName,
   EventResponseTabsListName,
   EventSetActiveTabByNonceName,
+  EventShellWindowPreCloseName,
 } from "@/events/name.ts";
 import type {
   EventNewSSHPayload,
@@ -37,6 +38,7 @@ import type { ShellState } from "@/types/shellState.ts";
 import { useDisclosure, useListState } from "@mantine/hooks";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
+import { modals } from "@mantine/modals";
 
 interface ShellTabProps {
   data: SSHSingleServer;
@@ -254,13 +256,47 @@ const ShellTabs = () => {
     }
   };
 
+  const preClose = (ev: Event<boolean>) => {
+    if (ev.payload || !tabsStateRef.current.some((s) => s === "active")) {
+      // Force terminate or no active remain
+      terminateAllAndExit();
+    } else {
+      // Open close confirmation modal
+      modals.openConfirmModal({
+        title: "Terminate All",
+        children: (
+          <>
+            <Text>These shells are still running...</Text>
+            <List my="md" ml="md">
+              {tabsDataRef.current
+                .filter((_, i) => tabsStateRef.current[i] === "active")
+                .map((server) => (
+                  <List.Item key={server.nonce} c={server.color}>
+                    {server.name}
+                  </List.Item>
+                ))}
+            </List>
+            <Text>Are you sure to terminate them all?</Text>
+          </>
+        ),
+        labels: { confirm: "Terminate", cancel: "Cancel" },
+        confirmProps: { color: "red" },
+        centered: true,
+        onConfirm: terminateAllAndExit,
+      });
+    }
+  };
+
   const terminateAllAndExit = () => {
     const len = tabsDataRef.current.length;
     for (let i = len - 1; i >= 0; i--) {
       // Reversely
       doClose(i);
     }
-    Window.getCurrent().destroy(); // Ensure window close
+    requestIdleCallback(() => {
+      // Destroy window
+      Window.getCurrent().destroy();
+    });
   };
 
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal
@@ -294,9 +330,9 @@ const ShellTabs = () => {
       requestTabsListListener,
     );
 
-    const stopMainWindowDoClosePromise = listen(
-      EventMainWindowDoCloseName,
-      terminateAllAndExit,
+    const stopShellWindowPreClosePromise = listen(
+      EventShellWindowPreCloseName,
+      preClose,
     );
 
     return () => {
@@ -305,7 +341,7 @@ const ShellTabs = () => {
         (await stopSSHListenPromise)();
         (await stopSetActiveTabByNoncePromise)();
         (await stopRequestTabsListPromise)();
-        (await stopMainWindowDoClosePromise)();
+        (await stopShellWindowPreClosePromise)();
       })();
     };
   }, []);

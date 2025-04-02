@@ -17,9 +17,11 @@ fn keyboard_text(text: &str) {
     enigo.text(text).unwrap();
 }
 
-static MAIN_WINDOW_LABEL: &str = "main";
+const MAIN_WINDOW_LABEL: &str = "main";
+const SHELL_WINDOW_LABEL: &str = "nekopshell";
 
-static MAIN_WINDOW_PRE_CLOSE_EVENT: &str = "mainWindowPreClose";
+const MAIN_WINDOW_PRE_CLOSE_EVENT: &str = "mainWindowPreClose";
+const SHELL_WINDOW_PRE_CLOSE_EVENT: &str = "shellWindowPreClose";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -61,13 +63,20 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![keyboard_text])
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
-                // Window state control: only destroy main window when there's no other windows
-                if window.label() == MAIN_WINDOW_LABEL && // Is main window
-                    window.app_handle().webview_windows().len() > 1 { // Is not the only window
-
-                    // window.minimize().unwrap(); // Minimize main window
-                    window.app_handle().emit(MAIN_WINDOW_PRE_CLOSE_EVENT, MAIN_WINDOW_LABEL).unwrap(); // Trigger an event for frontend to handle
-                    api.prevent_close(); // And prevent close
+                let window_label = window.label();
+                match window_label {
+                    MAIN_WINDOW_LABEL => {
+                        if window.app_handle().webview_windows().len() > 1 { // Is not the only window
+                            // window.minimize().unwrap(); // Minimize main window
+                            window.app_handle().emit(MAIN_WINDOW_PRE_CLOSE_EVENT, false).unwrap(); // Trigger an event for frontend to handle
+                            api.prevent_close(); // And prevent close
+                        }
+                    }
+                    SHELL_WINDOW_LABEL => {
+                        window.app_handle().emit(SHELL_WINDOW_PRE_CLOSE_EVENT, false).unwrap();
+                        api.prevent_close();
+                    }
+                    _ => {}
                 }
             }
             _ => {}

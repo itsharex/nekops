@@ -1,17 +1,17 @@
-import { Box, Flex } from "@mantine/core";
+import { Flex } from "@mantine/core";
 import { type MouseEvent, useRef } from "react";
 import type { Server } from "@/types/server.ts";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import ServerCard from "@/components/ServerCard.tsx";
+import VirtualItem from "./VirtualItem.tsx";
 
 interface ServerCardsVirtualScrollProps {
   servers: Server[];
-  onClicked: (server: Server) => void;
+  onClick: (server: Server) => void;
   onContextMenu?: (ev: MouseEvent<HTMLDivElement>, server: Server) => void;
 }
 const ServerCardsVirtualScroll = ({
   servers,
-  onClicked,
+  onClick,
   onContextMenu,
 }: ServerCardsVirtualScrollProps) => {
   // Virtual scroll
@@ -50,23 +50,14 @@ const ServerCardsVirtualScroll = ({
           }}
         >
           {items.map((virtualItem, index) => (
-            <Box
+            <VirtualItem
               key={virtualItem.key}
               ref={rowVirtualizer.measureElement}
-              mx="md"
-              mb="md"
               data-index={index}
-            >
-              <ServerCard
-                server={servers[virtualItem.index]}
-                onClick={() => onClicked(servers[virtualItem.index])}
-                onContextMenu={
-                  onContextMenu
-                    ? (ev) => onContextMenu(ev, servers[virtualItem.index])
-                    : undefined
-                }
-              />
-            </Box>
+              server={servers[virtualItem.index]}
+              onClick={onClick}
+              onContextMenu={onContextMenu}
+            />
           ))}
         </div>
       </Flex>

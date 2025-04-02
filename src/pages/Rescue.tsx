@@ -11,7 +11,7 @@ import { notifications } from "@mantine/notifications";
 import UnlockModal from "@/components/UnlockModal.tsx";
 import RescueModal from "@/components/rescue/RescueModal.tsx";
 import { open } from "@tauri-apps/plugin-shell";
-import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll.tsx";
+import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import { IconLock } from "@tabler/icons-react";
 
 const RescuePage = () => {
@@ -115,7 +115,7 @@ const RescuePage = () => {
         />
         <ServerCardsVirtualScroll
           servers={searchServers(debouncedSearchInput, servers)}
-          onClicked={startRescue}
+          onClick={startRescue}
         />
       </Flex>
 

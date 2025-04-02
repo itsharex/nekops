@@ -1,6 +1,6 @@
 import type { Server } from "@/types/server.ts";
 import { Modal, Paper, ScrollArea, Text } from "@mantine/core";
-import ServerCard from "@/components/ServerCard.tsx";
+import ServerCard from "@/components/ServerCard";
 
 interface ServerCardModalProps {
   isOpen: boolean;

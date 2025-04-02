@@ -6,7 +6,7 @@ import { type MouseEvent, useMemo, useRef, useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
-import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll.tsx";
+import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import SSHContextMenu from "@/components/ssh/SSHContextMenu.tsx";
 import { startSSHSession } from "@/components/ssh/startSSHSession.ts";
 import { copySSHCommand } from "@/components/ssh/copySSHCommand.ts";
@@ -84,7 +84,7 @@ const SSHPage = () => {
             debouncedSearchInput,
             serversWithRegularAccess,
           )}
-          onClicked={clickServerCard}
+          onClick={clickServerCard}
           onContextMenu={rightClickServerCard}
         />
       </Flex>

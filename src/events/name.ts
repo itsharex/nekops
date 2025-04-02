@@ -14,3 +14,7 @@ export const EventSendCommandByNonceName = "sendCommandByNonce";
 // Request for current tabs
 export const EventRequestTabsListName = "requestTabsList";
 export const EventResponseTabsListName = "responseTabsList";
+
+// Main window pre-close event
+export const EventMainWindowPreCloseName = "mainWindowPreClose";
+export const EventMainWindowDoCloseName = "mainWindowDoClose";

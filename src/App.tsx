@@ -11,6 +11,14 @@ import { readServers } from "@/slices/serversSlice.ts";
 import { readSnippets } from "@/slices/snippetsSlice.ts";
 import { readEncryption } from "@/slices/encryptionSlice.ts";
 import AboutModal from "@/components/AboutModal.tsx";
+import { emit, listen } from "@tauri-apps/api/event";
+import type { EventResponseTabsListPayload } from "@/events/payload.ts";
+import {
+  EventMainWindowDoCloseName,
+  EventMainWindowPreCloseName,
+} from "@/events/name.ts";
+import TerminateAndExitModal from "@/components/TerminateAndExitModal.tsx";
+import { Window } from "@tauri-apps/api/window";
 
 const App = () => {
   const [isAboutModalOpen, { open: openAboutModal, close: closeAboutModal }] =
@@ -25,6 +33,33 @@ const App = () => {
       dispatch(readSnippets());
       dispatch(readEncryption());
     });
+  }, []);
+
+  // Handle pre-close event
+  const [
+    isPreCloseModalOpen,
+    { open: openPreCloseModal, close: closePreCloseModal },
+  ] = useDisclosure(false);
+
+  const mainWindowDoClose = () => {
+    // Terminate shells window and then main window
+    emit(EventMainWindowDoCloseName);
+    Window.getCurrent().destroy();
+  };
+
+  // Listen to pre-close event at page initialize
+  useEffect(() => {
+    const stopMainWindowPreClosePromise = listen<EventResponseTabsListPayload>(
+      EventMainWindowPreCloseName,
+      openPreCloseModal,
+    );
+
+    // Stop listen before component (page) destroy
+    return () => {
+      (async () => {
+        (await stopMainWindowPreClosePromise)();
+      })();
+    };
   }, []);
 
   return (
@@ -54,6 +89,11 @@ const App = () => {
       </AppShell>
 
       <AboutModal isOpen={isAboutModalOpen} close={closeAboutModal} />
+      <TerminateAndExitModal
+        isOpen={isPreCloseModalOpen}
+        onClose={closePreCloseModal}
+        onConfirm={mainWindowDoClose}
+      />
     </>
   );
 };

@@ -16,6 +16,7 @@ import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
 import {
+  EventMainWindowDoCloseName,
   EventNewSSHName,
   EventRequestSSHWindowReadyName,
   EventRequestTabsListName,
@@ -255,6 +256,15 @@ const ShellTabs = () => {
     }
   };
 
+  const terminateAllAndExit = () => {
+    const len = tabsDataRef.current.length;
+    for (let i = len - 1; i >= 0; i--) {
+      // Reversely
+      doClose(i);
+    }
+    Window.getCurrent().destroy(); // Ensure window close
+  };
+
   useEffect(() => {
     const stopSSHWindowReadyPromise = listen<string>(
       EventRequestSSHWindowReadyName,
@@ -275,12 +285,18 @@ const ShellTabs = () => {
       requestTabsListListener,
     );
 
+    const stopMainWindowDoClosePromise = listen(
+      EventMainWindowDoCloseName,
+      terminateAllAndExit,
+    );
+
     return () => {
       (async () => {
         (await stopSSHWindowReadyPromise)();
         (await stopSSHListenPromise)();
         (await stopSetActiveTabByNoncePromise)();
         (await stopRequestTabsListPromise)();
+        (await stopMainWindowDoClosePromise)();
       })();
     };
   }, []);

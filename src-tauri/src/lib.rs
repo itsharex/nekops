@@ -1,4 +1,4 @@
-use tauri::Manager;
+use tauri::{Manager, Emitter};
 use enigo::{
     Enigo, Keyboard, Settings,
 };
@@ -18,6 +18,8 @@ fn keyboard_text(text: &str) {
 }
 
 static MAIN_WINDOW_LABEL: &str = "main";
+
+static MAIN_WINDOW_PRE_CLOSE_EVENT: &str = "mainWindowPreClose";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -63,7 +65,8 @@ pub fn run() {
                 if window.label() == MAIN_WINDOW_LABEL && // Is main window
                     window.app_handle().webview_windows().len() > 1 { // Is not the only window
 
-                    window.minimize().unwrap(); // Minimize main window
+                    // window.minimize().unwrap(); // Minimize main window
+                    window.app_handle().emit(MAIN_WINDOW_PRE_CLOSE_EVENT, MAIN_WINDOW_LABEL).unwrap(); // Trigger an event for frontend to handle
                     api.prevent_close(); // And prevent close
                 }
             }

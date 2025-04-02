@@ -19,6 +19,7 @@ const UnlockModal = ({ isOpen, close, successMessage }: UnlockModalProps) => {
   }
 
   const form = useForm<UnlockForm>({
+    mode: "uncontrolled",
     initialValues: {
       password: "",
     },

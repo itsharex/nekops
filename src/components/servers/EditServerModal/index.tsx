@@ -6,7 +6,6 @@ import {
   Group,
   Modal,
   Stepper,
-  Text,
   Title,
 } from "@mantine/core";
 import { defaultServer, type Server } from "@/types/server.ts";
@@ -62,6 +61,8 @@ const EditServerModal = ({
     setActiveStep((current) => (current > 0 ? current - 1 : current));
 
   const form = useForm<Server>({
+    mode: "uncontrolled",
+
     initialValues: defaultServer,
 
     validate: {

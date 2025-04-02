@@ -277,7 +277,9 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
   return (
     <Card withBorder p="md" radius="md">
       <Title c="dimmed" order={3} size="h5" fw={700}>
-        {isExpand ? "All servers" : `Top ${limit} valuable servers`}
+        {isExpand || servers.length <= limit
+          ? "All servers"
+          : `Top ${limit} valuable servers`}
       </Title>
 
       <Table mt="md">
@@ -308,7 +310,7 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
             </Table.Tr>
           ))}
         </Table.Tbody>
-        {!isExpand && (
+        {!isExpand && servers.length > limit && (
           <Table.Caption>
             <Divider
               variant="dotted"

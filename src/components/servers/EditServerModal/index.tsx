@@ -29,6 +29,7 @@ import ProductForm from "./forms/Product.tsx";
 import HardwareForm from "./forms/Hardware.tsx";
 import NetworksForm from "./forms/Networks.tsx";
 import AccessForm from "./forms/Access.tsx";
+import ServerCard from "@/components/ServerCard";
 
 const serverIDRegexp = /^\w+([-.]\w+)*$/;
 
@@ -159,7 +160,7 @@ const EditServerModal = ({
               </Stepper.Step>
               <Stepper.Completed>
                 <Flex direction="column" gap="md">
-                  <Text>All done!</Text>
+                  <ServerCard server={form.values} />
                   <Center>
                     <Button type="submit">Save</Button>
                   </Center>

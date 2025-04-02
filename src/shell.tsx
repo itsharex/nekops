@@ -1,8 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createTheme, MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import { ModalsProvider } from "@mantine/modals";
 
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import "@xterm/xterm/css/xterm.css";
 
 import "@/shell/style.css";
@@ -17,8 +20,11 @@ const theme = createTheme({
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <MantineProvider theme={theme}>
-      <ShellBackground />
-      <ShellTabs />
+      <Notifications />
+      <ModalsProvider>
+        <ShellBackground />
+        <ShellTabs />
+      </ModalsProvider>
     </MantineProvider>
   </React.StrictMode>,
 );

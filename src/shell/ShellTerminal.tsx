@@ -3,7 +3,7 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { Window } from "@tauri-apps/api/window";
 import type { ShellState } from "@/types/shellState.ts";
-import { LoadingOverlay } from "@mantine/core";
+import { LoadingOverlay, rem } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
 import { startSSH } from "@/shell/startSSH.ts";
@@ -11,9 +11,11 @@ import type { EventSendCommandByNoncePayload } from "@/events/payload.ts";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
 import { EventSendCommandByNonceName } from "@/events/name.ts";
+import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 
 interface ShellTerminalProps {
   nonce: string;
+  themeColor: string;
   server: AccessRegular;
   jumpServer?: AccessRegular;
   setShellState: (state: ShellState) => void;
@@ -21,12 +23,14 @@ interface ShellTerminalProps {
 }
 const ShellTerminal = ({
   nonce,
+  themeColor,
   server,
   jumpServer,
   setShellState,
   setNewMessage,
 }: ShellTerminalProps) => {
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
+  const terminalInstanceRef = useRef<Terminal | null>(null);
 
   const terminateSSH = useRef<(() => void) | null>(null);
 
@@ -50,6 +54,9 @@ const ShellTerminal = ({
       console.log("init", nonce);
       const terminal = new Terminal();
       const fitAddon = new FitAddon();
+
+      // Bind instance ref
+      terminalInstanceRef.current = terminal;
 
       // Apply size fit addon
       terminal.loadAddon(fitAddon);
@@ -111,6 +118,9 @@ const ShellTerminal = ({
           terminateSSH.current();
         }
 
+        // Clear instance ref
+        terminalInstanceRef.current = null;
+
         // Close terminal
         fitAddon?.dispose();
         terminal?.dispose();
@@ -130,11 +140,23 @@ const ShellTerminal = ({
         style={{
           height: "100%",
           opacity: isLoading ? 0 : 100,
+          borderLeftStyle: "solid",
+          borderLeftWidth: rem(16),
+          borderLeftColor: themeColor,
+        }}
+        onContextMenu={(ev) => {
+          ev.preventDefault();
+          if (terminalInstanceRef.current) {
+            copyOrPaste(terminalInstanceRef.current);
+          }
         }}
       />
       <LoadingOverlay
         visible={isLoading}
         overlayProps={{ radius: "sm", blur: 2 }}
+        onContextMenu={(ev) => {
+          ev.preventDefault();
+        }}
       />
     </div>
   );

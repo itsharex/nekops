@@ -20,6 +20,8 @@
         }
       ]
     },
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-text",
     "shell:allow-stdin-write",
     "shell:allow-kill"
   ],

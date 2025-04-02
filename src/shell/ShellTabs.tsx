@@ -6,6 +6,7 @@ import {
   Flex,
   Group,
   Modal,
+  rem,
   ScrollArea,
   Tabs,
   Text,
@@ -47,6 +48,9 @@ const ShellTab = ({ data, state, isNewMessage, close }: ShellTabProps) => (
   <Tabs.Tab
     value={data.nonce}
     color={data.color}
+    style={{
+      borderBottomWidth: rem(4),
+    }}
     leftSection={<TabStateIcon state={state} isNewMessage={isNewMessage} />}
     rightSection={
       <ActionIcon
@@ -83,6 +87,7 @@ const ShellPanel = ({
   <Tabs.Panel value={data.nonce} h="100%">
     <ShellTerminal
       nonce={data.nonce}
+      themeColor={data.color}
       server={data.access}
       jumpServer={data.jumpServer}
       setShellState={setShellState}

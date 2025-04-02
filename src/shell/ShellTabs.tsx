@@ -1,12 +1,8 @@
 import {
   ActionIcon,
   Box,
-  Button,
-  Center,
   Flex,
-  Group,
   List,
-  Modal,
   rem,
   ScrollArea,
   Tabs,
@@ -35,7 +31,7 @@ import type {
 } from "@/events/payload.ts";
 import { Window } from "@tauri-apps/api/window";
 import type { ShellState } from "@/types/shellState.ts";
-import { useDisclosure, useListState } from "@mantine/hooks";
+import { useListState } from "@mantine/hooks";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { modals } from "@mantine/modals";
@@ -97,43 +93,6 @@ const ShellPanel = ({
     />
   </Tabs.Panel>
 );
-
-interface TerminateConfirmModalProps {
-  open: boolean;
-  onClose: () => void;
-  itemName: string;
-  confirm: () => void;
-}
-const TerminateConfirmModal = ({
-  open,
-  onClose,
-  itemName,
-  confirm,
-}: TerminateConfirmModalProps) => {
-  return (
-    <Modal
-      title="Terminate confirmation"
-      opened={open}
-      onClose={onClose}
-      centered
-    >
-      <Text>Are you sure to terminate :</Text>
-      <Title order={3} my="md" c="red">
-        {itemName}
-      </Title>
-      <Center mt="lg">
-        <Group gap="sm">
-          <Button variant="default" color="gray" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button color="red" onClick={confirm}>
-            Confirm
-          </Button>
-        </Group>
-      </Center>
-    </Modal>
-  );
-};
 
 const ShellTabs = () => {
   // For components render
@@ -204,11 +163,6 @@ const ShellTabs = () => {
   };
 
   // Close (terminate) confirm
-  const [terminateConfirmIndex, setTerminateConfirmIndex] = useState(-1);
-  const [
-    isTerminateConfirmModalOpen,
-    { open: openTerminateConfirmModal, close: closeTerminateConfirmModal },
-  ] = useDisclosure(false);
   const doClose = (index: number) => {
     tabsDataHandlers.remove(index);
     tabsStateHandlers.remove(index);
@@ -221,8 +175,23 @@ const ShellTabs = () => {
     );
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
-        setTerminateConfirmIndex(index);
-        openTerminateConfirmModal();
+        modals.openConfirmModal({
+          title: "Terminate confirmation",
+          children: (
+            <>
+              <Text>Are you sure to terminate :</Text>
+              <Title order={3} my="md" c="red">
+                {tabsData[index].name}
+              </Title>
+            </>
+          ),
+          labels: { confirm: "Terminate", cancel: "Cancel" },
+          confirmProps: { color: "red" },
+          centered: true,
+          onConfirm: () => {
+            doClose(index);
+          },
+        });
       } else {
         doClose(index);
       }
@@ -441,21 +410,6 @@ const ShellTabs = () => {
           ))}
         </Box>
       </Tabs>
-
-      <TerminateConfirmModal
-        open={isTerminateConfirmModalOpen}
-        onClose={closeTerminateConfirmModal}
-        itemName={
-          terminateConfirmIndex > -1 && terminateConfirmIndex < tabsData.length
-            ? tabsData[terminateConfirmIndex].name
-            : ""
-        }
-        confirm={() => {
-          closeTerminateConfirmModal();
-          setTerminateConfirmIndex(-1);
-          doClose(terminateConfirmIndex);
-        }}
-      />
     </>
   );
 };

@@ -263,6 +263,17 @@ const ShellTabs = () => {
     Window.getCurrent().destroy(); // Ensure window close
   };
 
+  // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal
+  const tabsScrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
+    if (ev.deltaY !== 0 && !!tabsScrollerRef.current) {
+      console.log("scroll", ev.deltaY);
+      tabsScrollerRef.current.scrollBy({
+        left: ev.deltaY, // Convert vertical to horizontal, this is not an error
+      });
+    }
+  };
+
   useEffect(() => {
     const stopSSHWindowReadyPromise = listen<string>(
       EventRequestSSHWindowReadyName,
@@ -298,17 +309,6 @@ const ShellTabs = () => {
       })();
     };
   }, []);
-
-  // Convert vertical scroll (default mouse behavior) to horizontal
-  const tabsScrollerRef = useRef<HTMLDivElement | null>(null);
-  const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
-    if (ev.deltaY !== 0 && !!tabsScrollerRef.current) {
-      console.log("scroll", ev.deltaY);
-      tabsScrollerRef.current.scrollBy({
-        left: ev.deltaY, // Convert vertical to horizontal, this is not an error
-      });
-    }
-  };
 
   return (
     <>

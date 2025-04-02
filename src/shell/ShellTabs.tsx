@@ -3,8 +3,10 @@ import {
   Box,
   Button,
   Center,
+  Flex,
   Group,
   Modal,
+  ScrollArea,
   Tabs,
   Text,
   Title,
@@ -327,31 +329,35 @@ const ShellTabs = () => {
           <Droppable droppableId="shell-tabs" direction="horizontal">
             {(provided) => (
               <Tabs.List ref={provided.innerRef} {...provided.droppableProps}>
-                {tabsData.map((tabData, index) => (
-                  <Draggable
-                    key={tabData.nonce}
-                    draggableId={tabData.nonce}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        ref={provided.innerRef}
+                <ScrollArea>
+                  <Flex>
+                    {tabsData.map((tabData, index) => (
+                      <Draggable
+                        key={tabData.nonce}
+                        draggableId={tabData.nonce}
+                        index={index}
                       >
-                        <ShellTab
-                          data={tabData}
-                          close={() => {
-                            closeTab(tabData.nonce);
-                          }}
-                          state={tabsState[index]}
-                          isNewMessage={tabsNewMessage[index]}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
+                        {(provided) => (
+                          <div
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            ref={provided.innerRef}
+                          >
+                            <ShellTab
+                              data={tabData}
+                              close={() => {
+                                closeTab(tabData.nonce);
+                              }}
+                              state={tabsState[index]}
+                              isNewMessage={tabsNewMessage[index]}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </Flex>
+                </ScrollArea>
               </Tabs.List>
             )}
           </Droppable>

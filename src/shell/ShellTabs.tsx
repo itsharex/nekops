@@ -13,7 +13,7 @@ import { IconX } from "@tabler/icons-react";
 import ShellTerminal from "@/shell/ShellTerminal.tsx";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
-import type { WheelEvent } from "react";
+import type { MouseEvent, WheelEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   EventNewSSHName,
@@ -35,14 +35,22 @@ import { useListState } from "@mantine/hooks";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { modals } from "@mantine/modals";
+import ShellTabContextMenu from "@/shell/ShellTabContextMenu.tsx";
 
 interface ShellTabProps {
   data: SSHSingleServer;
   state?: ShellState;
   isNewMessage?: boolean;
   close: () => void;
+  onContextMenu: (ev: MouseEvent<HTMLButtonElement>) => void;
 }
-const ShellTab = ({ data, state, isNewMessage, close }: ShellTabProps) => (
+const ShellTab = ({
+  data,
+  state,
+  isNewMessage,
+  close,
+  onContextMenu,
+}: ShellTabProps) => (
   <Tabs.Tab
     value={data.nonce}
     color={data.color}
@@ -67,6 +75,7 @@ const ShellTab = ({ data, state, isNewMessage, close }: ShellTabProps) => (
     // style={{
     //   backgroundColor: "var(--mantine-color-body)", // Conflict with the hover highlight
     // }}
+    onContextMenu={onContextMenu}
   >
     {data.name}
   </Tabs.Tab>
@@ -315,6 +324,29 @@ const ShellTabs = () => {
     };
   }, []);
 
+  // Context menu
+  const [contextMenuPos, setContextMenuPos] = useState<{
+    x: number;
+    y: number;
+  }>({
+    x: 0,
+    y: 0,
+  });
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+
+  const currentSelectedTab = useRef<SSHSingleServer | null>(null);
+  const rightClickTab = (
+    ev: MouseEvent<HTMLButtonElement>,
+    server: SSHSingleServer,
+  ) => {
+    currentSelectedTab.current = server;
+    setContextMenuPos({
+      x: ev.clientX,
+      y: ev.clientY,
+    });
+    setIsContextMenuOpen(true);
+  };
+
   return (
     <>
       <Tabs
@@ -335,6 +367,7 @@ const ShellTabs = () => {
           }
         }}
         activateTabWithKeyboard={false}
+        onContextMenu={(ev) => ev.preventDefault()}
       >
         <DragDropContext
           onDragEnd={({ destination, source }) => {
@@ -376,6 +409,10 @@ const ShellTabs = () => {
                               }}
                               state={tabsState[index]}
                               isNewMessage={tabsNewMessage[index]}
+                              onContextMenu={(ev) => {
+                                ev.preventDefault();
+                                rightClickTab(ev, tabData);
+                              }}
                             />
                           </div>
                         )}
@@ -410,6 +447,17 @@ const ShellTabs = () => {
           ))}
         </Box>
       </Tabs>
+
+      <ShellTabContextMenu
+        isOpen={isContextMenuOpen}
+        setIsOpen={setIsContextMenuOpen}
+        pos={contextMenuPos}
+        onClickTerminate={() => {
+          if (currentSelectedTab.current) {
+            closeTab(currentSelectedTab.current.nonce);
+          }
+        }}
+      />
     </>
   );
 };

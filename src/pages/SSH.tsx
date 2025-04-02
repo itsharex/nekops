@@ -35,6 +35,16 @@ const SSHPage = () => {
     }
   };
 
+  // Context menu
+  const [sshContextMenuPos, setSSHContextMenuPos] = useState<{
+    x: number;
+    y: number;
+  }>({
+    x: 0,
+    y: 0,
+  });
+  const [isSSHContextMenuOpen, setIsSSHContextMenuOpen] = useState(false);
+
   const currentSelectedServer = useRef<Server | null>(null);
   const rightClickServerCard = (
     ev: MouseEvent<HTMLDivElement>,
@@ -51,15 +61,6 @@ const SSHPage = () => {
   // Search related
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearchInput] = useDebouncedValue(searchInput, 500);
-
-  const [sshContextMenuPos, setSSHContextMenuPos] = useState<{
-    x: number;
-    y: number;
-  }>({
-    x: 0,
-    y: 0,
-  });
-  const [isSSHContextMenuOpen, setIsSSHContextMenuOpen] = useState(false);
 
   return (
     <>

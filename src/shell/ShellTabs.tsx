@@ -15,6 +15,7 @@ import { IconX } from "@tabler/icons-react";
 import ShellTerminal from "@/shell/ShellTerminal.tsx";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
+import type { WheelEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   EventMainWindowDoCloseName,
@@ -293,6 +294,17 @@ const ShellTabs = () => {
     };
   }, []);
 
+  // Convert vertical scroll (default mouse behavior) to horizontal
+  const tabsScrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
+    if (ev.deltaY !== 0 && !!tabsScrollerRef.current) {
+      console.log("scroll", ev.deltaY);
+      tabsScrollerRef.current.scrollBy({
+        left: ev.deltaY, // Convert vertical to horizontal, this is not an error
+      });
+    }
+  };
+
   return (
     <>
       <Tabs
@@ -329,7 +341,11 @@ const ShellTabs = () => {
           <Droppable droppableId="shell-tabs" direction="horizontal">
             {(provided) => (
               <Tabs.List ref={provided.innerRef} {...provided.droppableProps}>
-                <ScrollArea>
+                <ScrollArea
+                  viewportRef={tabsScrollerRef}
+                  scrollbars="x"
+                  onWheel={scrollTabs}
+                >
                   <Flex>
                     {tabsData.map((tabData, index) => (
                       <Draggable

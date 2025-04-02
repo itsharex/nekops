@@ -10,11 +10,10 @@ export const openShellWindow = async () => {
   if (shellWindow === null) {
     // Open new
     shellWindow = new WebviewWindow(ShellWindowLabel, {
-      title: "Shell",
+      title: "Nekops Shell",
       url: "shell.html",
       width: 1200,
       height: 800,
-      decorations: false,
     });
   } else {
     // Bring back to focus

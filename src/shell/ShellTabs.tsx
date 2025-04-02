@@ -5,7 +5,6 @@ import {
   Center,
   Group,
   Modal,
-  rem,
   Tabs,
   Text,
   Title,
@@ -336,12 +335,7 @@ const ShellTabs = () => {
         >
           <Droppable droppableId="shell-tabs" direction="horizontal">
             {(provided) => (
-              <Tabs.List
-                pr={rem(40)}
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                data-tauri-drag-region
-              >
+              <Tabs.List ref={provided.innerRef} {...provided.droppableProps}>
                 {tabsData.map((tabData, index) => (
                   <Draggable
                     key={tabData.nonce}

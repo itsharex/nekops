@@ -200,18 +200,9 @@ const ShellTabs = () => {
     { open: openTerminateConfirmModal, close: closeTerminateConfirmModal },
   ] = useDisclosure(false);
   const doClose = (index: number) => {
-    const newTabsLength = tabsData.length - 1;
     tabsDataHandlers.remove(index);
     tabsStateHandlers.remove(index);
     tabsNewMessageHandlers.remove(index);
-
-    if (newTabsLength === 0) {
-      // After events emitted
-      requestIdleCallback(() => {
-        // Close window
-        Window.getCurrent().close();
-      });
-    }
   };
 
   const closeTab = (nonce: string) => {

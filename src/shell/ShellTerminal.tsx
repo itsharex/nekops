@@ -10,7 +10,10 @@ import { startSSH } from "@/shell/startSSH.ts";
 import type { EventSendCommandByNoncePayload } from "@/events/payload.ts";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
-import { EventSendCommandByNonceName } from "@/events/name.ts";
+import {
+  EventSendCommandByNonceName,
+  EventShellSelectAllByNonceName,
+} from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 
 interface ShellTerminalProps {
@@ -102,6 +105,17 @@ const ShellTerminal = ({
           sendCommandByNonceListener,
         );
 
+      // Listen to select all event
+      const shellSelectAllByNonceListener = (ev: Event<string>) => {
+        if (ev.payload === nonce) {
+          terminal.selectAll();
+        }
+      };
+      const stopShellSelectAllByNoncePromise = listen<string>(
+        EventShellSelectAllByNonceName,
+        shellSelectAllByNonceListener,
+      );
+
       return () => {
         // Stop event listeners
         (async () => {
@@ -111,6 +125,11 @@ const ShellTerminal = ({
         // Stop window resize listener
         (async () => {
           (await stopListenWindowResizeEvent)();
+        })();
+
+        // Stop shell select all by nonce listener
+        (async () => {
+          (await stopShellSelectAllByNoncePromise)();
         })();
 
         // Terminate SSH

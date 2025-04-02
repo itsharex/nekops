@@ -15,6 +15,9 @@ export const EventSendCommandByNonceName = "sendCommandByNonce";
 export const EventRequestTabsListName = "requestTabsList";
 export const EventResponseTabsListName = "responseTabsList";
 
+// Send special command to shell by nonce
+export const EventShellSelectAllByNonceName = "shellSelectAllByNonce";
+
 // Main window pre-close event
 export const EventMainWindowPreCloseName = "mainWindowPreClose";
 export const EventShellWindowPreCloseName = "shellWindowPreClose";

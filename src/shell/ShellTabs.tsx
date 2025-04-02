@@ -22,6 +22,7 @@ import {
   EventResponseSSHWindowReadyName,
   EventResponseTabsListName,
   EventSetActiveTabByNonceName,
+  EventShellSelectAllByNonceName,
   EventShellWindowPreCloseName,
 } from "@/events/name.ts";
 import type {
@@ -455,6 +456,14 @@ const ShellTabs = () => {
         onClickTerminate={() => {
           if (currentSelectedTab.current) {
             closeTab(currentSelectedTab.current.nonce);
+          }
+        }}
+        onClickSelectAll={() => {
+          if (currentSelectedTab.current) {
+            emit(
+              EventShellSelectAllByNonceName,
+              currentSelectedTab.current.nonce,
+            );
           }
         }}
       />

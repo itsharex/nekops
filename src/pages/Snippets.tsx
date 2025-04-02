@@ -17,7 +17,7 @@ import {
 import { searchSnippets } from "@/search/snippets.ts";
 import SearchBar from "@/components/SearchBar.tsx";
 import { actionIconStyle } from "@/common/actionStyles.ts";
-import SnippetTable from "@/components/snippets/SnippetTable.tsx";
+import SnippetTable from "@/components/snippets/SnippetTable";
 import { notifications } from "@mantine/notifications";
 
 const SnippetsPage = () => {

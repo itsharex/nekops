@@ -28,7 +28,7 @@ import SearchBar from "@/components/SearchBar.tsx";
 import { actionIconStyle } from "@/common/actionStyles.ts";
 import { encryptServer } from "@/slices/encryptionSlice.ts";
 import { notifications } from "@mantine/notifications";
-import ServerTable from "@/components/servers/ServerTable.tsx";
+import ServerTable from "@/components/servers/ServerTable";
 
 // const passwordUnchanged = "keep-unchanged";
 

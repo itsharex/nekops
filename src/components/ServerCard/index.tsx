@@ -3,7 +3,7 @@ import { useHover } from "@mantine/hooks";
 
 import type { ServerCardProps } from "@/components/ServerCard/props.ts";
 
-import Inner from "./inner.tsx";
+import Inner from "./Inner.tsx";
 import { memo } from "react";
 
 const Wrapper = ({ server, onClick, onContextMenu }: ServerCardProps) => {

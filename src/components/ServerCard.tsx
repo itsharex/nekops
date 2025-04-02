@@ -19,6 +19,7 @@ import CPU from "@/icons/CPU.tsx";
 import RAM from "@/icons/RAM.tsx";
 import SSD from "@/icons/SSD.tsx";
 import Ethernet from "@/icons/Ethernet.tsx";
+import Twemoji from "@/components/Twemoji";
 
 interface ServerCardProps {
   server: Server;
@@ -103,7 +104,7 @@ const ServerCard = ({ server, onClick, onContextMenu }: ServerCardProps) => {
         <Flex direction="column" gap="xs">
           <Group>
             <Title order={2} size="h1">
-              {server.name}
+              <Twemoji content={server.name} />
             </Title>
             <Tooltip label={server.id}>
               <Badge color={server.color}>{server.id.split(".")?.[0]}</Badge>

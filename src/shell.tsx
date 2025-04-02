@@ -10,7 +10,7 @@ import "@xterm/xterm/css/xterm.css";
 
 import "@/shell/style.css";
 
-import ShellTabs from "@/shell/ShellTabs.tsx";
+import ShellTabs from "@/shell/ShellTabs";
 import ShellBackground from "@/shell/ShellBackground.tsx";
 
 const theme = createTheme({

@@ -356,7 +356,7 @@ const ShellTabs = () => {
         h="100%"
         w="100%"
         display="flex"
-        pos="absolute"
+        pos="fixed"
         style={{
           flexDirection: "column",
         }}

@@ -255,7 +255,7 @@ const ShellTabs = () => {
   const tabsScrollerRef = useRef<HTMLDivElement | null>(null);
   const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
     if (ev.deltaY !== 0 && !!tabsScrollerRef.current) {
-      console.log("scroll", ev.deltaY);
+      // console.log("scroll", ev.deltaY);
       tabsScrollerRef.current.scrollBy({
         left: ev.deltaY, // Convert vertical to horizontal, this is not an error
       });

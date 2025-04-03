@@ -27,7 +27,7 @@ export const startSSH = (
   }
   sshArgs.push(`${server.user || "root"}@${server.address}`);
 
-  console.log("Args", sshArgs.join(" "));
+  // console.log("Args", sshArgs.join(" "));
 
   // Pipe message from ssh to terminal
   const sshCommand = Command.create("exec-ssh", sshArgs, {
@@ -69,7 +69,7 @@ export const startSSH = (
 
   // Start SSH process
   sshCommand.spawn().then((sshProcess) => {
-    console.log(sshProcess);
+    // console.log(sshProcess);
 
     // Pipe input from terminal to ssh
     terminal.onData((data) => {

@@ -81,7 +81,7 @@ const ShellTerminal = ({
   // Mount hooks
   useEffect(() => {
     if (terminalElementRef.current) {
-      console.log("init", nonce); // debug log
+      // console.log("init", nonce); // debug log
 
       // Initialize terminal
       const terminal = new Terminal();
@@ -174,7 +174,7 @@ const ShellTerminal = ({
         fitAddon?.dispose();
         terminal?.dispose();
 
-        console.log("terminate", nonce); // debug log
+        // console.log("terminate", nonce); // debug log
       };
     }
   }, []);

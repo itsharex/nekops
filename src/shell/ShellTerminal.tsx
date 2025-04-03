@@ -15,6 +15,7 @@ import {
   EventShellSelectAllByNonceName,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
+import { useThrottledCallback } from "@mantine/hooks";
 
 interface ShellTerminalProps {
   nonce: string;
@@ -23,6 +24,7 @@ interface ShellTerminalProps {
   jumpServer?: AccessRegular;
   setShellState: (state: ShellState) => void;
   setNewMessage: () => void;
+  isActive: boolean;
 }
 const ShellTerminal = ({
   nonce,
@@ -31,13 +33,18 @@ const ShellTerminal = ({
   jumpServer,
   setShellState,
   setNewMessage,
+  isActive,
 }: ShellTerminalProps) => {
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
+
   const terminalInstanceRef = useRef<Terminal | null>(null);
+  const fitAddonInstanceRef = useRef<FitAddon | null>(null);
 
   const terminateSSH = useRef<(() => void) | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const isPendingFit = useRef(false);
 
   const stateUpdateOnNewMessage = () => {
     if (isLoading) {
@@ -51,6 +58,25 @@ const ShellTerminal = ({
     terminateSSH.current = func;
   };
 
+  // Use throttle to reduce resource consumption on re-rendering
+  const throttledFit = useThrottledCallback(() => {
+    if (isActive) {
+      // Fit now
+      fitAddonInstanceRef.current?.fit();
+    } else if (!isPendingFit.current) {
+      // Scheduled to fit later
+      isPendingFit.current = true;
+    }
+  }, 200);
+
+  // Fit when become active
+  useEffect(() => {
+    if (isActive && isPendingFit.current) {
+      fitAddonInstanceRef.current?.fit();
+      isPendingFit.current = false;
+    }
+  }, [isActive]);
+
   // Mount hooks
   useEffect(() => {
     if (terminalElementRef.current) {
@@ -60,6 +86,7 @@ const ShellTerminal = ({
 
       // Bind instance ref
       terminalInstanceRef.current = terminal;
+      fitAddonInstanceRef.current = fitAddon;
 
       // Apply size fit addon
       terminal.loadAddon(fitAddon);
@@ -68,9 +95,7 @@ const ShellTerminal = ({
 
       // Hook window resize event
       const currentWindow = Window.getCurrent();
-      const stopListenWindowResizeEvent = currentWindow.onResized(() => {
-        fitAddon.fit();
-      });
+      const stopListenWindowResizeEvent = currentWindow.onResized(throttledFit);
 
       if (
         server.user === "Candinya" &&
@@ -139,6 +164,7 @@ const ShellTerminal = ({
 
         // Clear instance ref
         terminalInstanceRef.current = null;
+        fitAddonInstanceRef.current = null;
 
         // Close terminal
         fitAddon?.dispose();

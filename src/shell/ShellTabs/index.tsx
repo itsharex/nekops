@@ -417,6 +417,7 @@ const ShellTabs = () => {
               setNewMessage={() => {
                 setTabNewMessageState(tabData.nonce);
               }}
+              isActive={currentActiveTab === tabData.nonce}
             />
           ))}
         </Box>

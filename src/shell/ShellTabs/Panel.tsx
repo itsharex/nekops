@@ -7,11 +7,13 @@ interface ShellPanelProps {
   data: SSHSingleServer;
   setShellState: (state: ShellState) => void;
   setNewMessage: () => void;
+  isActive: boolean;
 }
 const ShellPanel = ({
   data,
   setShellState,
   setNewMessage,
+  isActive,
 }: ShellPanelProps) => (
   <Tabs.Panel value={data.nonce} h="100%">
     <ShellTerminal
@@ -21,6 +23,7 @@ const ShellPanel = ({
       jumpServer={data.jumpServer}
       setShellState={setShellState}
       setNewMessage={setNewMessage}
+      isActive={isActive}
     />
   </Tabs.Panel>
 );

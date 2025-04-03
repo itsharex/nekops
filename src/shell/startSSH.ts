@@ -75,6 +75,9 @@ export const startSSH = (
     terminal.onData((data) => {
       sshProcess.write(data);
     });
+    terminal.onBinary((data) => {
+      sshProcess.write(data);
+    });
 
     // Terminate when close
     setTerminateSSHFunc(sshProcess.kill);

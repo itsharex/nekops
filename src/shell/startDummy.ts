@@ -4,13 +4,9 @@ import type { ShellState } from "@/types/shellState.ts";
 export const startDummy = (
   nonce: string,
   terminal: Terminal,
-  setIsLoading: (state: boolean) => void,
+  stateUpdateOnNewMessage: () => void,
   setShellState: (state: ShellState) => void,
-  setNewMessage: () => void,
 ) => {
-  setIsLoading(true);
-  setShellState("loading");
-
   let commandBuf = "";
   let isTerminated: boolean = false;
 
@@ -58,7 +54,7 @@ export const startDummy = (
           // New Message
           setTimeout(() => {
             terminal.writeln(`New message arrived`);
-            setNewMessage();
+            stateUpdateOnNewMessage();
           }, messageTimeout * 1000);
           break;
         case "help":
@@ -124,8 +120,7 @@ export const startDummy = (
 
   // Loading
   setTimeout(() => {
-    setIsLoading(false);
-    setShellState("active");
+    stateUpdateOnNewMessage();
 
     terminal.writeln(`Start with nonce \x1B[1;3;31m${nonce}\x1B[0m`);
 
@@ -140,7 +135,6 @@ export const startDummy = (
     terminal.writeln("                      |_|        ");
     terminal.writeln("");
 
-    terminal.focus();
     prompt();
   }, 3_000);
 };

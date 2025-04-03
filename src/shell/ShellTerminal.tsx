@@ -46,15 +46,6 @@ const ShellTerminal = ({
 
   const isPendingFit = useRef(false);
 
-  const stateUpdateOnNewMessage = () => {
-    if (isLoading) {
-      setIsLoading(false);
-      setShellState("active");
-      fitAddonInstanceRef.current?.fit(); // Initialize fit
-    }
-    setNewMessage();
-  };
-
   const setTerminateSSHFunc = (func: (() => void) | null) => {
     terminateSSH.current = func;
   };
@@ -69,6 +60,15 @@ const ShellTerminal = ({
       isPendingFit.current = true;
     }
   }, 200);
+
+  const stateUpdateOnNewMessage = () => {
+    if (isLoading) {
+      setIsLoading(false);
+      setShellState("active");
+      throttledFit(); // Initialize fit
+    }
+    setNewMessage();
+  };
 
   // Fit when become active
   useEffect(() => {
@@ -107,7 +107,7 @@ const ShellTerminal = ({
         server.port === 0
       ) {
         // Start debug dummy server
-        startDummy(nonce, terminal, setIsLoading, setShellState, setNewMessage);
+        startDummy(nonce, terminal, stateUpdateOnNewMessage, setShellState);
       } else {
         // Start normal server
         startSSH(

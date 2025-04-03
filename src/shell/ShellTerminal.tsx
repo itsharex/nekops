@@ -50,6 +50,7 @@ const ShellTerminal = ({
     if (isLoading) {
       setIsLoading(false);
       setShellState("active");
+      fitAddonInstanceRef.current?.fit(); // Initialize fit
     }
     setNewMessage();
   };
@@ -80,7 +81,9 @@ const ShellTerminal = ({
   // Mount hooks
   useEffect(() => {
     if (terminalElementRef.current) {
-      console.log("init", nonce);
+      console.log("init", nonce); // debug log
+
+      // Initialize terminal
       const terminal = new Terminal();
       const fitAddon = new FitAddon();
 
@@ -90,8 +93,9 @@ const ShellTerminal = ({
 
       // Apply size fit addon
       terminal.loadAddon(fitAddon);
+
+      // Initialize element
       terminal.open(terminalElementRef.current);
-      fitAddon.fit();
 
       // Hook window resize event
       const currentWindow = Window.getCurrent();
@@ -170,7 +174,7 @@ const ShellTerminal = ({
         fitAddon?.dispose();
         terminal?.dispose();
 
-        console.log("terminate", nonce);
+        console.log("terminate", nonce); // debug log
       };
     }
   }, []);

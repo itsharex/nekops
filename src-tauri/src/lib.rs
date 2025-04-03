@@ -17,6 +17,12 @@ fn keyboard_text(text: &str) {
     enigo.text(text).unwrap();
 }
 
+#[tauri::command]
+fn set_ssh_size(pid: u64, cols: u16, rows: u16) {
+    println!("Set ssh size: pid {pid} cols {cols} rows {rows}");
+//     TODO
+}
+
 const MAIN_WINDOW_LABEL: &str = "main";
 const SHELL_WINDOW_LABEL: &str = "nekopshell";
 
@@ -61,6 +67,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![keyboard_text])
+        .invoke_handler(tauri::generate_handler![set_ssh_size])
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let window_label = window.label();

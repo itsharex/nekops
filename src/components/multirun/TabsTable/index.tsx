@@ -1,65 +1,10 @@
-import { Checkbox, rem, Table } from "@mantine/core";
-import { actionRowStyle } from "@/common/actionStyles.ts";
-import type {
-  EventResponseTabsListPayload,
-  EventResponseTabsListPayloadSingleTab,
-} from "@/events/payload.ts";
-import TabStateIcon from "@/components/TabStateIcon.tsx";
+import { Table } from "@mantine/core";
+import { memo } from "react";
 
-interface TabsTableHeadProps {
-  selectedState: "all" | "partial" | "none";
-  selectAll: (state: boolean) => void;
-}
-const TabsTableHead = ({ selectedState, selectAll }: TabsTableHeadProps) => {
-  return (
-    <Table.Tr>
-      <Table.Th style={{ width: rem(40) }}>
-        <Checkbox
-          checked={selectedState === "all"}
-          indeterminate={selectedState === "partial"}
-          onChange={(ev) => selectAll(ev.currentTarget.checked)}
-        />
-      </Table.Th>
-      <Table.Th>Server Name</Table.Th>
-      <Table.Th style={actionRowStyle(1)}>State</Table.Th>
-    </Table.Tr>
-  );
-};
+import type { EventResponseTabsListPayload } from "@/events/payload.ts";
 
-interface TabsTableRowProps {
-  tab: EventResponseTabsListPayloadSingleTab;
-  show: () => void;
-  isSelected: boolean;
-  setIsSelected: (state: boolean) => void;
-  isCurrentActive: boolean;
-}
-const TabsTableRow = ({
-  tab,
-  show,
-  isSelected,
-  setIsSelected,
-  isCurrentActive,
-}: TabsTableRowProps) => (
-  <Table.Tr
-    onClick={show}
-    style={{
-      cursor: "pointer",
-      backgroundColor: isCurrentActive ? "var(--table-hover-color)" : undefined,
-    }}
-  >
-    <Table.Td>
-      <Checkbox
-        checked={isSelected}
-        onChange={(ev) => setIsSelected(ev.currentTarget.checked)}
-        color={tab.server.color}
-      />
-    </Table.Td>
-    <Table.Td>{tab.server.name}</Table.Td>
-    <Table.Td ta="center">
-      <TabStateIcon state={tab.state} isNewMessage={tab.isNewMessage} />
-    </Table.Td>
-  </Table.Tr>
-);
+import TabsTableHead from "./Head.tsx";
+import TabsTableRow from "./Row.tsx";
 
 interface TabsTableProps {
   tabs: EventResponseTabsListPayload;
@@ -134,4 +79,4 @@ const TabsTable = ({
   </Table>
 );
 
-export default TabsTable;
+export default memo(TabsTable);

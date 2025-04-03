@@ -1,6 +1,6 @@
 import { ActionIcon, Box, MantineColor, Text, Tooltip } from "@mantine/core";
 import { actionIconStyle } from "@/common/actionStyles.ts";
-import type { ReactNode } from "react";
+import { memo, ReactNode } from "react";
 
 interface SwitchButtonProps {
   isEnabled: boolean;
@@ -40,4 +40,4 @@ const SwitchButton = ({
   </Tooltip>
 );
 
-export default SwitchButton;
+export default memo(SwitchButton);

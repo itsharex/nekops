@@ -1,28 +1,9 @@
 import { Table } from "@mantine/core";
 import type { Snippet } from "@/types/snippet.ts";
+import { memo } from "react";
 
-const SnippetsTableHead = () => (
-  <Table.Tr>
-    <Table.Th>Snippet Name</Table.Th>
-    <Table.Th>Tags</Table.Th>
-  </Table.Tr>
-);
-
-interface SnippetsTableRowProps {
-  snippet: Snippet;
-  show: () => void;
-}
-const SnippetsTableRow = ({ snippet, show }: SnippetsTableRowProps) => (
-  <Table.Tr
-    onClick={show}
-    style={{
-      cursor: "pointer",
-    }}
-  >
-    <Table.Td>{snippet.name}</Table.Td>
-    <Table.Td>{snippet.tags.join(", ")}</Table.Td>
-  </Table.Tr>
-);
+import SnippetsTableHead from "./Head.tsx";
+import SnippetsTableRow from "./Row.tsx";
 
 interface SnippetsTableProps {
   snippets: Snippet[];
@@ -54,4 +35,4 @@ const SnippetsTable = ({ snippets, show }: SnippetsTableProps) => (
   </Table>
 );
 
-export default SnippetsTable;
+export default memo(SnippetsTable);

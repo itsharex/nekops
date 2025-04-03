@@ -1,16 +1,11 @@
-import {
-  ActionIconGroup,
-  Button,
-  Flex,
-  HoverCard,
-  ScrollArea,
-  SimpleGrid,
-  ThemeIcon,
-} from "@mantine/core";
+import { Flex, ScrollArea, SimpleGrid } from "@mantine/core";
 import { useEffect, useState } from "react";
-import TabsTable from "@/components/multirun/TabsTable.tsx";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
+import { useSelector } from "react-redux";
+import { notifications } from "@mantine/notifications";
+import { getHotkeyHandler } from "@mantine/hooks";
+
 import {
   EventRequestTabsListName,
   EventResponseTabsListName,
@@ -21,22 +16,13 @@ import type {
   EventResponseTabsListPayload,
   EventSendCommandByNoncePayload,
 } from "@/events/payload.ts";
-import {
-  IconInputCheck,
-  IconSend,
-  IconTrash,
-  IconWand,
-} from "@tabler/icons-react";
-import { useSelector } from "react-redux";
 import type { RootState } from "@/store.ts";
-import SnippetsTable from "@/components/multirun/SnippetsTable.tsx";
-import { notifications } from "@mantine/notifications";
-import { SpecialCharsMapping } from "@/components/multirun/specialCharsMapping.ts";
-import { actionIconStyle } from "@/common/actionStyles.ts";
-import SpecialCharsTable from "@/components/multirun/SpecialCharsTable.tsx";
+
+import TabsTable from "@/components/multirun/TabsTable";
+import SnippetsTable from "@/components/multirun/SnippetsTable";
+import { SpecialCharsMapping } from "@/components/multirun/ActionsBar/specialCharsMapping.ts";
 import CodeHighlightEditor from "@/components/CodeHighlightEditor";
-import { getHotkeyHandler } from "@mantine/hooks";
-import SwitchButton from "@/components/multirun/SwitchButton.tsx";
+import ActionsBar from "@/components/multirun/ActionsBar";
 
 const MultirunPage = () => {
   const snippets = useSelector((state: RootState) => state.snippets);
@@ -161,55 +147,15 @@ const MultirunPage = () => {
             onKeyDown={getHotkeyHandler([["mod+Enter", sendCommand]])}
           />
 
-          <Flex direction="row" w="100%" gap="md" align="center">
-            {/*Special chars*/}
-            <HoverCard position="left-end" withArrow arrowPosition="center">
-              <HoverCard.Target>
-                <ThemeIcon>
-                  <IconWand style={actionIconStyle} />
-                </ThemeIcon>
-              </HoverCard.Target>
-              <HoverCard.Dropdown>
-                <SpecialCharsTable append={appendCode} />
-              </HoverCard.Dropdown>
-            </HoverCard>
-
-            {/*Additional options*/}
-            <ActionIconGroup>
-              {/*Add additional enter*/}
-              <SwitchButton
-                isEnabled={isAddAdditionalEnterEnabled}
-                setIsEnabled={setIsAddAdditionalEnterEnabled}
-                description={
-                  <>
-                    Add additional enter to <br />
-                    the end of command (if not present)
-                  </>
-                }
-                color={"yellow"}
-                icon={IconInputCheck}
-              />
-
-              {/*Clear command input after send*/}
-              <SwitchButton
-                isEnabled={isClearCommandInputEnabled}
-                setIsEnabled={setIsClearCommandInputEnabled}
-                description={<>Clear command input after send</>}
-                color={"red"}
-                icon={IconTrash}
-              />
-            </ActionIconGroup>
-
-            {/*Send*/}
-            <Button
-              fullWidth
-              leftSection={<IconSend size={16} />}
-              onClick={sendCommand}
-              disabled={selectedTabsNonce.length === 0}
-            >
-              Send
-            </Button>
-          </Flex>
+          <ActionsBar
+            appendCode={appendCode}
+            isAddAdditionalEnterEnabled={isAddAdditionalEnterEnabled}
+            setIsAddAdditionalEnterEnabled={setIsAddAdditionalEnterEnabled}
+            isClearCommandInputEnabled={isClearCommandInputEnabled}
+            setIsClearCommandInputEnabled={setIsClearCommandInputEnabled}
+            sendCommand={sendCommand}
+            isSendDisabled={selectedTabsNonce.length === 0}
+          />
         </Flex>
       </SimpleGrid>
     </>

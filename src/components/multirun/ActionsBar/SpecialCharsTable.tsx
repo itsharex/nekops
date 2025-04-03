@@ -1,5 +1,7 @@
 import { Table } from "@mantine/core";
-import { SpecialCharsMapping } from "@/components/multirun/specialCharsMapping.ts";
+import { memo } from "react";
+
+import { SpecialCharsMapping } from "./specialCharsMapping.ts";
 
 interface SpecialCharsTableProps {
   append: (data: string) => void;
@@ -29,4 +31,4 @@ const SpecialCharsTable = ({ append }: SpecialCharsTableProps) => (
   </Table>
 );
 
-export default SpecialCharsTable;
+export default memo(SpecialCharsTable);

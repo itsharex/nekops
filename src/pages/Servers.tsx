@@ -6,7 +6,7 @@ import {
   ScrollArea,
   Tooltip,
 } from "@mantine/core";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -112,7 +112,6 @@ const ServersPage = () => {
 
   // Search related
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearchInput] = useDebouncedValue(searchInput, 500);
 
   // Autofill related
   const knownTags = useRef<string[]>([]);
@@ -156,9 +155,7 @@ const ServersPage = () => {
           <Flex direction="row" justify="space-between" gap="lg">
             <SearchBar
               placeholder="Search servers"
-              searchInput={searchInput}
               setSearchInput={setSearchInput}
-              debouncedSearchInput={debouncedSearchInput}
             />
 
             <Tooltip label="New server" openDelay={500}>
@@ -179,7 +176,7 @@ const ServersPage = () => {
         {/*Server Table*/}
         <ScrollArea>
           <ServerTable
-            servers={searchServers(debouncedSearchInput, servers)}
+            servers={searchServers(searchInput, servers)}
             show={(server) => {
               setActiveServer(server);
               openServerCardModal();
@@ -190,7 +187,7 @@ const ServersPage = () => {
             }}
             del={del}
             reorder={reorder}
-            isSearching={debouncedSearchInput !== ""}
+            isSearching={searchInput !== ""}
           />
         </ScrollArea>
       </Flex>

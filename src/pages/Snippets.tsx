@@ -1,5 +1,5 @@
 import { ActionIcon, Box, Flex, ScrollArea, Tooltip } from "@mantine/core";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -95,7 +95,6 @@ const SnippetsPage = () => {
   };
 
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearchInput] = useDebouncedValue(searchInput, 500);
 
   return (
     <>
@@ -105,9 +104,7 @@ const SnippetsPage = () => {
           <Flex direction="row" justify="space-between" gap="lg">
             <SearchBar
               placeholder="Search snippets"
-              searchInput={searchInput}
               setSearchInput={setSearchInput}
-              debouncedSearchInput={debouncedSearchInput}
             />
 
             <Tooltip label="New snippet" openDelay={500}>
@@ -128,14 +125,14 @@ const SnippetsPage = () => {
         {/*Snippet Table*/}
         <ScrollArea>
           <SnippetTable
-            snippets={searchSnippets(debouncedSearchInput, snippets)}
+            snippets={searchSnippets(searchInput, snippets)}
             edit={(snippet) => {
               setActiveSnippet(snippet);
               openEditSnippetModal();
             }}
             del={del}
             reorder={reorder}
-            isSearching={debouncedSearchInput !== ""}
+            isSearching={searchInput !== ""}
           />
         </ScrollArea>
       </Flex>

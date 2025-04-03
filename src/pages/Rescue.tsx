@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/store.ts";
 import SearchBar from "@/components/SearchBar.tsx";
 import { useState } from "react";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
 import { decryptServer } from "@/slices/encryptionSlice.ts";
@@ -74,7 +74,6 @@ const RescuePage = () => {
 
   // Search related
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearchInput] = useDebouncedValue(searchInput, 500);
 
   return (
     <>
@@ -89,9 +88,7 @@ const RescuePage = () => {
         <Box p="md">
           <SearchBar
             placeholder="Search servers"
-            searchInput={searchInput}
             setSearchInput={setSearchInput}
-            debouncedSearchInput={debouncedSearchInput}
             isAutoFocus={encryption.isUnlocked} // Only get autofocus when unlocked
           />
         </Box>
@@ -114,7 +111,7 @@ const RescuePage = () => {
           onClick={openUnlockModal}
         />
         <ServerCardsVirtualScroll
-          servers={searchServers(debouncedSearchInput, servers)}
+          servers={searchServers(searchInput, servers)}
           onClick={startRescue}
         />
       </Flex>

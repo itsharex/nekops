@@ -2,8 +2,8 @@ import { Box, Flex } from "@mantine/core";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store.ts";
 import SearchBar from "@/components/SearchBar.tsx";
-import { type MouseEvent, useMemo, useRef, useState } from "react";
-import { useDebouncedValue } from "@mantine/hooks";
+import type { MouseEvent } from "react";
+import { useMemo, useRef, useState } from "react";
 import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
 import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
@@ -60,7 +60,6 @@ const SSHPage = () => {
 
   // Search related
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearchInput] = useDebouncedValue(searchInput, 500);
 
   return (
     <>
@@ -74,16 +73,11 @@ const SSHPage = () => {
         <Box p="md">
           <SearchBar
             placeholder="Search servers"
-            searchInput={searchInput}
             setSearchInput={setSearchInput}
-            debouncedSearchInput={debouncedSearchInput}
           />
         </Box>
         <ServerCardsVirtualScroll
-          servers={searchServers(
-            debouncedSearchInput,
-            serversWithRegularAccess,
-          )}
+          servers={searchServers(searchInput, serversWithRegularAccess)}
           onClick={clickServerCard}
           onContextMenu={rightClickServerCard}
         />

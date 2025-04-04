@@ -245,10 +245,19 @@ const ShellTabs = () => {
       // Reversely
       doTerminate(i);
     }
-    requestIdleCallback(() => {
-      // Destroy window
-      Window.getCurrent().destroy();
-    });
+
+    // Destroy window
+    if (typeof requestIdleCallback !== "undefined") {
+      // Postpone destroy event to next tick so state can be updated
+      requestIdleCallback(() => {
+        Window.getCurrent().destroy();
+      });
+    } else {
+      // Poor Safari, only you don't support this feature now :(
+      setTimeout(() => {
+        Window.getCurrent().destroy();
+      }, 100);
+    }
   };
 
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal

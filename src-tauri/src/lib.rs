@@ -12,8 +12,8 @@ use windows::Win32::{
     },
 };
 
-// #[cfg(unix)]
-// use nix::sys::ioctl;
+#[cfg(unix)]
+use nix::libc::ioctl;
 
 /* Required by tauri_plugin_single_instance
 #[derive(Clone, serde::Serialize)]
@@ -66,13 +66,12 @@ fn set_ssh_size(pid: u32, row: i16, col: i16, width: i16, height: i16) {
 
 }
 
-// #[cfg(unix)]
-// #[tauri::command]
-// fn set_ssh_size(pid: u64, row: u16, col: u16, width: u16, height: u16) {
-//     println!("Set ssh size: pid {pid}, rows {row}, cols {col}, width {width}, height {height}");
-//     // ioctl_read!()
-//     // TODO
-// }
+#[cfg(unix)]
+#[tauri::command]
+fn set_ssh_size(pid: u64, row: u16, col: u16, width: u16, height: u16) {
+    println!("Set ssh size: pid {pid}, rows {row}, cols {col}, width {width}, height {height}");
+    // ioctl_write_ptr!();
+}
 
 const MAIN_WINDOW_LABEL: &str = "main";
 const SHELL_WINDOW_LABEL: &str = "nekopshell";

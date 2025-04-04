@@ -2152,6 +2152,7 @@ name = "nekops"
 version = "0.0.0"
 dependencies = [
  "enigo",
+ "nix 0.29.0",
  "serde",
  "serde_json",
  "tauri",

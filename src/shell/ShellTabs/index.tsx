@@ -79,7 +79,7 @@ const ShellTabs = () => {
   ]);
 
   // Event listeners
-  const newSSHEventListener = (ev: Event<EventNewSSHPayload>) => {
+  const newSSHEventHandler = (ev: Event<EventNewSSHPayload>) => {
     for (const server of ev.payload.server) {
       tabsDataHandlers.append(server);
       tabsStateHandlers.append("loading");
@@ -88,12 +88,12 @@ const ShellTabs = () => {
     }
   };
 
-  const setActiveTabByNonceListener = (ev: Event<string>) => {
+  const setActiveTabByNonceHandler = (ev: Event<string>) => {
     setCurrentActiveTab(ev.payload);
     clearTabNewMessageState(ev.payload);
   };
 
-  const requestTabsListListener = () => {
+  const requestTabsListHandler = () => {
     responseTabsList();
   };
 
@@ -209,7 +209,7 @@ const ShellTabs = () => {
     }
   };
 
-  const preClose = (ev: Event<boolean>) => {
+  const preCloseHandler = (ev: Event<boolean>) => {
     if (ev.payload || !tabsStateRef.current.some((s) => s === "active")) {
       // Force terminate or no active remain
       terminateAllAndExit();
@@ -273,37 +273,37 @@ const ShellTabs = () => {
   };
 
   useEffect(() => {
-    const stopSSHWindowReadyPromise = listen<string>(
+    const stopSSHWindowReadyListener = listen<string>(
       EventRequestSSHWindowReadyName,
       async (ev) => {
         await emit(EventResponseSSHWindowReadyName, ev.payload);
       },
     );
-    const stopSSHListenPromise = listen<EventNewSSHPayload>(
+    const stopSSHListenListener = listen<EventNewSSHPayload>(
       EventNewSSHName,
-      newSSHEventListener,
+      newSSHEventHandler,
     );
-    const stopSetActiveTabByNoncePromise = listen<string>(
+    const stopSetActiveTabByNonceListener = listen<string>(
       EventSetActiveTabByNonceName,
-      setActiveTabByNonceListener,
+      setActiveTabByNonceHandler,
     );
-    const stopRequestTabsListPromise = listen(
+    const stopRequestTabsListListener = listen(
       EventRequestTabsListName,
-      requestTabsListListener,
+      requestTabsListHandler,
     );
 
-    const stopShellWindowPreClosePromise = listen(
+    const stopShellWindowPreCloseListener = listen(
       EventShellWindowPreCloseName,
-      preClose,
+      preCloseHandler,
     );
 
     return () => {
       (async () => {
-        (await stopSSHWindowReadyPromise)();
-        (await stopSSHListenPromise)();
-        (await stopSetActiveTabByNoncePromise)();
-        (await stopRequestTabsListPromise)();
-        (await stopShellWindowPreClosePromise)();
+        (await stopSSHWindowReadyListener)();
+        (await stopSSHListenListener)();
+        (await stopSetActiveTabByNonceListener)();
+        (await stopRequestTabsListListener)();
+        (await stopShellWindowPreCloseListener)();
       })();
     };
   }, []);

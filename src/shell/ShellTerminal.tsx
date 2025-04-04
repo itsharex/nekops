@@ -100,7 +100,8 @@ const ShellTerminal = ({
 
       // Hook window resize event
       const currentWindow = Window.getCurrent();
-      const stopListenWindowResizeEvent = currentWindow.onResized(throttledFit);
+      const stopWindowResizeEventListener =
+        currentWindow.onResized(throttledFit);
 
       if (
         server.user === "Candinya" &&
@@ -122,31 +123,31 @@ const ShellTerminal = ({
       }
 
       // Listen to multirun commands
-      const sendCommandByNonceListener = (
+      const sendCommandByNonceHandler = (
         ev: Event<EventSendCommandByNoncePayload>,
       ) => {
         if (ev.payload.nonce.includes(nonce)) {
           terminal.input(ev.payload.command);
         }
       };
-      const stopSendCommandByNoncePromise =
+      const stopSendCommandByNonceListener =
         listen<EventSendCommandByNoncePayload>(
           EventSendCommandByNonceName,
-          sendCommandByNonceListener,
+          sendCommandByNonceHandler,
         );
 
       // Listen to select all event
-      const shellSelectAllByNonceListener = (ev: Event<string>) => {
+      const shellSelectAllByNonceHandler = (ev: Event<string>) => {
         if (ev.payload === nonce) {
           terminal.selectAll();
         }
       };
-      const stopShellSelectAllByNoncePromise = listen<string>(
+      const stopShellSelectAllByNonceListener = listen<string>(
         EventShellSelectAllByNonceName,
-        shellSelectAllByNonceListener,
+        shellSelectAllByNonceHandler,
       );
 
-      const shellSTTYFitByNonceListener = (ev: Event<string>) => {
+      const shellSTTYFitByNonceHandler = (ev: Event<string>) => {
         if (ev.payload === nonce) {
           terminal.input(
             `stty columns ${terminal.cols} rows ${terminal.rows}\n`,
@@ -156,26 +157,26 @@ const ShellTerminal = ({
       };
       const stopShellSTTYFitByNoncePromise = listen<string>(
         EventShellSTTYFitByNonceName,
-        shellSTTYFitByNonceListener,
+        shellSTTYFitByNonceHandler,
       );
 
       return () => {
-        // Stop event listeners
+        // Stop listen window resize event
         (async () => {
-          (await stopSendCommandByNoncePromise)();
+          (await stopWindowResizeEventListener)();
         })();
 
-        // Stop window resize listener
+        // Stop listen start event
         (async () => {
-          (await stopListenWindowResizeEvent)();
+          (await stopSendCommandByNonceListener)();
         })();
 
-        // Stop shell select all by nonce listener
+        // Stop listen shell select all by nonce event
         (async () => {
-          (await stopShellSelectAllByNoncePromise)();
+          (await stopShellSelectAllByNonceListener)();
         })();
 
-        // Stop shell fit stty by terminal size
+        // Stop listen shell fit stty by terminal size event
         (async () => {
           (await stopShellSTTYFitByNoncePromise)();
         })();

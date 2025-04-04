@@ -48,9 +48,7 @@ const MultirunPage = () => {
     emit(EventRequestTabsListName);
   };
 
-  const responseTabsListListener = (
-    ev: Event<EventResponseTabsListPayload>,
-  ) => {
+  const responseTabsListHandler = (ev: Event<EventResponseTabsListPayload>) => {
     setTabs(ev.payload);
   };
 
@@ -99,9 +97,9 @@ const MultirunPage = () => {
 
   useEffect(() => {
     // Prepare event listener for tabs update
-    const stopTabsListPromise = listen<EventResponseTabsListPayload>(
+    const stopTabsListListener = listen<EventResponseTabsListPayload>(
       EventResponseTabsListName,
-      responseTabsListListener,
+      responseTabsListHandler,
     );
 
     // Request for tabs list at startup
@@ -110,7 +108,7 @@ const MultirunPage = () => {
     // Stop listen before component (page) destroy
     return () => {
       (async () => {
-        (await stopTabsListPromise)();
+        (await stopTabsListListener)();
       })();
     };
   }, []);

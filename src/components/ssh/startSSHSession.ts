@@ -1,6 +1,6 @@
 import type { Server } from "@/types/server.ts";
 import { openShellWindow } from "@/utils/openShellWindow.ts";
-import { emit, listen } from "@tauri-apps/api/event";
+import { emit, once } from "@tauri-apps/api/event";
 import type { EventNewSSHPayload } from "@/events/payload.ts";
 import { notifications } from "@mantine/notifications";
 import {
@@ -29,7 +29,7 @@ export const startSSHSession = async (server: Server, jumpServer?: Server) => {
   const nonce = randomString(8);
 
   // Wait till window is ready
-  const isReadyListenerStopFn = await listen<string>(
+  const isReadyListenerStopFn = await once<string>(
     EventResponseSSHWindowReadyName,
     async (ev) => {
       if (ev.payload !== nonce) {

@@ -2,7 +2,6 @@ import { Terminal } from "@xterm/xterm";
 import type { AccessRegular } from "@/types/server.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 import type { ShellState } from "@/types/shellState.ts";
-import { invoke } from "@tauri-apps/api/core";
 
 export const startSSH = (
   terminal: Terminal,
@@ -81,31 +80,31 @@ export const startSSH = (
     });
 
     // Sync resize event
-    terminal.onResize(({ cols, rows }) => {
-      // Method 1: ANSI escape sequences
-      // sshProcess.write(`\x1B[8;${rows};${cols}t`); // Can't send as a whole
-      // sshProcess.write(`\e[8;${rows};${cols}t`); // Can't send as a whole
-      // terminal.input(`\x1B[8;${rows};${cols}t`, false); // Same issue as above
-      // terminal.input(`\e[8;${rows};${cols}t`, false); // Same issue as above
-      // terminal.write(`\x1B[8;${rows};${cols}t`); // Not working (local only maybe?)
-
-      // Method 2: stty command
-      // sshProcess.write(`stty columns ${cols} rows ${rows}\n`); // It works but is raw text input and will cause data corruption
-
-      // Method 3: SIGWINCH signal
-      // Since Windows OS doesn't have unix signal system, sending SIGWINCH to ssh process is only a platform-specific solution.
-
-      // Method 4: fcntl.ioctl TIOCSWINSZ
-
-      // Method 0: Let backend (rust) handle this :P
-      invoke("set_ssh_size", {
-        pid: sshProcess.pid,
-        row: rows,
-        col: cols,
-        width: terminal.element?.clientWidth || cols * 9,
-        height: terminal.element?.clientHeight || rows * 17,
-      });
-    });
+    // terminal.onResize(({ cols, rows }) => {
+    //   // Method 1: ANSI escape sequences
+    //   // sshProcess.write(`\x1B[8;${rows};${cols}t`); // Can't send as a whole
+    //   // sshProcess.write(`\e[8;${rows};${cols}t`); // Can't send as a whole
+    //   // terminal.input(`\x1B[8;${rows};${cols}t`, false); // Same issue as above
+    //   // terminal.input(`\e[8;${rows};${cols}t`, false); // Same issue as above
+    //   // terminal.write(`\x1B[8;${rows};${cols}t`); // Not working (local only maybe?)
+    //
+    //   // Method 2: stty command
+    //   // sshProcess.write(`stty columns ${cols} rows ${rows}\n`); // It works but is raw text input and will cause data corruption
+    //
+    //   // Method 3: SIGWINCH signal
+    //   // Since Windows OS doesn't have unix signal system, sending SIGWINCH to ssh process is only a platform-specific solution.
+    //
+    //   // Method 4: fcntl.ioctl TIOCSWINSZ
+    //
+    //   // Method 0: Let backend (rust) handle this :P
+    //   // invoke("set_ssh_size", {
+    //   //   pid: sshProcess.pid,
+    //   //   row: rows,
+    //   //   col: cols,
+    //   //   width: terminal.element?.clientWidth || cols * 9,
+    //   //   height: terminal.element?.clientHeight || rows * 17,
+    //   // });
+    // });
 
     // Terminate when close
     setTerminateSSHFunc(sshProcess.kill);

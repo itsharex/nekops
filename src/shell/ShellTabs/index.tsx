@@ -300,9 +300,21 @@ const ShellTabs = () => {
     return () => {
       (async () => {
         (await stopSSHWindowReadyListener)();
+      })();
+
+      (async () => {
         (await stopSSHListenListener)();
+      })();
+
+      (async () => {
         (await stopSetActiveTabByNonceListener)();
+      })();
+
+      (async () => {
         (await stopRequestTabsListListener)();
+      })();
+
+      (async () => {
         (await stopShellWindowPreCloseListener)();
       })();
     };

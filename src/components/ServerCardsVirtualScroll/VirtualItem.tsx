@@ -5,14 +5,15 @@ import { forwardRef, memo } from "react";
 import type { Server } from "@/types/server.ts";
 
 interface VirtualItemProps {
+  index: number;
   server: Server;
   onClick: (server: Server) => void;
   onContextMenu?: (ev: MouseEvent<HTMLDivElement>, server: Server) => void;
 }
 
 const VirtualItem = forwardRef<HTMLDivElement, VirtualItemProps>(
-  ({ server, onClick, onContextMenu }, ref) => (
-    <Box ref={ref} mx="md" mb="md">
+  ({ index, server, onClick, onContextMenu }, ref) => (
+    <Box ref={ref} mx="md" mb="md" data-index={index}>
       <ServerCard
         server={server}
         onClick={() => onClick(server)}

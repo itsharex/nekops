@@ -52,8 +52,8 @@ const ServerCardsVirtualScroll = ({
           {items.map((virtualItem, index) => (
             <VirtualItem
               key={virtualItem.key}
+              index={index}
               ref={rowVirtualizer.measureElement}
-              data-index={index}
               server={servers[virtualItem.index]}
               onClick={onClick}
               onContextMenu={onContextMenu}

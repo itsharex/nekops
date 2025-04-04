@@ -7,7 +7,6 @@
     "nekopshell"
   ],
   "permissions": [
-    "core:window:allow-start-dragging",
     "core:window:allow-destroy",
     {
       "identifier": "shell:allow-spawn",

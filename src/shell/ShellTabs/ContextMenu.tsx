@@ -1,5 +1,10 @@
 import { Menu } from "@mantine/core";
-import { IconCopyPlus, IconLinkOff, IconRotate } from "@tabler/icons-react";
+import {
+  IconArrowsMaximize,
+  IconCopyPlus,
+  IconLinkOff,
+  IconRotate,
+} from "@tabler/icons-react";
 import { menuIconStyle } from "@/common/actionStyles.ts";
 
 interface ShellTabContextMenuProps {
@@ -10,8 +15,9 @@ interface ShellTabContextMenuProps {
     y: number;
   };
 
-  onClickTerminate: () => void;
   onClickSelectAll: () => void;
+  onClickSTTYFit: () => void;
+  onClickTerminate: () => void;
   onClickReconnect: () => void;
 }
 const ShellTabContextMenu = ({
@@ -19,8 +25,9 @@ const ShellTabContextMenu = ({
   setIsOpen,
   pos,
 
-  onClickTerminate,
   onClickSelectAll,
+  onClickSTTYFit,
+  onClickTerminate,
   onClickReconnect,
 }: ShellTabContextMenuProps) => (
   <Menu opened={isOpen} onChange={setIsOpen} position="bottom-start">
@@ -36,20 +43,32 @@ const ShellTabContextMenu = ({
     <Menu.Dropdown>
       <Menu.Label>Shell Action</Menu.Label>
       <Menu.Item
-        leftSection={<IconLinkOff style={menuIconStyle} />}
-        onClick={onClickTerminate}
-      >
-        Terminate
-      </Menu.Item>
-      <Menu.Item
         leftSection={<IconCopyPlus style={menuIconStyle} />}
         onClick={onClickSelectAll}
       >
         Select All
       </Menu.Item>
       <Menu.Item
+        leftSection={<IconArrowsMaximize style={menuIconStyle} />}
+        onClick={onClickSTTYFit}
+      >
+        STTY Fit
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      <Menu.Label>Process Manage</Menu.Label>
+      <Menu.Item
+        leftSection={<IconLinkOff style={menuIconStyle} />}
+        onClick={onClickTerminate}
+        color="red"
+      >
+        Terminate
+      </Menu.Item>
+      <Menu.Item
         leftSection={<IconRotate style={menuIconStyle} />}
         onClick={onClickReconnect}
+        color="yellow"
       >
         Reconnect
       </Menu.Item>

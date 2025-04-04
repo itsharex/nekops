@@ -11,6 +11,7 @@ import {
   EventResponseTabsListName,
   EventSetActiveTabByNonceName,
   EventShellSelectAllByNonceName,
+  EventShellSTTYFitByNonceName,
   EventShellWindowPreCloseName,
 } from "@/events/name.ts";
 import type {
@@ -436,9 +437,12 @@ const ShellTabs = () => {
         isOpen={isContextMenuOpen}
         setIsOpen={setIsContextMenuOpen}
         pos={contextMenuPos}
-        onClickTerminate={() => {
+        onClickSTTYFit={() => {
           if (currentSelectedTab.current) {
-            terminateByNonce(currentSelectedTab.current.nonce);
+            emit(
+              EventShellSTTYFitByNonceName,
+              currentSelectedTab.current.nonce,
+            );
           }
         }}
         onClickSelectAll={() => {
@@ -447,6 +451,11 @@ const ShellTabs = () => {
               EventShellSelectAllByNonceName,
               currentSelectedTab.current.nonce,
             );
+          }
+        }}
+        onClickTerminate={() => {
+          if (currentSelectedTab.current) {
+            terminateByNonce(currentSelectedTab.current.nonce);
           }
         }}
         onClickReconnect={() => {

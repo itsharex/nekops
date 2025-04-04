@@ -13,6 +13,7 @@ import { listen } from "@tauri-apps/api/event";
 import {
   EventSendCommandByNonceName,
   EventShellSelectAllByNonceName,
+  EventShellSTTYFitByNonceName,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 import { useThrottledCallback } from "@mantine/hooks";
@@ -145,6 +146,19 @@ const ShellTerminal = ({
         shellSelectAllByNonceListener,
       );
 
+      const shellSTTYFitByNonceListener = (ev: Event<string>) => {
+        if (ev.payload === nonce) {
+          terminal.input(
+            `stty columns ${terminal.cols} rows ${terminal.rows}\n`,
+            false,
+          );
+        }
+      };
+      const stopShellSTTYFitByNoncePromise = listen<string>(
+        EventShellSTTYFitByNonceName,
+        shellSTTYFitByNonceListener,
+      );
+
       return () => {
         // Stop event listeners
         (async () => {
@@ -159,6 +173,11 @@ const ShellTerminal = ({
         // Stop shell select all by nonce listener
         (async () => {
           (await stopShellSelectAllByNoncePromise)();
+        })();
+
+        // Stop shell fit stty by terminal size
+        (async () => {
+          (await stopShellSTTYFitByNoncePromise)();
         })();
 
         // Terminate SSH

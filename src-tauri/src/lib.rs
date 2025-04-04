@@ -3,6 +3,15 @@ use enigo::{
     Enigo, Keyboard, Settings,
 };
 
+#[cfg(windows)]
+use windows::Win32::{
+    Foundation::{HANDLE},
+    System::{
+        Threading::GetCurrentProcess,
+        Console::{COORD, SetConsoleScreenBufferSize},
+    },
+};
+
 // #[cfg(unix)]
 // use nix::sys::ioctl;
 
@@ -20,17 +29,47 @@ fn keyboard_text(text: &str) {
     enigo.text(text).unwrap();
 }
 
-// #[cfg(windows)]
-// #[tauri::command]
-// fn set_ssh_size(pid: u64, row: u16, col: u16, x_pixel: u16, y_pixel: u16) {
-//     println!("Set ssh size: pid {pid}, rows {row}, cols {col}, x_pixel {x_pixel}, y_pixel {y_pixel}");
-//     // TODO
-// }
-//
+// Convert pid to handle
+//   Pids and handles are 2 different things - pid is only a property of handle,
+//   so there's no way to simply "convert pid to handle".
+//   The actual approach here is to query all child process from self (parent), then filter the
+//   process with specified pid and extract its handle.
+//   This only works on Windows system as we should be able to send signal directly to pid on unix.
+#[cfg(windows)]
+unsafe fn convert_pid_to_handle(pid: u32) -> Option<HANDLE> {
+    println!("Trying to find child process with pid {}", pid);
+
+    // Step 1: get current handle
+    let app_handle = GetCurrentProcess();
+
+    // Step 2: list child process to find any possible match
+    Some(app_handle) // THIS IS WRONG IMPLEMENTATION! ONLY TO PASS COMPILE! // TODO
+}
+
+#[cfg(windows)]
+#[tauri::command]
+fn set_ssh_size(pid: u32, row: i16, col: i16, width: i16, height: i16) {
+    println!("Set ssh size: pid {pid}, rows {row}, cols {col}, width {width}, height {height}");
+
+    unsafe {
+        let Some(handle) = convert_pid_to_handle(pid) else {
+            eprintln!("Error setting SSH size: no matching process");
+            return
+        };
+
+        let resize_res = SetConsoleScreenBufferSize(handle, COORD {X: row, Y: col});
+        match resize_res {
+            Ok(_) => {},
+            Err(error) => eprintln!("Error setting SSH size: {}", error),
+        }
+    }
+
+}
+
 // #[cfg(unix)]
 // #[tauri::command]
-// fn set_ssh_size(pid: u64, row: u16, col: u16, x_pixel: u16, y_pixel: u16) {
-//     println!("Set ssh size: pid {pid}, rows {row}, cols {col}, x_pixel {x_pixel}, y_pixel {y_pixel}");
+// fn set_ssh_size(pid: u64, row: u16, col: u16, width: u16, height: u16) {
+//     println!("Set ssh size: pid {pid}, rows {row}, cols {col}, width {width}, height {height}");
 //     // ioctl_read!()
 //     // TODO
 // }
@@ -79,7 +118,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![keyboard_text])
-        // .invoke_handler(tauri::generate_handler![set_ssh_size])
+        .invoke_handler(tauri::generate_handler![set_ssh_size])
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let window_label = window.label();

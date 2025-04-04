@@ -3,6 +3,9 @@ use enigo::{
     Enigo, Keyboard, Settings,
 };
 
+// #[cfg(unix)]
+// use nix::sys::ioctl;
+
 /* Required by tauri_plugin_single_instance
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -17,11 +20,20 @@ fn keyboard_text(text: &str) {
     enigo.text(text).unwrap();
 }
 
-#[tauri::command]
-fn set_ssh_size(pid: u64, cols: u16, rows: u16) {
-    println!("Set ssh size: pid {pid} cols {cols} rows {rows}");
-//     TODO
-}
+// #[cfg(windows)]
+// #[tauri::command]
+// fn set_ssh_size(pid: u64, row: u16, col: u16, x_pixel: u16, y_pixel: u16) {
+//     println!("Set ssh size: pid {pid}, rows {row}, cols {col}, x_pixel {x_pixel}, y_pixel {y_pixel}");
+//     // TODO
+// }
+//
+// #[cfg(unix)]
+// #[tauri::command]
+// fn set_ssh_size(pid: u64, row: u16, col: u16, x_pixel: u16, y_pixel: u16) {
+//     println!("Set ssh size: pid {pid}, rows {row}, cols {col}, x_pixel {x_pixel}, y_pixel {y_pixel}");
+//     // ioctl_read!()
+//     // TODO
+// }
 
 const MAIN_WINDOW_LABEL: &str = "main";
 const SHELL_WINDOW_LABEL: &str = "nekopshell";
@@ -67,7 +79,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![keyboard_text])
-        .invoke_handler(tauri::generate_handler![set_ssh_size])
+        // .invoke_handler(tauri::generate_handler![set_ssh_size])
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let window_label = window.label();

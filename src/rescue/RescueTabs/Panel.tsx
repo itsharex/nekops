@@ -17,7 +17,6 @@ const RescuePanel = ({
   <Tabs.Panel value={data.nonce} h="100%">
     <RescueTerminal
       nonce={data.nonce}
-      themeColor={data.color}
       server={data.access}
       serverName={data.name}
       setRescueState={setRescueState}

@@ -4,7 +4,6 @@ import {
   Code,
   LoadingOverlay,
   PasswordInput,
-  rem,
   Text,
   TextInput,
 } from "@mantine/core";
@@ -26,7 +25,6 @@ import {
 
 interface RescueTerminalProps {
   nonce: string;
-  themeColor: string;
   server: AccessEmergency;
   serverName: string;
   setRescueState: (state: TabState) => void;
@@ -34,7 +32,6 @@ interface RescueTerminalProps {
 }
 const RescueTerminal = ({
   nonce,
-  themeColor,
   server,
   serverName,
   setRescueState,
@@ -274,9 +271,6 @@ const RescueTerminal = ({
         style={{
           height: "100%",
           opacity: isLoading ? 0 : 100,
-          borderLeftStyle: "solid",
-          borderLeftWidth: rem(16),
-          borderLeftColor: themeColor,
         }}
       />
       <LoadingOverlay

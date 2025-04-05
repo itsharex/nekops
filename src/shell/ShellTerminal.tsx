@@ -204,6 +204,9 @@ const ShellTerminal = ({
       style={{
         position: "relative",
         height: "100%",
+        borderLeftStyle: "solid",
+        borderLeftWidth: rem(16),
+        borderLeftColor: themeColor,
       }}
     >
       <div
@@ -211,9 +214,6 @@ const ShellTerminal = ({
         style={{
           height: "100%",
           opacity: isLoading ? 0 : 100,
-          borderLeftStyle: "solid",
-          borderLeftWidth: rem(16),
-          borderLeftColor: themeColor,
         }}
         onContextMenu={(ev) => {
           ev.preventDefault();

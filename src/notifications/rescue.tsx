@@ -15,7 +15,7 @@ export const LoadingNotification: NotificationData = {
 export const SuccessNotification: NotificationData = {
   color: "teal",
   title: "Prepare finished!",
-  message: "Enjoy your journey~",
+  message: "Wish everything goes well.",
   icon: <IconCheck style={{ width: rem(18), height: rem(18) }} />,
   loading: false,
   autoClose: 4_000,

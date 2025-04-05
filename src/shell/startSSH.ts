@@ -1,12 +1,12 @@
 import { Terminal } from "@xterm/xterm";
 import type { AccessRegular } from "@/types/server.ts";
 import { Command } from "@tauri-apps/plugin-shell";
-import type { ShellState } from "@/types/shellState.ts";
+import type { TabState } from "@/types/tabState.ts";
 
 export const startSSH = (
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
-  setShellState: (newState: ShellState) => void,
+  setShellState: (newState: TabState) => void,
   setTerminateSSHFunc: (func: (() => void) | null) => void,
   server: AccessRegular,
   jumpServer?: AccessRegular,
@@ -30,7 +30,7 @@ export const startSSH = (
   // console.log("Args", sshArgs.join(" "));
 
   // Pipe message from ssh to terminal
-  const sshCommand = Command.create("exec-ssh", sshArgs, {
+  const sshCommand = Command.create("start-ssh", sshArgs, {
     encoding: "raw",
   });
   sshCommand.on("close", (data) => {

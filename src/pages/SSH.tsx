@@ -7,9 +7,9 @@ import { useMemo, useRef, useState } from "react";
 import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
 import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
-import SSHContextMenu from "@/components/ssh/SSHContextMenu.tsx";
-import { startSSHSession } from "@/components/ssh/startSSHSession.ts";
-import { copySSHCommand } from "@/components/ssh/copySSHCommand.ts";
+import SSHContextMenu from "@/components/shell/SSHContextMenu.tsx";
+import { startSSHSession } from "@/components/shell/startSSHSession.ts";
+import { copySSHCommand } from "@/components/shell/copySSHCommand.ts";
 
 const SSHPage = () => {
   const servers = useSelector((state: RootState) => state.servers);

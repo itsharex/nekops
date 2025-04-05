@@ -1,9 +1,9 @@
-import type { ShellState } from "@/types/shellState.ts";
+import type { TabState } from "@/types/tabState.ts";
 import { useMantineTheme } from "@mantine/core";
 import { IconBellFilled, IconCircleFilled } from "@tabler/icons-react";
 
 interface TabStateIconProps {
-  state?: ShellState;
+  state?: TabState;
   isNewMessage?: boolean;
 }
 const TabStateIcon = ({ state, isNewMessage }: TabStateIconProps) => {

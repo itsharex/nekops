@@ -1,18 +1,20 @@
 import { Box, Flex, LoadingOverlay, Text } from "@mantine/core";
 import { useSelector } from "react-redux";
-import type { RootState } from "@/store.ts";
-import SearchBar from "@/components/SearchBar.tsx";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { open } from "@tauri-apps/plugin-shell";
+import { IconLock } from "@tabler/icons-react";
+
+import type { RootState } from "@/store.ts";
+import SearchBar from "@/components/SearchBar.tsx";
 import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
 import { decryptServer } from "@/slices/encryptionSlice.ts";
-import { notifications } from "@mantine/notifications";
 import UnlockModal from "@/components/UnlockModal.tsx";
 import RescueModal from "@/components/rescue/RescueModal.tsx";
-import { open } from "@tauri-apps/plugin-shell";
 import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
-import { IconLock } from "@tabler/icons-react";
+import { startVNCSession } from "@/components/rescue/startVNCSession.tsx";
 
 const RescuePage = () => {
   const servers = useSelector((state: RootState) => state.servers);
@@ -43,12 +45,7 @@ const RescuePage = () => {
   const launchRescuePlatform = async () => {
     switch (activeServer?.access.emergency.method) {
       case "VNC":
-        notifications.show({
-          color: "blue",
-          title: "Launch VNC",
-          message:
-            "You may have to copy Address and handle it with correct VNC tool (like TigerVNC).",
-        });
+        startVNCSession(activeServer);
         break;
       case "IPMI":
         try {

@@ -1,13 +1,13 @@
 import { Table } from "@mantine/core";
 import { memo } from "react";
 
-import type { EventResponseTabsListPayload } from "@/events/payload.ts";
+import type { EventPayloadTabsListResponse } from "@/events/payload.ts";
 
 import TabsTableHead from "./Head.tsx";
 import TabsTableRow from "./Row.tsx";
 
 interface TabsTableProps {
-  tabs: EventResponseTabsListPayload;
+  tabs: EventPayloadTabsListResponse;
   show: (nonce: string) => void;
   selectedTabsNonce: string[];
   setSelectedTabsNonce: (state: string[]) => void;

@@ -26,3 +26,6 @@ dist-ssr
 nekops_data/
 
 src-tauri/gen
+
+# Embedded resources (sidecar bin, ...)
+src-tauri/embedded/

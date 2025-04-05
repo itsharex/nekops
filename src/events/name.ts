@@ -1,24 +1,37 @@
-// Create a new SSH session
-export const EventNewSSHName = "newSSH";
+// Main window pre-close event
+export const EventNameWindowCloseMain = "windowCloseMain";
+export const EventNameWindowCloseShell = "windowCloseShell";
+export const EventNameWindowCloseRescue = "windowCloseRescue";
 
-// Check if SSH window is ready
-export const EventRequestSSHWindowReadyName = "requestSSHWindowReady";
-export const EventResponseSSHWindowReadyName = "responseSSHWindowReady";
+// Create a new shell session
+export const EventNameShellNew = "shellNew";
+
+// Check if shell is ready
+export const EventNameShellReadyRequest = "shellReadyRequest";
+export const EventNameShellReadyResponse = "shellReadyResponse";
 
 // Select active session tab by nonce
-export const EventSetActiveTabByNonceName = "setActiveTabByNonce";
+export const EventNameShellSetActiveTabByNonce = "shellSetActiveTabByNonce";
 
 // Send code to specific sessions
-export const EventSendCommandByNonceName = "sendCommandByNonce";
+export const EventNameShellSendCommandByNonce = "shellSendCommandByNonce";
 
 // Request for current tabs
-export const EventRequestTabsListName = "requestTabsList";
-export const EventResponseTabsListName = "responseTabsList";
+export const EventNameShellTabsListRequest = "shellTabsListRequest";
+export const EventNameShellTabsListResponse = "shellTabsListResponse";
 
 // Send special command to shell by nonce
-export const EventShellSelectAllByNonceName = "shellSelectAllByNonce";
-export const EventShellSTTYFitByNonceName = "shellSTTYFitByNonce";
+export const EventNameShellSelectAllByNonce = "shellSelectAllByNonce";
+export const EventNameShellSTTYFitByNonce = "shellSTTYFitByNonce";
 
-// Main window pre-close event
-export const EventMainWindowPreCloseName = "mainWindowPreClose";
-export const EventShellWindowPreCloseName = "shellWindowPreClose";
+// Create a new rescue session
+export const EventNameRescueNew = "rescueNew";
+
+// Check if rescue is ready
+export const EventNameRescueReadyRequest = "rescueReadyRequest";
+export const EventNameRescueReadyResponse = "rescueReadyResponse";
+
+// Send special command to rescue by nonce
+export const EventNameRescuePowerCycleByNonce = "rescuePowerCycleByNonce";
+export const EventNameRescueSendCtrlAltDelByNonce =
+  "rescueSendCtrlAltDelByNonce";

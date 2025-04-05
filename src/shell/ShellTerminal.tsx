@@ -2,18 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { Window } from "@tauri-apps/api/window";
-import type { ShellState } from "@/types/shellState.ts";
+import type { TabState } from "@/types/tabState.ts";
 import { LoadingOverlay, rem } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
 import { startSSH } from "@/shell/startSSH.ts";
-import type { EventSendCommandByNoncePayload } from "@/events/payload.ts";
+import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
 import {
-  EventSendCommandByNonceName,
-  EventShellSelectAllByNonceName,
-  EventShellSTTYFitByNonceName,
+  EventNameShellSelectAllByNonce,
+  EventNameShellSendCommandByNonce,
+  EventNameShellSTTYFitByNonce,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 import { useThrottledCallback } from "@mantine/hooks";
@@ -23,7 +23,7 @@ interface ShellTerminalProps {
   themeColor: string;
   server: AccessRegular;
   jumpServer?: AccessRegular;
-  setShellState: (state: ShellState) => void;
+  setShellState: (state: TabState) => void;
   setNewMessage: () => void;
   isActive: boolean;
 }
@@ -41,14 +41,14 @@ const ShellTerminal = ({
   const terminalInstanceRef = useRef<Terminal | null>(null);
   const fitAddonInstanceRef = useRef<FitAddon | null>(null);
 
-  const terminateSSH = useRef<(() => void) | null>(null);
+  const terminateFunc = useRef<(() => void) | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
 
   const isPendingFit = useRef(false);
 
   const setTerminateSSHFunc = (func: (() => void) | null) => {
-    terminateSSH.current = func;
+    terminateFunc.current = func;
   };
 
   // Use throttle to reduce resource consumption on re-rendering
@@ -124,15 +124,15 @@ const ShellTerminal = ({
 
       // Listen to multirun commands
       const sendCommandByNonceHandler = (
-        ev: Event<EventSendCommandByNoncePayload>,
+        ev: Event<EventPayloadShellSendCommandByNonce>,
       ) => {
         if (ev.payload.nonce.includes(nonce)) {
           terminal.input(ev.payload.command);
         }
       };
       const stopSendCommandByNonceListener =
-        listen<EventSendCommandByNoncePayload>(
-          EventSendCommandByNonceName,
+        listen<EventPayloadShellSendCommandByNonce>(
+          EventNameShellSendCommandByNonce,
           sendCommandByNonceHandler,
         );
 
@@ -143,7 +143,7 @@ const ShellTerminal = ({
         }
       };
       const stopShellSelectAllByNonceListener = listen<string>(
-        EventShellSelectAllByNonceName,
+        EventNameShellSelectAllByNonce,
         shellSelectAllByNonceHandler,
       );
 
@@ -156,7 +156,7 @@ const ShellTerminal = ({
         }
       };
       const stopShellSTTYFitByNoncePromise = listen<string>(
-        EventShellSTTYFitByNonceName,
+        EventNameShellSTTYFitByNonce,
         shellSTTYFitByNonceHandler,
       );
 
@@ -182,8 +182,8 @@ const ShellTerminal = ({
         })();
 
         // Terminate SSH
-        if (terminateSSH.current !== null) {
-          terminateSSH.current();
+        if (terminateFunc.current !== null) {
+          terminateFunc.current();
         }
 
         // Clear instance ref

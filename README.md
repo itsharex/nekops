@@ -32,3 +32,10 @@
 ## 非常感谢
 
 - [Xterm.js](https://xtermjs.org/)
+
+## 开始构建
+
+在执行一般的 Tauri 构建流程之前，需要这些准备工作：
+
+1. websockify-go 构建成 `websockify` 可执行文件，放置在 src-tauri/embedded/workspace/ 目录下。
+2. 运行 `node ./utils/sidecar-rename.js` 命令，将 sidecar 文件调整为正确的目标文件名。

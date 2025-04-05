@@ -5,7 +5,8 @@
   "context": "local",
   "windows": [
     "main",
-    "nekopshell"
+    "nekopshell",
+    "nekopsrescue"
   ],
   "permissions": [
     "core:event:default",

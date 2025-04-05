@@ -1,11 +1,11 @@
-import type { SSHSingleServer } from "@/events/payload.ts";
-import type { ShellState } from "@/types/shellState.ts";
+import type { ShellSingleServer } from "@/events/payload.ts";
+import type { TabState } from "@/types/tabState.ts";
 import { Tabs } from "@mantine/core";
 import ShellTerminal from "@/shell/ShellTerminal.tsx";
 
 interface ShellPanelProps {
-  data: SSHSingleServer;
-  setShellState: (state: ShellState) => void;
+  data: ShellSingleServer;
+  setShellState: (state: TabState) => void;
   setNewMessage: () => void;
   isActive: boolean;
 }

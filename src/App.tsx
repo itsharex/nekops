@@ -12,10 +12,10 @@ import { readSnippets } from "@/slices/snippetsSlice.ts";
 import { readEncryption } from "@/slices/encryptionSlice.ts";
 import AboutModal from "@/components/AboutModal.tsx";
 import { emit, listen } from "@tauri-apps/api/event";
-import type { EventResponseTabsListPayload } from "@/events/payload.ts";
 import {
-  EventMainWindowPreCloseName,
-  EventShellWindowPreCloseName,
+  EventNameWindowCloseMain,
+  EventNameWindowCloseRescue,
+  EventNameWindowCloseShell,
 } from "@/events/name.ts";
 import TerminateAndExitModal from "@/components/TerminateAndExitModal.tsx";
 import { Window } from "@tauri-apps/api/window";
@@ -43,21 +43,22 @@ const App = () => {
 
   const mainWindowDoClose = () => {
     // Terminate shells window and then main window
-    emit(EventShellWindowPreCloseName, true);
+    emit(EventNameWindowCloseShell, true);
+    emit(EventNameWindowCloseRescue, true);
     Window.getCurrent().destroy();
   };
 
   // Listen to pre-close event at page initialize
   useEffect(() => {
-    const stopMainWindowPreClosePromise = listen<EventResponseTabsListPayload>(
-      EventMainWindowPreCloseName,
+    const stopWindowCloseMainPromise = listen<boolean>(
+      EventNameWindowCloseMain,
       openPreCloseModal,
     );
 
     // Stop listen before component (page) destroy
     return () => {
       (async () => {
-        (await stopMainWindowPreClosePromise)();
+        (await stopWindowCloseMainPromise)();
       })();
     };
   }, []);

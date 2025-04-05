@@ -1,24 +1,24 @@
-import type { ShellSingleServer } from "@/events/payload.ts";
+import type { RescueSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
 import type { MouseEvent } from "react";
 import { ActionIcon, rem, Tabs } from "@mantine/core";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { IconX } from "@tabler/icons-react";
 
-interface ShellTabProps {
-  data: ShellSingleServer;
+interface RescueTabProps {
+  data: RescueSingleServer;
   state?: TabState;
   isNewMessage?: boolean;
   close: () => void;
   onContextMenu: (ev: MouseEvent<HTMLButtonElement>) => void;
 }
-const ShellTab = ({
+const RescueTab = ({
   data,
   state,
   isNewMessage,
   close,
   onContextMenu,
-}: ShellTabProps) => (
+}: RescueTabProps) => (
   <Tabs.Tab
     value={data.nonce}
     color={data.color}
@@ -49,4 +49,4 @@ const ShellTab = ({
   </Tabs.Tab>
 );
 
-export default ShellTab;
+export default RescueTab;

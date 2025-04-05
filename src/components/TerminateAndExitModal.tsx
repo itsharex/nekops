@@ -17,7 +17,7 @@ const TerminateAndExitModal = ({
       title="Terminate and Exit"
       centered
     >
-      <Text>Some shells might still be running...</Text>
+      <Text>Some other sessions might still be running...</Text>
       <Text>Are you sure to terminate them all and exit?</Text>
       <Center mt="lg">
         <Group gap="sm">

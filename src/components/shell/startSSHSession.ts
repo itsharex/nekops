@@ -1,12 +1,12 @@
 import type { Server } from "@/types/server.ts";
-import { openShellWindow } from "@/utils/openShellWindow.ts";
+import { openShellWindow } from "@/utils/openWindow/shell.ts";
 import { emit, once } from "@tauri-apps/api/event";
-import type { EventNewSSHPayload } from "@/events/payload.ts";
+import type { EventPayloadShellNew } from "@/events/payload.ts";
 import { notifications } from "@mantine/notifications";
 import {
-  EventNewSSHName,
-  EventRequestSSHWindowReadyName,
-  EventResponseSSHWindowReadyName,
+  EventNameShellNew,
+  EventNameShellReadyRequest,
+  EventNameShellReadyResponse,
 } from "@/events/name.ts";
 import { randomString } from "@/utils/randomString.ts";
 import {
@@ -30,7 +30,7 @@ export const startSSHSession = async (server: Server, jumpServer?: Server) => {
 
   // Wait till window is ready
   const isReadyListenerStopFn = await once<string>(
-    EventResponseSSHWindowReadyName,
+    EventNameShellReadyResponse,
     async (ev) => {
       if (ev.payload !== nonce) {
         // Not for this session
@@ -52,7 +52,7 @@ export const startSSHSession = async (server: Server, jumpServer?: Server) => {
       }
 
       // Emit SSH event
-      const newSSHEvent: EventNewSSHPayload = {
+      const newSSHEvent: EventPayloadShellNew = {
         server: [
           {
             nonce,
@@ -63,7 +63,7 @@ export const startSSHSession = async (server: Server, jumpServer?: Server) => {
           },
         ],
       };
-      await emit(EventNewSSHName, newSSHEvent);
+      await emit(EventNameShellNew, newSSHEvent);
 
       // Close listener
       isReadyListenerStopFn();
@@ -72,7 +72,7 @@ export const startSSHSession = async (server: Server, jumpServer?: Server) => {
 
   // Start check interval
   isReadyChecker = setInterval(() => {
-    emit(EventRequestSSHWindowReadyName, nonce);
+    emit(EventNameShellReadyRequest, nonce);
   }, 200);
 
   // Set timeout notice

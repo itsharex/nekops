@@ -1,11 +1,11 @@
 import type { Terminal } from "@xterm/xterm";
-import type { ShellState } from "@/types/shellState.ts";
+import type { TabState } from "@/types/tabState.ts";
 
 export const startDummy = (
   nonce: string,
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
-  setShellState: (state: ShellState) => void,
+  setShellState: (state: TabState) => void,
 ) => {
   let commandBuf = "";
   let isTerminated: boolean = false;

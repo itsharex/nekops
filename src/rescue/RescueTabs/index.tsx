@@ -4,20 +4,17 @@ import { emit, listen } from "@tauri-apps/api/event";
 import type { MouseEvent, WheelEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
-  EventNameShellNew,
-  EventNameShellReadyRequest,
-  EventNameShellReadyResponse,
-  EventNameShellSelectAllByNonce,
-  EventNameShellSetActiveTabByNonce,
-  EventNameShellSTTYFitByNonce,
-  EventNameShellTabsListRequest,
-  EventNameShellTabsListResponse,
-  EventNameWindowCloseShell,
+  EventNameRescueNew,
+  EventNameRescuePowerCycleByNonce,
+  EventNameRescueReadyRequest,
+  EventNameRescueReadyResponse,
+  EventNameRescueSendCtrlAltDelByNonce,
+  EventNameWindowCloseRescue,
 } from "@/events/name.ts";
 import type {
-  EventPayloadShellNew,
-  EventPayloadTabsListResponse,
-  ShellSingleServer,
+  EventPayloadRescueNew,
+  EventPayloadRescuePowerCycleByNonce,
+  RescueSingleServer,
 } from "@/events/payload.ts";
 import { Window } from "@tauri-apps/api/window";
 import type { TabState } from "@/types/tabState.ts";
@@ -25,17 +22,17 @@ import { useListState } from "@mantine/hooks";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
 
-import ShellTabContextMenu from "./ContextMenu.tsx";
-import ShellTab from "./Tab.tsx";
-import ShellPanel from "./Panel.tsx";
+import RescueTabContextMenu from "./ContextMenu.tsx";
+import RescueTab from "./Tab.tsx";
+import RescuePanel from "./Panel.tsx";
 
-const ShellTabs = () => {
+const RescueTabs = () => {
   // For components render
-  const [tabsData, tabsDataHandlers] = useListState<ShellSingleServer>([]);
+  const [tabsData, tabsDataHandlers] = useListState<RescueSingleServer>([]);
   const [tabsState, tabsStateHandlers] = useListState<TabState>([]);
   const [tabsNewMessage, tabsNewMessageHandlers] = useListState<boolean>([]);
   // For events binding
-  const tabsDataRef = useRef<ShellSingleServer[]>([]);
+  const tabsDataRef = useRef<RescueSingleServer[]>([]);
   const tabsStateRef = useRef<TabState[]>([]);
   const tabsNewMessageRef = useRef<boolean[]>([]);
   // Bind state : setTabsData -> tabsData -> tabsDataRef
@@ -55,46 +52,14 @@ const ShellTabs = () => {
     currentActiveTabRef.current = currentActiveTab;
   }, [currentActiveTab]);
 
-  // Response tabs data event (initialize / update)
-  const responseTabsList = () => {
-    const payload: EventPayloadTabsListResponse = {
-      tabs: tabsDataRef.current.map((server, i) => ({
-        server: {
-          nonce: server.nonce,
-          name: server.name,
-          color: server.color,
-        },
-        state: tabsStateRef.current[i],
-        isNewMessage: tabsNewMessageRef.current[i],
-      })),
-      currentActive: currentActiveTabRef.current,
-    };
-    emit(EventNameShellTabsListResponse, payload);
-  };
-  useEffect(responseTabsList, [
-    tabsData,
-    tabsState,
-    tabsNewMessage,
-    currentActiveTab,
-  ]);
-
   // Event listeners
-  const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
+  const newSSHEventHandler = (ev: Event<EventPayloadRescueNew>) => {
     for (const server of ev.payload.server) {
       tabsDataHandlers.append(server);
       tabsStateHandlers.append("loading");
       tabsNewMessageHandlers.append(false);
       setCurrentActiveTab(server.nonce);
     }
-  };
-
-  const shellSetActiveTabByNonceHandler = (ev: Event<string>) => {
-    setCurrentActiveTab(ev.payload);
-    clearTabNewMessageState(ev.payload);
-  };
-
-  const shellTabsListRequestHandler = () => {
-    responseTabsList();
   };
 
   // Close (terminate) confirm
@@ -182,7 +147,7 @@ const ShellTabs = () => {
     }
   };
 
-  const setTabShellState = (newState: TabState, nonce: string) => {
+  const setTabRescueState = (newState: TabState, nonce: string) => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
@@ -219,7 +184,7 @@ const ShellTabs = () => {
         title: "Terminate All",
         children: (
           <>
-            <Text>These shells are still running...</Text>
+            <Text>These rescue sessions are still running...</Text>
             <List my="md" ml="md">
               {tabsDataRef.current
                 .filter((_, i) => tabsStateRef.current[i] === "active")
@@ -273,49 +238,33 @@ const ShellTabs = () => {
   };
 
   useEffect(() => {
-    const stopShellReadyListener = listen<string>(
-      EventNameShellReadyRequest,
+    const stopRescueReadyListener = listen<string>(
+      EventNameRescueReadyRequest,
       async (ev) => {
-        await emit(EventNameShellReadyResponse, ev.payload);
+        await emit(EventNameRescueReadyResponse, ev.payload);
       },
     );
-    const stopShellNewListener = listen<EventPayloadShellNew>(
-      EventNameShellNew,
-      shellNewHandler,
-    );
-    const stopShellSetActiveTabByNonceListener = listen<string>(
-      EventNameShellSetActiveTabByNonce,
-      shellSetActiveTabByNonceHandler,
-    );
-    const stopShellTabsListRequestListener = listen(
-      EventNameShellTabsListRequest,
-      shellTabsListRequestHandler,
+    const stopRescueNewListener = listen<EventPayloadRescueNew>(
+      EventNameRescueNew,
+      newSSHEventHandler,
     );
 
-    const stopWindowCloseShellListener = listen(
-      EventNameWindowCloseShell,
+    const stopWindowCloseRescueListener = listen(
+      EventNameWindowCloseRescue,
       preCloseHandler,
     );
 
     return () => {
       (async () => {
-        (await stopShellReadyListener)();
+        (await stopRescueReadyListener)();
       })();
 
       (async () => {
-        (await stopShellNewListener)();
+        (await stopRescueNewListener)();
       })();
 
       (async () => {
-        (await stopShellSetActiveTabByNonceListener)();
-      })();
-
-      (async () => {
-        (await stopShellTabsListRequestListener)();
-      })();
-
-      (async () => {
-        (await stopWindowCloseShellListener)();
+        (await stopWindowCloseRescueListener)();
       })();
     };
   }, []);
@@ -330,10 +279,10 @@ const ShellTabs = () => {
   });
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
 
-  const currentSelectedTab = useRef<ShellSingleServer | null>(null);
+  const currentSelectedTab = useRef<RescueSingleServer | null>(null);
   const rightClickTab = (
     ev: MouseEvent<HTMLButtonElement>,
-    server: ShellSingleServer,
+    server: RescueSingleServer,
   ) => {
     currentSelectedTab.current = server;
     setContextMenuPos({
@@ -377,7 +326,7 @@ const ShellTabs = () => {
             tabsNewMessageHandlers.reorder(reorderOption);
           }}
         >
-          <Droppable droppableId="shell-tabs" direction="horizontal">
+          <Droppable droppableId="rescue-tabs" direction="horizontal">
             {(provided) => (
               <Tabs.List ref={provided.innerRef} {...provided.droppableProps}>
                 <ScrollArea
@@ -398,7 +347,7 @@ const ShellTabs = () => {
                             {...provided.dragHandleProps}
                             ref={provided.innerRef}
                           >
-                            <ShellTab
+                            <RescueTab
                               data={tabData}
                               close={() => {
                                 terminateByNonce(tabData.nonce);
@@ -430,11 +379,11 @@ const ShellTabs = () => {
           }}
         >
           {tabsData.map((tabData) => (
-            <ShellPanel
+            <RescuePanel
               key={tabData.nonce}
               data={tabData}
-              setShellState={(state) => {
-                setTabShellState(state, tabData.nonce);
+              setRescueState={(state) => {
+                setTabRescueState(state, tabData.nonce);
               }}
               setNewMessage={() => {
                 setTabNewMessageState(tabData.nonce);
@@ -445,23 +394,48 @@ const ShellTabs = () => {
         </Box>
       </Tabs>
 
-      <ShellTabContextMenu
+      <RescueTabContextMenu
         isOpen={isContextMenuOpen}
         setIsOpen={setIsContextMenuOpen}
         pos={contextMenuPos}
-        onClickSTTYFit={() => {
+        onClickSendCtrlAltDel={() => {
           if (currentSelectedTab.current) {
             emit(
-              EventNameShellSTTYFitByNonce,
+              EventNameRescueSendCtrlAltDelByNonce,
               currentSelectedTab.current.nonce,
             );
           }
         }}
-        onClickSelectAll={() => {
+        onClickPowerCycleShutdown={() => {
           if (currentSelectedTab.current) {
-            emit(
-              EventNameShellSelectAllByNonce,
-              currentSelectedTab.current.nonce,
+            emit<EventPayloadRescuePowerCycleByNonce>(
+              EventNameRescuePowerCycleByNonce,
+              {
+                nonce: currentSelectedTab.current.nonce,
+                action: "shutdown",
+              },
+            );
+          }
+        }}
+        onClickPowerCycleReset={() => {
+          if (currentSelectedTab.current) {
+            emit<EventPayloadRescuePowerCycleByNonce>(
+              EventNameRescuePowerCycleByNonce,
+              {
+                nonce: currentSelectedTab.current.nonce,
+                action: "reset",
+              },
+            );
+          }
+        }}
+        onClickPowerCycleReboot={() => {
+          if (currentSelectedTab.current) {
+            emit<EventPayloadRescuePowerCycleByNonce>(
+              EventNameRescuePowerCycleByNonce,
+              {
+                nonce: currentSelectedTab.current.nonce,
+                action: "reboot",
+              },
             );
           }
         }}
@@ -480,4 +454,4 @@ const ShellTabs = () => {
   );
 };
 
-export default ShellTabs;
+export default RescueTabs;

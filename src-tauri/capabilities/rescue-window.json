@@ -1,23 +1,26 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "shell-window",
-  "description": "additional permissions for shell window only",
+  "identifier": "rescue-window",
+  "description": "additional permissions for rescue window only",
   "context": "local",
   "windows": [
-    "nekopshell"
+    "nekopsrescue"
   ],
   "permissions": [
     "core:window:allow-destroy",
-    "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     {
       "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "start-ssh",
-          "cmd": "ssh",
-          "args": true,
-          "sidecar": false
+          "name": "embedded/bin/websockify",
+          "args": [
+            "-t",
+            {
+              "validator": "\\S+"
+            }
+          ],
+          "sidecar": true
         }
       ]
     },

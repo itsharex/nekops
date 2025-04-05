@@ -73,11 +73,13 @@ fn keyboard_text(text: &str) {
 //     // ioctl_write_ptr!();
 // }
 
-const MAIN_WINDOW_LABEL: &str = "main";
-const SHELL_WINDOW_LABEL: &str = "nekopshell";
+const LABEL_WINDOW_MAIN: &str = "main";
+const LABEL_WINDOW_SHELL: &str = "nekopshell";
+const LABEL_WINDOW_RESCUE: &str = "nekopsrescue";
 
-const MAIN_WINDOW_PRE_CLOSE_EVENT: &str = "mainWindowPreClose";
-const SHELL_WINDOW_PRE_CLOSE_EVENT: &str = "shellWindowPreClose";
+const EVENT_WINDOW_CLOSE_MAIN: &str = "windowCloseMain";
+const EVENT_WINDOW_CLOSE_SHELL: &str = "windowCloseShell";
+const EVENT_WINDOW_CLOSE_RESCUE: &str = "windowCloseRescue";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -122,15 +124,19 @@ pub fn run() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let window_label = window.label();
                 match window_label {
-                    MAIN_WINDOW_LABEL => {
+                    LABEL_WINDOW_MAIN => {
                         if window.app_handle().webview_windows().len() > 1 { // Is not the only window
                             // window.minimize().unwrap(); // Minimize main window
-                            window.app_handle().emit(MAIN_WINDOW_PRE_CLOSE_EVENT, false).unwrap(); // Trigger an event for frontend to handle
+                            window.app_handle().emit(EVENT_WINDOW_CLOSE_MAIN, false).unwrap(); // Trigger an event for frontend to handle
                             api.prevent_close(); // And prevent close
                         }
                     }
-                    SHELL_WINDOW_LABEL => {
-                        window.app_handle().emit(SHELL_WINDOW_PRE_CLOSE_EVENT, false).unwrap();
+                    LABEL_WINDOW_SHELL => {
+                        window.app_handle().emit(EVENT_WINDOW_CLOSE_SHELL, false).unwrap();
+                        api.prevent_close();
+                    }
+                    LABEL_WINDOW_RESCUE => {
+                        window.app_handle().emit(EVENT_WINDOW_CLOSE_RESCUE, false).unwrap();
                         api.prevent_close();
                     }
                     _ => {}

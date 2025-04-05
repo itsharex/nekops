@@ -1,10 +1,10 @@
-import type { EventResponseTabsListPayloadSingleTab } from "@/events/payload.ts";
+import type { EventPayloadTabsListResponseSingleTab } from "@/events/payload.ts";
 import { Checkbox, Table } from "@mantine/core";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { memo } from "react";
 
 interface TabsTableRowProps {
-  tab: EventResponseTabsListPayloadSingleTab;
+  tab: EventPayloadTabsListResponseSingleTab;
   show: () => void;
   isSelected: boolean;
   setIsSelected: (state: boolean) => void;

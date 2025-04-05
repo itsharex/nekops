@@ -7,14 +7,14 @@ import { notifications } from "@mantine/notifications";
 import { getHotkeyHandler } from "@mantine/hooks";
 
 import {
-  EventRequestTabsListName,
-  EventResponseTabsListName,
-  EventSendCommandByNonceName,
-  EventSetActiveTabByNonceName,
+  EventNameShellSendCommandByNonce,
+  EventNameShellSetActiveTabByNonce,
+  EventNameShellTabsListRequest,
+  EventNameShellTabsListResponse,
 } from "@/events/name.ts";
 import type {
-  EventResponseTabsListPayload,
-  EventSendCommandByNoncePayload,
+  EventPayloadShellSendCommandByNonce,
+  EventPayloadTabsListResponse,
 } from "@/events/payload.ts";
 import type { RootState } from "@/store.ts";
 
@@ -28,7 +28,7 @@ const MultirunPage = () => {
   const snippets = useSelector((state: RootState) => state.snippets);
 
   const [selectedTabsNonce, setSelectedTabsNonce] = useState<string[]>([]);
-  const [tabs, setTabs] = useState<EventResponseTabsListPayload>({
+  const [tabs, setTabs] = useState<EventPayloadTabsListResponse>({
     tabs: [],
     currentActive: null,
   });
@@ -41,14 +41,14 @@ const MultirunPage = () => {
     useState<boolean>(false);
 
   const setActivatedTabByNonce = (nonce: string) => {
-    emit(EventSetActiveTabByNonceName, nonce);
+    emit(EventNameShellSetActiveTabByNonce, nonce);
   };
 
   const requestTabsList = () => {
-    emit(EventRequestTabsListName);
+    emit(EventNameShellTabsListRequest);
   };
 
-  const responseTabsListHandler = (ev: Event<EventResponseTabsListPayload>) => {
+  const responseTabsListHandler = (ev: Event<EventPayloadTabsListResponse>) => {
     setTabs(ev.payload);
   };
 
@@ -79,11 +79,11 @@ const MultirunPage = () => {
       if (isAddAdditionalEnterEnabled && !rawCommand.endsWith("\r")) {
         rawCommand += "\r";
       }
-      const sendCommandEventPayload: EventSendCommandByNoncePayload = {
+      const sendCommandEventPayload: EventPayloadShellSendCommandByNonce = {
         nonce: selectedTabsNonce,
         command: rawCommand,
       };
-      emit(EventSendCommandByNonceName, sendCommandEventPayload);
+      emit(EventNameShellSendCommandByNonce, sendCommandEventPayload);
       notifications.show({
         color: "green",
         title: "Command sent!",
@@ -97,10 +97,11 @@ const MultirunPage = () => {
 
   useEffect(() => {
     // Prepare event listener for tabs update
-    const stopTabsListListener = listen<EventResponseTabsListPayload>(
-      EventResponseTabsListName,
-      responseTabsListHandler,
-    );
+    const stopShellTabsListResponseListener =
+      listen<EventPayloadTabsListResponse>(
+        EventNameShellTabsListResponse,
+        responseTabsListHandler,
+      );
 
     // Request for tabs list at startup
     requestTabsList();
@@ -108,7 +109,7 @@ const MultirunPage = () => {
     // Stop listen before component (page) destroy
     return () => {
       (async () => {
-        (await stopTabsListListener)();
+        (await stopShellTabsListResponseListener)();
       })();
     };
   }, []);

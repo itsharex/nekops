@@ -62,7 +62,7 @@ const EditServerModal = ({
     setActiveStep((current) => (current > 0 ? current - 1 : current));
 
   const form = useForm<Server>({
-    mode: "uncontrolled",
+    // mode: "uncontrolled",
 
     initialValues: defaultServer,
 

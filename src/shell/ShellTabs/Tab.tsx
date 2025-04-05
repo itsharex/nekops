@@ -4,6 +4,7 @@ import type { MouseEvent } from "react";
 import { ActionIcon, rem, Tabs } from "@mantine/core";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { IconX } from "@tabler/icons-react";
+import Twemoji from "@/components/Twemoji";
 
 interface ShellTabProps {
   data: ShellSingleServer;
@@ -45,7 +46,7 @@ const ShellTab = ({
     // }}
     onContextMenu={onContextMenu}
   >
-    {data.name}
+    <Twemoji content={data.name} />
   </Tabs.Tab>
 );
 

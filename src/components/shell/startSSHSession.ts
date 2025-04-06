@@ -15,7 +15,11 @@ import {
   SuccessNotification,
 } from "@/notifications/shell.tsx";
 
-export const startSSHSession = async (server: Server, jumpServer?: Server) => {
+export const startSSHSession = async (
+  client: string,
+  server: Server,
+  jumpServer?: Server,
+) => {
   // Create or open Shell window
   await openShellWindow();
 
@@ -60,6 +64,7 @@ export const startSSHSession = async (server: Server, jumpServer?: Server) => {
             color: server.color,
             access: server.access.regular,
             jumpServer: jumpServer ? jumpServer.access.regular : undefined,
+            client: client,
           },
         ],
       };

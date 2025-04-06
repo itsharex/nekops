@@ -15,6 +15,8 @@ interface ShellTabContextMenuProps {
     y: number;
   };
 
+  isEnableSTTYFit: boolean;
+
   onClickSelectAll: () => void;
   onClickSTTYFit: () => void;
   onClickTerminate: () => void;
@@ -24,6 +26,8 @@ const ShellTabContextMenu = ({
   isOpen,
   setIsOpen,
   pos,
+
+  isEnableSTTYFit,
 
   onClickSelectAll,
   onClickSTTYFit,
@@ -48,12 +52,14 @@ const ShellTabContextMenu = ({
       >
         Select All
       </Menu.Item>
-      <Menu.Item
-        leftSection={<IconArrowsMaximize style={menuIconStyle} />}
-        onClick={onClickSTTYFit}
-      >
-        STTY Fit
-      </Menu.Item>
+      {isEnableSTTYFit && (
+        <Menu.Item
+          leftSection={<IconArrowsMaximize style={menuIconStyle} />}
+          onClick={onClickSTTYFit}
+        >
+          STTY Fit
+        </Menu.Item>
+      )}
 
       <Menu.Divider />
 

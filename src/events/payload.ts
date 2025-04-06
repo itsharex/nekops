@@ -10,6 +10,7 @@ export interface ServerBase {
 export interface ShellSingleServer extends ServerBase {
   access: AccessRegular;
   jumpServer?: AccessRegular;
+  client: string;
 }
 
 export interface EventPayloadShellNew {

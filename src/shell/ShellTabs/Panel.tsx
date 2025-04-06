@@ -21,6 +21,7 @@ const ShellPanel = ({
       themeColor={data.color}
       server={data.access}
       jumpServer={data.jumpServer}
+      client={data.client}
       setShellState={setShellState}
       setNewMessage={setNewMessage}
       isActive={isActive}

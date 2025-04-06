@@ -3,7 +3,7 @@ import type { AccessRegular } from "@/types/server.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 import type { TabState } from "@/types/tabState.ts";
 
-export const startSSH = (
+export const startSystemSSH = (
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
   setShellState: (newState: TabState) => void,

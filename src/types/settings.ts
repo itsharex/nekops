@@ -7,6 +7,7 @@ export type WorkSpace = {
 type SettingsCommon = {
   workspaces: WorkSpace[];
   default_ssh_action: "copy" | "start";
+  default_ssh_client: "embedded" | "system";
 };
 
 export type SettingsSave = {
@@ -27,4 +28,5 @@ export const defaultSettings: SettingsState = {
   workspaces: [defaultWorkspace],
   current_workspace: defaultWorkspace,
   default_ssh_action: "copy",
+  default_ssh_client: "embedded",
 };

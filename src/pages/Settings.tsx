@@ -24,9 +24,11 @@ import {
 import {
   IconBolt,
   IconCode,
+  IconFlare,
   IconFolder,
   IconLock,
   IconLockOpen,
+  IconMessageCircle,
   IconMoon,
   IconPlus,
   IconRocket,
@@ -285,6 +287,7 @@ const SettingsPage = () => {
       workspaces: newSettings.workspaces,
       current_workspace: targetWorkspace,
       default_ssh_action: newSettings.default_ssh_action,
+      default_ssh_client: newSettings.default_ssh_client,
     };
     await dispatch(saveSettings(newSettingsState)).unwrap();
     if (form.isDirty("workspaces")) {
@@ -312,6 +315,8 @@ const SettingsPage = () => {
           <Flex direction="column" gap="md">
             <Fieldset legend="Global">
               <ColorSchemeSelector />
+
+              {/*Default SSH Action*/}
               <Flex direction="column" mt="md">
                 <Text size="sm" fw={500} mb={2}>
                   Default SSH Action
@@ -330,6 +335,28 @@ const SettingsPage = () => {
                     },
                   ])}
                   {...form.getInputProps("default_ssh_action")}
+                />
+              </Flex>
+
+              {/*Default SSH Client*/}
+              <Flex direction="column" mt="md">
+                <Text size="sm" fw={500} mb={2}>
+                  Default SSH Client
+                </Text>
+                <SegmentedControl
+                  data={transformSegmentedControlOptions([
+                    {
+                      icon: IconFlare,
+                      text: "Embedded",
+                      value: "embedded",
+                    },
+                    {
+                      icon: IconMessageCircle,
+                      text: "System",
+                      value: "system",
+                    },
+                  ])}
+                  {...form.getInputProps("default_ssh_client")}
                 />
               </Flex>
             </Fieldset>

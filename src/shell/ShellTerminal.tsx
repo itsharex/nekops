@@ -6,7 +6,7 @@ import type { TabState } from "@/types/tabState.ts";
 import { LoadingOverlay, rem } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
-import { startSSH } from "@/shell/startSSH.ts";
+import { startSystemSSH } from "@/shell/startSystemSSH.ts";
 import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
@@ -23,6 +23,7 @@ interface ShellTerminalProps {
   themeColor: string;
   server: AccessRegular;
   jumpServer?: AccessRegular;
+  client: string;
   setShellState: (state: TabState) => void;
   setNewMessage: () => void;
   isActive: boolean;
@@ -32,6 +33,7 @@ const ShellTerminal = ({
   themeColor,
   server,
   jumpServer,
+  client,
   setShellState,
   setNewMessage,
   isActive,
@@ -112,14 +114,24 @@ const ShellTerminal = ({
         startDummy(nonce, terminal, stateUpdateOnNewMessage, setShellState);
       } else {
         // Start normal server
-        startSSH(
-          terminal,
-          stateUpdateOnNewMessage,
-          setShellState,
-          setTerminateSSHFunc,
-          server,
-          jumpServer,
-        );
+        switch (client) {
+          case "embedded":
+            console.log("Should start with", client);
+            break;
+          case "system":
+            startSystemSSH(
+              terminal,
+              stateUpdateOnNewMessage,
+              setShellState,
+              setTerminateSSHFunc,
+              server,
+              jumpServer,
+            );
+            break;
+          default:
+            console.warn("Unsupported client", client);
+            break;
+        }
       }
 
       // Listen to multirun commands

@@ -449,6 +449,7 @@ const ShellTabs = () => {
         isOpen={isContextMenuOpen}
         setIsOpen={setIsContextMenuOpen}
         pos={contextMenuPos}
+        isEnableSTTYFit={currentSelectedTab.current?.client !== "embedded"}
         onClickSTTYFit={() => {
           if (currentSelectedTab.current) {
             emit(

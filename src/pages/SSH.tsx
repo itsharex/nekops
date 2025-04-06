@@ -26,7 +26,7 @@ const SSHPage = () => {
   const clickServerCard = (server: Server, jumpServer?: Server) => {
     switch (settings.default_ssh_action) {
       case "start":
-        startSSHSession(server, jumpServer);
+        startSSHSession(settings.default_ssh_client, server, jumpServer);
         break;
       case "copy":
       default:
@@ -94,7 +94,10 @@ const SSHPage = () => {
         }}
         onClickStart={() => {
           if (currentSelectedServer.current) {
-            startSSHSession(currentSelectedServer.current);
+            startSSHSession(
+              settings.default_ssh_client,
+              currentSelectedServer.current,
+            );
           }
         }}
         onClickJumpServer={(jumpServer: Server) => {

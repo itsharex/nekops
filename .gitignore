@@ -28,4 +28,4 @@ nekops_data/
 src-tauri/gen
 
 # Embedded resources (sidecar bin, ...)
-src-tauri/embedded/
+src-tauri/embedded/bin/

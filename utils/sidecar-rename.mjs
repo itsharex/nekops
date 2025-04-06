@@ -8,7 +8,8 @@ const targetTriple = /host: (\S+)/g.exec(rustInfo)[1];
 if (!targetTriple) {
   console.error("Failed to determine platform target triple");
 }
+const projectName = process.argv[2];
 fs.renameSync(
-  `src-tauri/embedded/workspace/websockify${extension}`,
-  `src-tauri/embedded/bin/websockify-${targetTriple}${extension}`,
+  `src-tauri/embedded/workspace/${projectName}/${projectName}${extension}`,
+  `src-tauri/embedded/bin/${projectName}-${targetTriple}${extension}`,
 );

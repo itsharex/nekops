@@ -1,3 +1,6 @@
 [submodule "src-tauri/embedded/workspace/websockify"]
 	path = src-tauri/embedded/workspace/websockify
 	url = https://github.com/Candinya/websockify-go.git
+[submodule "src-tauri/embedded/workspace/pipessh"]
+	path = src-tauri/embedded/workspace/pipessh
+	url = https://github.com/Candinya/pipessh

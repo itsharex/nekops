@@ -2,21 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { Window } from "@tauri-apps/api/window";
+import type { Event } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
+import { useThrottledCallback } from "@mantine/hooks";
+
 import type { TabState } from "@/types/tabState.ts";
 import { LoadingOverlay, rem } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
 import { startSystemSSH } from "@/shell/startSystemSSH.ts";
 import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
-import type { Event } from "@tauri-apps/api/event";
-import { listen } from "@tauri-apps/api/event";
 import {
   EventNameShellSelectAllByNonce,
   EventNameShellSendCommandByNonce,
   EventNameShellSTTYFitByNonce,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
-import { useThrottledCallback } from "@mantine/hooks";
+import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
 
 interface ShellTerminalProps {
   nonce: string;
@@ -116,7 +118,14 @@ const ShellTerminal = ({
         // Start normal server
         switch (client) {
           case "embedded":
-            console.log("Should start with", client);
+            startEmbeddedSSH(
+              terminal,
+              stateUpdateOnNewMessage,
+              setShellState,
+              setTerminateSSHFunc,
+              server,
+              jumpServer,
+            );
             break;
           case "system":
             startSystemSSH(

@@ -3,7 +3,7 @@ import type { AccessRegular } from "@/types/server.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 import type { TabState } from "@/types/tabState.ts";
 
-export const startSystemSSH = (
+export const startEmbeddedSSH = (
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
   setShellState: (newState: TabState) => void,
@@ -11,9 +11,7 @@ export const startSystemSSH = (
   server: AccessRegular,
   jumpServer?: AccessRegular,
 ) => {
-  const sshArgs = [
-    "-tt", // force Pseudo-terminal
-  ];
+  const sshArgs = [];
   if (jumpServer) {
     sshArgs.push(
       "-J",
@@ -30,7 +28,7 @@ export const startSystemSSH = (
   // console.log("Args", sshArgs.join(" "));
 
   // Pipe message from ssh to terminal
-  const sshCommand = Command.create("system-ssh", sshArgs, {
+  const sshCommand = Command.sidecar("embedded/bin/pipessh", sshArgs, {
     encoding: "raw",
   });
   sshCommand.on("close", (data) => {
@@ -80,33 +78,9 @@ export const startSystemSSH = (
     });
 
     // Sync resize event
-    // terminal.onResize(({ cols, rows }) => {
-    //   // A friendly notice: all methods list below don't work. Don't waste your time trying them.
-
-    //   // Method 1: ANSI escape sequences
-    //   // sshProcess.write(`\x1B[8;${rows};${cols}t`); // Can't send as a whole
-    //   // sshProcess.write(`\e[8;${rows};${cols}t`); // Can't send as a whole
-    //   // terminal.input(`\x1B[8;${rows};${cols}t`, false); // Same issue as above
-    //   // terminal.input(`\e[8;${rows};${cols}t`, false); // Same issue as above
-    //   // terminal.write(`\x1B[8;${rows};${cols}t`); // Not working (local only maybe?)
-    //
-    //   // Method 2: stty command
-    //   // sshProcess.write(`stty columns ${cols} rows ${rows}\n`); // It works but is raw text input and will cause data corruption
-    //
-    //   // Method 3: SIGWINCH signal
-    //   // Since Windows OS doesn't have unix signal system, sending SIGWINCH to ssh process is only a platform-specific solution.
-    //
-    //   // Method 4: fcntl.ioctl TIOCSWINSZ
-    //
-    //   // Method 0: Let backend (rust) handle this :P
-    //   // invoke("set_ssh_size", {
-    //   //   pid: sshProcess.pid,
-    //   //   row: rows,
-    //   //   col: cols,
-    //   //   width: terminal.element?.clientWidth || cols * 9,
-    //   //   height: terminal.element?.clientHeight || rows * 17,
-    //   // });
-    // });
+    terminal.onResize(({ cols, rows }) => {
+      sshProcess.write(`\x1B[8;${rows};${cols}t`); // Can't send as a whole
+    });
 
     // Terminate when close
     setTerminateSSHFunc(sshProcess.kill);

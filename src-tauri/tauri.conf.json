@@ -19,7 +19,8 @@
       "icons/icon.ico"
     ],
     "externalBin": [
-      "embedded/bin/websockify"
+      "embedded/bin/websockify",
+      "embedded/bin/pipessh"
     ]
   },
   "app": {

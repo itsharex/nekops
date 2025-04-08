@@ -14,10 +14,20 @@
       "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "start-ssh",
+          "name": "system-ssh",
           "cmd": "ssh",
           "args": true,
           "sidecar": false
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "embedded/bin/pipessh",
+          "args": true,
+          "sidecar": true
         }
       ]
     },

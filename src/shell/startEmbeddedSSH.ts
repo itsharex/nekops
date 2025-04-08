@@ -26,6 +26,8 @@ export const startEmbeddedSSH = (
   sshArgs.push(`${server.user || "root"}@${server.address}`);
 
   // console.log("Args", sshArgs.join(" "));
+  let isSSHStart = false;
+  const eventDecoder = new TextDecoder("ascii");
 
   // Pipe message from ssh to terminal
   const sshCommand = Command.sidecar("embedded/bin/pipessh", sshArgs, {
@@ -51,6 +53,52 @@ export const startEmbeddedSSH = (
     terminal.writeln(`Process error: \x1B[1;31m${data}\x1B[0m`);
   });
   sshCommand.stdout.on("data", (data) => {
+    if (!isSSHStart) {
+      // Not start, should be events
+      const eventsStartIndex = data.indexOf(0x02);
+      const eventsEndIndex = data.indexOf(0x03);
+      console.log("evStart", eventsStartIndex, "evEnd", eventsEndIndex);
+
+      if (eventsStartIndex != -1 && eventsEndIndex != -1) {
+        // Includes full event
+        const eventBody = data.slice(eventsStartIndex + 1, eventsEndIndex);
+        const eventsSplitterIndex = eventBody.indexOf(0x1f);
+        if (eventsSplitterIndex == -1) {
+          // event doesn't have payload
+          const eventName = eventDecoder.decode(
+            new Uint8Array(eventBody).buffer,
+          );
+          switch (eventName) {
+            case "sshStart":
+              console.log("SSH start!");
+              stateUpdateOnNewMessage();
+              isSSHStart = true;
+              return;
+            default:
+              console.warn("Unsupported event", eventName);
+          }
+        } else {
+          const eventName = eventDecoder.decode(
+            new Uint8Array(eventBody.slice(0, eventsSplitterIndex)).buffer,
+          );
+          const eventPayload = JSON.parse(
+            eventDecoder.decode(
+              new Uint8Array(eventBody.slice(eventsSplitterIndex)).buffer,
+            ),
+          );
+          switch (eventName) {
+            case "hostKey":
+              console.log("Host key mismatch event", eventPayload); // TODO
+              return;
+            default:
+              console.warn("Unsupported event", eventName, eventPayload);
+          }
+        }
+      } else {
+        console.warn("Incomplete event", data);
+      }
+    } // else: ssh has already started, we don't need to manipulate data anymore
+
     stateUpdateOnNewMessage();
 
     terminal.write(data);

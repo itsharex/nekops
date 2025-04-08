@@ -47,6 +47,7 @@ export const readSettings = createAsyncThunk(
           workspaces: settingsSaved.workspaces,
           current_workspace: targetWorkspace,
           default_ssh_action: settingsSaved.default_ssh_action,
+          default_ssh_client: settingsSaved.default_ssh_client,
         };
       } else {
         return defaultSettings;
@@ -78,6 +79,7 @@ export const saveSettings = createAsyncThunk(
       workspaces: state.workspaces,
       current_workspace_id: state.current_workspace.id,
       default_ssh_action: state.default_ssh_action,
+      default_ssh_client: state.default_ssh_client,
     };
     await writeTextFile(settingsFilePath, JSON.stringify(settingsSave));
     return state;

@@ -59,14 +59,14 @@ import type { ReactNode } from "react";
 
 const colorSchemeData = [
   {
-    icon: IconBolt,
-    text: "Auto",
-    value: "auto",
-  },
-  {
     icon: IconSun,
     text: "Light",
     value: "light",
+  },
+  {
+    icon: IconBolt,
+    text: "Auto",
+    value: "auto",
   },
   {
     icon: IconMoon,

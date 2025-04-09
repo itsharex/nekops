@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import fs from "fs";
+import { renameSync, mkdirSync, existsSync } from "fs";
 
 const extension = process.platform === "win32" ? ".exe" : "";
 
@@ -9,7 +9,10 @@ if (!targetTriple) {
   console.error("Failed to determine platform target triple");
 }
 const projectName = process.argv[2];
-fs.renameSync(
+if (!existsSync("src-tauri/embedded/bin")) {
+  mkdirSync("src-tauri/embedded/bin");
+}
+renameSync(
   `src-tauri/embedded/workspace/${projectName}/${projectName}${extension}`,
   `src-tauri/embedded/bin/${projectName}-${targetTriple}${extension}`,
 );

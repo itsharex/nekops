@@ -70,7 +70,9 @@ export const startEmbeddedSSH = (
       console.log("evStart", eventsStartIndex, "evEnd", eventsEndIndex);
 
       if (eventsStartIndex != -1 && eventsEndIndex != -1) {
-        // Includes full event
+        let isEventProcessed = false;
+
+        // Includes full event, start processing
         const eventBody = data.slice(eventsStartIndex + 1, eventsEndIndex);
         const eventsSplitterIndex = eventBody.indexOf(0x1f);
         if (eventsSplitterIndex == -1) {
@@ -83,7 +85,8 @@ export const startEmbeddedSSH = (
               console.log("SSH start!");
               stateUpdateOnNewMessage();
               isSSHStart = true;
-              return;
+              isEventProcessed = true;
+              break;
             default:
               console.warn("Unsupported event", eventName);
           }
@@ -106,16 +109,32 @@ export const startEmbeddedSSH = (
                 () => stateSSHProcess.write("y"), // yes
                 () => stateSSHProcess.write("n"), // no
               );
-              return;
+              isEventProcessed = true;
+              break;
             default:
               console.warn("Unsupported event", eventName, eventPayload);
           }
         }
+
+        // Check if event has been processed successfully
+        if (isEventProcessed) {
+          // Send data before and after event directly to terminal
+          if (eventsStartIndex > 0) {
+            terminal.write(data.slice(0, eventsStartIndex));
+          }
+          if (eventsEndIndex + 1 < data.length) {
+            terminal.write(data.slice(eventsEndIndex + 1));
+          }
+          // No need to write full data, quit this round
+          return;
+        } // else go normal process
       } else {
+        // Incomplete event, unable to process now
         console.warn("Incomplete event", data);
       }
     } // else: ssh has already started, we don't need to manipulate data anymore
 
+    // Normal data write process
     stateUpdateOnNewMessage();
 
     terminal.write(data);
@@ -145,7 +164,7 @@ export const startEmbeddedSSH = (
 
     // Sync resize event
     terminal.onResize(({ cols, rows }) => {
-      sshProcess.write(`\x1B[8;${rows};${cols}t`); // Can't send as a whole
+      sshProcess.write(`\x1B[8;${rows};${cols}t`);
     });
 
     // Terminate when close

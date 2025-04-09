@@ -168,6 +168,6 @@ export const startEmbeddedSSH = (
     });
 
     // Terminate when close
-    setTerminateSSHFunc(sshProcess.kill);
+    setTerminateSSHFunc(() => sshProcess.kill());
   });
 };

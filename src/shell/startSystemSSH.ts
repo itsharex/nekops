@@ -109,6 +109,6 @@ export const startSystemSSH = (
     // });
 
     // Terminate when close
-    setTerminateSSHFunc(sshProcess.kill);
+    setTerminateSSHFunc(() => sshProcess.kill());
   });
 };

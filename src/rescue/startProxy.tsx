@@ -43,6 +43,6 @@ export const startProxy = (
     });
 
     proxyCommand.spawn().then((proxyProcess) => {
-      setTerminateFunc(proxyProcess.kill);
+      setTerminateFunc(() => proxyProcess.kill());
     });
   });

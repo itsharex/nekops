@@ -21,7 +21,10 @@
     "externalBin": [
       "embedded/bin/websockify",
       "embedded/bin/pipessh"
-    ]
+    ],
+    "macOS": {
+      "signingIdentity": "-"
+    }
   },
   "app": {
     "security": {

@@ -1,6 +1,6 @@
 {
   "productName": "Nekops",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "identifier": "com.candinya.nekops",
   "build": {
     "beforeDevCommand": "pnpm dev",

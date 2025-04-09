@@ -1,17 +1,26 @@
-import { Terminal } from "@xterm/xterm";
+import { Child, Command } from "@tauri-apps/plugin-shell";
+import type { Terminal } from "@xterm/xterm";
+
 import type { AccessRegular } from "@/types/server.ts";
-import { Command } from "@tauri-apps/plugin-shell";
 import type { TabState } from "@/types/tabState.ts";
+import type { ShellClientOptions } from "@/events/payload.ts";
+import { hostKeyEventHandler } from "./hostKeyEventHandler.tsx";
 
 export const startEmbeddedSSH = (
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
   setShellState: (newState: TabState) => void,
   setTerminateSSHFunc: (func: (() => void) | null) => void,
+  client: ShellClientOptions,
   server: AccessRegular,
+  serverName: string,
+  themeColor: string,
   jumpServer?: AccessRegular,
 ) => {
   const sshArgs = [];
+  if (client.workspaceKnownHostsFile) {
+    sshArgs.push("-o", `UserKnownHostsFile=${client.workspaceKnownHostsFile}`);
+  }
   if (jumpServer) {
     sshArgs.push(
       "-J",
@@ -28,6 +37,7 @@ export const startEmbeddedSSH = (
   // console.log("Args", sshArgs.join(" "));
   let isSSHStart = false;
   const eventDecoder = new TextDecoder("ascii");
+  let stateSSHProcess: Child;
 
   // Pipe message from ssh to terminal
   const sshCommand = Command.sidecar("embedded/bin/pipessh", sshArgs, {
@@ -83,12 +93,19 @@ export const startEmbeddedSSH = (
           );
           const eventPayload = JSON.parse(
             eventDecoder.decode(
-              new Uint8Array(eventBody.slice(eventsSplitterIndex)).buffer,
+              new Uint8Array(eventBody.slice(eventsSplitterIndex + 1)).buffer,
             ),
           );
           switch (eventName) {
             case "hostKey":
               console.log("Host key mismatch event", eventPayload); // TODO
+              hostKeyEventHandler(
+                serverName,
+                themeColor,
+                eventPayload,
+                () => stateSSHProcess.write("y"), // yes
+                () => stateSSHProcess.write("n"), // no
+              );
               return;
             default:
               console.warn("Unsupported event", eventName, eventPayload);
@@ -107,7 +124,7 @@ export const startEmbeddedSSH = (
   sshCommand.stderr.on("data", (data) => {
     stateUpdateOnNewMessage();
 
-    terminal.write("\x1B[0;0;31m"); // Write color control bytes to change output color to red
+    terminal.write("\x1B[1;31m"); // Write color control bytes to change output color to red
     terminal.write(data); // Write Uint8Array data in raw mode
     terminal.write("\x1B[0m"); // Write color reset bytes to recover color to default (white)
     // console.log("stderr", data);
@@ -116,6 +133,7 @@ export const startEmbeddedSSH = (
   // Start SSH process
   sshCommand.spawn().then((sshProcess) => {
     // console.log(sshProcess);
+    stateSSHProcess = sshProcess;
 
     // Pipe input from terminal to ssh
     terminal.onData((data) => {

@@ -61,7 +61,7 @@ export const startSystemSSH = (
   sshCommand.stderr.on("data", (data) => {
     stateUpdateOnNewMessage();
 
-    terminal.write("\x1B[0;0;31m"); // Write color control bytes to change output color to red
+    terminal.write("\x1B[1;31m"); // Write color control bytes to change output color to red
     terminal.write(data); // Write Uint8Array data in raw mode
     terminal.write("\x1B[0m"); // Write color reset bytes to recover color to default (white)
     // console.log("stderr", data);

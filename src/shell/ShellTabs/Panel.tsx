@@ -1,6 +1,7 @@
+import { Tabs } from "@mantine/core";
+
 import type { ShellSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
-import { Tabs } from "@mantine/core";
 import ShellTerminal from "@/shell/ShellTerminal.tsx";
 
 interface ShellPanelProps {
@@ -19,9 +20,10 @@ const ShellPanel = ({
     <ShellTerminal
       nonce={data.nonce}
       themeColor={data.color}
+      clientOptions={data.clientOptions}
       server={data.access}
+      serverName={data.name}
       jumpServer={data.jumpServer}
-      client={data.client}
       setShellState={setShellState}
       setNewMessage={setNewMessage}
       isActive={isActive}

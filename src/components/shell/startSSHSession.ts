@@ -1,7 +1,10 @@
 import type { Server } from "@/types/server.ts";
 import { openShellWindow } from "@/utils/openWindow/shell.ts";
 import { emit, once } from "@tauri-apps/api/event";
-import type { EventPayloadShellNew } from "@/events/payload.ts";
+import type {
+  EventPayloadShellNew,
+  ShellClientOptions,
+} from "@/events/payload.ts";
 import { notifications } from "@mantine/notifications";
 import {
   EventNameShellNew,
@@ -16,7 +19,7 @@ import {
 } from "@/notifications/shell.tsx";
 
 export const startSSHSession = async (
-  client: string,
+  clientOptions: ShellClientOptions,
   server: Server,
   jumpServer?: Server,
 ) => {
@@ -64,7 +67,7 @@ export const startSSHSession = async (
             color: server.color,
             access: server.access.regular,
             jumpServer: jumpServer ? jumpServer.access.regular : undefined,
-            client: client,
+            clientOptions,
           },
         ],
       };

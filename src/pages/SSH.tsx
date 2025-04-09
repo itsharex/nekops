@@ -10,6 +10,7 @@ import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import SSHContextMenu from "@/components/shell/SSHContextMenu.tsx";
 import { startSSHSession } from "@/components/shell/startSSHSession.ts";
 import { copySSHCommand } from "@/components/shell/copySSHCommand.ts";
+import { path } from "@tauri-apps/api";
 
 const SSHPage = () => {
   const servers = useSelector((state: RootState) => state.servers);
@@ -23,10 +24,24 @@ const SSHPage = () => {
   );
   const settings = useSelector((state: RootState) => state.settings);
 
+  const startSSH = async (server: Server, jumpServer?: Server) => {
+    startSSHSession(
+      {
+        type: settings.default_ssh_client,
+        workspaceKnownHostsFile: await path.join(
+          settings.current_workspace.data_dir,
+          "known_hosts",
+        ),
+      },
+      server,
+      jumpServer,
+    );
+  };
+
   const clickServerCard = (server: Server, jumpServer?: Server) => {
     switch (settings.default_ssh_action) {
       case "start":
-        startSSHSession(settings.default_ssh_client, server, jumpServer);
+        startSSH(server, jumpServer);
         break;
       case "copy":
       default:
@@ -94,10 +109,7 @@ const SSHPage = () => {
         }}
         onClickStart={() => {
           if (currentSelectedServer.current) {
-            startSSHSession(
-              settings.default_ssh_client,
-              currentSelectedServer.current,
-            );
+            startSSH(currentSelectedServer.current);
           }
         }}
         onClickJumpServer={(jumpServer: Server) => {

@@ -11,7 +11,10 @@ import { LoadingOverlay, rem } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
 import { startSystemSSH } from "@/shell/startSystemSSH.ts";
-import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
+import type {
+  EventPayloadShellSendCommandByNonce,
+  ShellClientOptions,
+} from "@/events/payload.ts";
 import {
   EventNameShellSelectAllByNonce,
   EventNameShellSendCommandByNonce,
@@ -24,8 +27,9 @@ interface ShellTerminalProps {
   nonce: string;
   themeColor: string;
   server: AccessRegular;
+  serverName: string;
   jumpServer?: AccessRegular;
-  client: string;
+  clientOptions: ShellClientOptions;
   setShellState: (state: TabState) => void;
   setNewMessage: () => void;
   isActive: boolean;
@@ -34,8 +38,9 @@ const ShellTerminal = ({
   nonce,
   themeColor,
   server,
+  serverName,
   jumpServer,
-  client,
+  clientOptions,
   setShellState,
   setNewMessage,
   isActive,
@@ -116,14 +121,17 @@ const ShellTerminal = ({
         startDummy(nonce, terminal, stateUpdateOnNewMessage, setShellState);
       } else {
         // Start normal server
-        switch (client) {
+        switch (clientOptions.type) {
           case "embedded":
             startEmbeddedSSH(
               terminal,
               stateUpdateOnNewMessage,
               setShellState,
               setTerminateSSHFunc,
+              clientOptions,
               server,
+              serverName,
+              themeColor,
               jumpServer,
             );
             break;
@@ -138,7 +146,7 @@ const ShellTerminal = ({
             );
             break;
           default:
-            console.warn("Unsupported client", client);
+            console.warn("Unsupported client", clientOptions.type);
             break;
         }
       }

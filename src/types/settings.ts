@@ -1,3 +1,5 @@
+import type { ShellClientType } from "./shell.ts";
+
 export type WorkSpace = {
   id: string;
   name: string;
@@ -7,7 +9,7 @@ export type WorkSpace = {
 type SettingsCommon = {
   workspaces: WorkSpace[];
   default_ssh_action: "copy" | "start";
-  default_ssh_client: "embedded" | "system";
+  default_ssh_client: ShellClientType;
 };
 
 export type SettingsSave = {

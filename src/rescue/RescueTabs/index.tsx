@@ -358,6 +358,7 @@ const RescueTabs = () => {
                                 ev.preventDefault();
                                 rightClickTab(ev, tabData);
                               }}
+                              isActive={currentActiveTab === tabData.nonce}
                             />
                           </div>
                         )}

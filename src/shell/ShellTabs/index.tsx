@@ -13,6 +13,7 @@ import {
   EventNameShellTabsListRequest,
   EventNameShellTabsListResponse,
   EventNameWindowCloseShell,
+  EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import type {
   EventPayloadShellNew,
@@ -261,6 +262,10 @@ const ShellTabs = () => {
     }
   };
 
+  const shellWindowResizeHandler = () => {
+    emit(EventNameWindowResizeShell);
+  };
+
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal
   const tabsScrollerRef = useRef<HTMLDivElement | null>(null);
   const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
@@ -297,6 +302,10 @@ const ShellTabs = () => {
       preCloseHandler,
     );
 
+    const stopWindowResizeShellListener = Window.getCurrent().onResized(
+      shellWindowResizeHandler,
+    );
+
     return () => {
       (async () => {
         (await stopShellReadyListener)();
@@ -316,6 +325,10 @@ const ShellTabs = () => {
 
       (async () => {
         (await stopWindowCloseShellListener)();
+      })();
+
+      (async () => {
+        (await stopWindowResizeShellListener)();
       })();
     };
   }, []);

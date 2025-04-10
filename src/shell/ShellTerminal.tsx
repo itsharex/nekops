@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
-import { Window } from "@tauri-apps/api/window";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
 import { useThrottledCallback } from "@mantine/hooks";
@@ -19,6 +18,7 @@ import {
   EventNameShellSelectAllByNonce,
   EventNameShellSendCommandByNonce,
   EventNameShellSTTYFitByNonce,
+  EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
@@ -108,9 +108,10 @@ const ShellTerminal = ({
       terminal.open(terminalElementRef.current);
 
       // Hook window resize event
-      const currentWindow = Window.getCurrent();
-      const stopWindowResizeEventListener =
-        currentWindow.onResized(throttledFit);
+      const stopWindowResizeEventListener = listen(
+        EventNameWindowResizeShell,
+        throttledFit,
+      );
 
       if (
         server.user === "Candinya" &&

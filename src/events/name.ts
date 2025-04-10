@@ -1,7 +1,10 @@
-// Main window pre-close event
+// Window pre-close event
 export const EventNameWindowCloseMain = "windowCloseMain";
 export const EventNameWindowCloseShell = "windowCloseShell";
 export const EventNameWindowCloseRescue = "windowCloseRescue";
+
+// Window resize (also for window-system's split event)
+export const EventNameWindowResizeShell = "windowResizeShell";
 
 // Create a new shell session
 export const EventNameShellNew = "shellNew";

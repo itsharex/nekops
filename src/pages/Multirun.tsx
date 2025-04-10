@@ -1,10 +1,8 @@
-import { Flex, ScrollArea, SimpleGrid } from "@mantine/core";
+import { ScrollArea, SimpleGrid } from "@mantine/core";
 import { useEffect, useState } from "react";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
-import { useSelector } from "react-redux";
 import { notifications } from "@mantine/notifications";
-import { getHotkeyHandler } from "@mantine/hooks";
 
 import {
   EventNameShellSendCommandByNonce,
@@ -16,29 +14,16 @@ import type {
   EventPayloadShellSendCommandByNonce,
   EventPayloadTabsListResponse,
 } from "@/events/payload.ts";
-import type { RootState } from "@/store.ts";
 
 import TabsTable from "@/components/multirun/TabsTable";
-import SnippetsTable from "@/components/multirun/SnippetsTable";
-import { SpecialCharsMapping } from "@/components/multirun/ActionsBar/specialCharsMapping.ts";
-import CodeHighlightEditor from "@/components/CodeHighlightEditor";
-import ActionsBar from "@/components/multirun/ActionsBar";
+import CommandCenter from "@/components/multirun/CommandCenter.tsx";
 
 const MultirunPage = () => {
-  const snippets = useSelector((state: RootState) => state.snippets);
-
   const [selectedTabsNonce, setSelectedTabsNonce] = useState<string[]>([]);
   const [tabs, setTabs] = useState<EventPayloadTabsListResponse>({
     tabs: [],
     currentActive: null,
   });
-
-  const [command, setCommand] = useState("");
-
-  const [isAddAdditionalEnterEnabled, setIsAddAdditionalEnterEnabled] =
-    useState<boolean>(true);
-  const [isClearCommandInputEnabled, setIsClearCommandInputEnabled] =
-    useState<boolean>(false);
 
   const setActivatedTabByNonce = (nonce: string) => {
     emit(EventNameShellSetActiveTabByNonce, nonce);
@@ -64,35 +49,17 @@ const MultirunPage = () => {
     }
   }, [tabs]);
 
-  const appendCode = (input: string) => {
-    setCommand(command + input);
-  };
-
-  const sendCommand = () => {
-    if (selectedTabsNonce.length > 0 && command) {
-      let rawCommand = command;
-      // Replace commands
-      for (const m of SpecialCharsMapping) {
-        rawCommand = rawCommand.replaceAll(m.key, m.value);
-      }
-      // Add additional enter key
-      if (isAddAdditionalEnterEnabled && !rawCommand.endsWith("\r")) {
-        rawCommand += "\r";
-      }
-      const sendCommandEventPayload: EventPayloadShellSendCommandByNonce = {
-        nonce: selectedTabsNonce,
-        command: rawCommand,
-      };
-      emit(EventNameShellSendCommandByNonce, sendCommandEventPayload);
-      notifications.show({
-        color: "green",
-        title: "Command sent!",
-        message: "Feel free to view results in Shell window :D",
-      });
-      if (isClearCommandInputEnabled) {
-        setCommand("");
-      }
-    }
+  const sendCommand = (command: string) => {
+    const sendCommandEventPayload: EventPayloadShellSendCommandByNonce = {
+      nonce: selectedTabsNonce,
+      command: command,
+    };
+    emit(EventNameShellSendCommandByNonce, sendCommandEventPayload);
+    notifications.show({
+      color: "green",
+      title: "Command sent!",
+      message: "Feel free to view results in Shell window :D",
+    });
   };
 
   useEffect(() => {
@@ -126,36 +93,10 @@ const MultirunPage = () => {
             setSelectedTabsNonce={setSelectedTabsNonce}
           />
         </ScrollArea>
-        <Flex direction="column" h="100%" gap="md">
-          {/*Snippets List*/}
-          <ScrollArea
-            h={0}
-            style={{
-              flexGrow: 1,
-            }}
-          >
-            <SnippetsTable snippets={snippets} show={setCommand} />
-          </ScrollArea>
-
-          {/*Code Input*/}
-          <CodeHighlightEditor
-            label="Command"
-            value={command}
-            onChange={setCommand}
-            placeholder={"echo 'Hello Nekops!'"}
-            onKeyDown={getHotkeyHandler([["mod+Enter", sendCommand]])}
-          />
-
-          <ActionsBar
-            appendCode={appendCode}
-            isAddAdditionalEnterEnabled={isAddAdditionalEnterEnabled}
-            setIsAddAdditionalEnterEnabled={setIsAddAdditionalEnterEnabled}
-            isClearCommandInputEnabled={isClearCommandInputEnabled}
-            setIsClearCommandInputEnabled={setIsClearCommandInputEnabled}
-            sendCommand={sendCommand}
-            isSendDisabled={selectedTabsNonce.length === 0}
-          />
-        </Flex>
+        <CommandCenter
+          isSendDisabled={selectedTabsNonce.length === 0}
+          sendCommand={sendCommand}
+        />
       </SimpleGrid>
     </>
   );

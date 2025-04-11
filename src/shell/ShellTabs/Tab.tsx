@@ -51,11 +51,11 @@ const ShellTab = ({
         borderBottomStyle: "solid",
         backgroundColor: hovered
           ? colorScheme === "light"
-            ? theme.colors.gray[2]
-            : theme.colors.gray[8]
+            ? theme.colors.gray[0]
+            : theme.colors.dark[6]
           : colorScheme === "light"
             ? theme.white
-            : theme.colors.gray[9],
+            : theme.colors.dark[7],
       }}
       leftSection={<TabStateIcon state={state} isNewMessage={isNewMessage} />}
       rightSection={

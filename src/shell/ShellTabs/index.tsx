@@ -587,11 +587,14 @@ const ShellTabs = () => {
                               col: colIndex,
                             });
                           }}
-                          isActive={currentActiveTab.includes({
-                            row: rowIndex,
-                            col: colIndex,
-                            nonce: tabsData[index].nonce,
-                          })}
+                          isActive={
+                            currentActiveTab.findIndex(
+                              (v) =>
+                                v.row === rowIndex &&
+                                v.col === colIndex &&
+                                v.nonce === tabsData[index].nonce,
+                            ) !== -1
+                          }
                         />
                       ))}
                   </Box>

@@ -11,7 +11,7 @@ import "@xterm/xterm/css/xterm.css";
 import "@/rescue/style.css";
 
 import RescueTabs from "@/rescue/RescueTabs";
-import RescueBackground from "@/rescue/RescueBackground.tsx";
+import WindowBackground from "@/common/WindowBackground.tsx";
 
 const theme = createTheme({
   /** Put your mantine theme override here */
@@ -22,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <MantineProvider theme={theme}>
       <Notifications />
       <ModalsProvider>
-        <RescueBackground />
+        <WindowBackground />
         <RescueTabs />
       </ModalsProvider>
     </MantineProvider>

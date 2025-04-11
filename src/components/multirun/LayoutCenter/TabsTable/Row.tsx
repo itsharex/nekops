@@ -1,10 +1,10 @@
-import type { EventPayloadTabsListResponseSingleTab } from "@/events/payload.ts";
+import type { ShellSingleTab } from "@/events/payload.ts";
 import { Checkbox, Table } from "@mantine/core";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { memo } from "react";
 
 interface TabsTableRowProps {
-  tab: EventPayloadTabsListResponseSingleTab;
+  tab: ShellSingleTab;
   show: () => void;
   isSelected: boolean;
   setIsSelected: (state: boolean) => void;
@@ -32,6 +32,10 @@ const TabsTableRow = ({
       />
     </Table.Td>
     <Table.Td>{tab.server.name}</Table.Td>
+    <Table.Td>
+      {tab.gridLocation.row + 1}#{tab.gridLocation.col + 1}-
+      {tab.gridLocation.order + 1}
+    </Table.Td>
     <Table.Td ta="center">
       <TabStateIcon state={tab.state} isNewMessage={tab.isNewMessage} />
     </Table.Td>

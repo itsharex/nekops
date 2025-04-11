@@ -6,7 +6,7 @@ import ActionsBar from "./ActionsBar";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store.ts";
 import { memo, useState } from "react";
-import { SpecialCharsMapping } from "./ActionsBar/specialCharsMapping.ts";
+import { SpecialCharsMapping } from "./specialCharsMapping.ts";
 
 interface CommandCenterProps {
   isSendDisabled: boolean;

@@ -10,8 +10,7 @@ import {
 } from "@mantine/core";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
-import type { MouseEvent, WheelEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState, WheelEvent } from "react";
 import { Window } from "@tauri-apps/api/window";
 import { useListState, useThrottledCallback } from "@mantine/hooks";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
@@ -19,6 +18,7 @@ import { modals } from "@mantine/modals";
 
 import type { TabState } from "@/types/tabState.ts";
 import {
+  EventNameShellGridModify,
   EventNameShellNew,
   EventNameShellReadyRequest,
   EventNameShellReadyResponse,
@@ -31,35 +31,51 @@ import {
   EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import type {
+  EventPayloadShellGridModify,
   EventPayloadShellNew,
-  EventPayloadTabsListResponse,
+  EventPayloadShellTabsListResponse,
   ShellSingleServer,
 } from "@/events/payload.ts";
 import type {
-  ShellGridActiveTab,
-  ShellGridLocation,
-  ShellGridPos,
+  ShellGridBase,
+  ShellGridTabLocation,
+  ShellGridTabNonce,
 } from "@/types/shell.ts";
 
 import ShellTabContextMenu from "./ContextMenu.tsx";
 import ShellTab from "./Tab.tsx";
 import ShellPanel from "./Panel.tsx";
 import style from "./style.module.css";
+import {
+  LayoutColsWeight,
+  LayoutMaxCols,
+  LayoutMaxRows,
+} from "@/shell/layoutConfig.ts";
 
 const ShellTabs = () => {
   // Window layout
-  const [gridCols, setGridCols] = useState(2);
-  const [gridRows, setGridRows] = useState(2);
+  const [gridRows, setGridRows] = useState(1);
+  const [gridCols, setGridCols] = useState(1);
+  const gridSizeRef = useRef<ShellGridBase>({
+    row: 1,
+    col: 1,
+  });
+  useEffect(() => {
+    gridSizeRef.current = {
+      row: gridRows,
+      col: gridCols,
+    };
+  }, [gridRows, gridCols]);
 
   // For components render
   const [tabsData, tabsDataHandlers] = useListState<ShellSingleServer>([]);
   const [tabsGridLocation, tabsGridLocationHandlers] =
-    useListState<ShellGridLocation>([]);
+    useListState<ShellGridTabLocation>([]);
   const [tabsState, tabsStateHandlers] = useListState<TabState>([]);
   const [tabsNewMessage, tabsNewMessageHandlers] = useListState<boolean>([]);
   // For events binding
   const tabsDataRef = useRef<ShellSingleServer[]>([]);
-  const tabsGridLocationRef = useRef<ShellGridLocation[]>([]);
+  const tabsGridLocationRef = useRef<ShellGridTabLocation[]>([]);
   const tabsStateRef = useRef<TabState[]>([]);
   const tabsNewMessageRef = useRef<boolean[]>([]);
   // Bind state : setTabsData -> tabsData -> tabsDataRef
@@ -77,19 +93,19 @@ const ShellTabs = () => {
   }, [tabsNewMessage]);
 
   const [currentActiveTab, currentActiveTabHandlers] =
-    useListState<ShellGridActiveTab>([
+    useListState<ShellGridTabNonce>([
       {
         row: 0,
         col: 0,
         nonce: null,
       },
     ]);
-  const currentActiveTabRef = useRef<ShellGridActiveTab[]>([]);
+  const currentActiveTabRef = useRef<ShellGridTabNonce[]>([]);
   useEffect(() => {
     currentActiveTabRef.current = currentActiveTab;
   }, [currentActiveTab]);
 
-  const setCurrentActiveTab = (payload: ShellGridActiveTab) => {
+  const setCurrentActiveTab = (payload: ShellGridTabNonce) => {
     const currentActiveTabIndex = currentActiveTabRef.current.findIndex(
       (p) => p.row === payload.row && p.col === payload.col,
     );
@@ -102,10 +118,10 @@ const ShellTabs = () => {
 
   // Response tabs data event (initialize / update)
   const responseTabsList = () => {
-    const payload: EventPayloadTabsListResponse = {
+    const payload: EventPayloadShellTabsListResponse = {
       grid: {
-        row: gridRows,
-        col: gridCols,
+        row: gridSizeRef.current.row,
+        col: gridSizeRef.current.col,
       },
       tabs: tabsDataRef.current.map((server, i) => ({
         server: {
@@ -132,6 +148,8 @@ const ShellTabs = () => {
     tabsState,
     tabsNewMessage,
     currentActiveTab,
+    gridRows,
+    gridCols,
   ]);
 
   // Event listeners
@@ -276,7 +294,7 @@ const ShellTabs = () => {
     }
   };
 
-  const setTabNewMessageState = (nonce: string, pos: ShellGridPos) => {
+  const setTabNewMessageState = (nonce: string, pos: ShellGridBase) => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
@@ -359,6 +377,38 @@ const ShellTabs = () => {
     200,
   );
 
+  const shellGridModifyHandler = (ev: Event<EventPayloadShellGridModify>) => {
+    console.log("Grid modify", ev.payload);
+    switch (ev.payload.action) {
+      case "add":
+        if (ev.payload.grid.row > 0) {
+          const newRows = gridSizeRef.current.row + ev.payload.grid.row;
+          if (newRows <= LayoutMaxRows) {
+            setGridRows(newRows);
+          }
+        }
+        if (ev.payload.grid.col > 0) {
+          const newCols = gridSizeRef.current.col + ev.payload.grid.col;
+          if (newCols <= LayoutMaxCols) {
+            setGridCols(newCols);
+          }
+        }
+        break;
+      case "set":
+        if (ev.payload.grid.row > 0 && ev.payload.grid.row < LayoutMaxRows) {
+          setGridRows(ev.payload.grid.row);
+        }
+        if (ev.payload.grid.col > 0 && ev.payload.grid.col < LayoutMaxCols) {
+          setGridCols(ev.payload.grid.col);
+        }
+        break;
+      case "tidy":
+        // TODO
+        break;
+    }
+    shellWindowResizeHandler();
+  };
+
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal
   const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
     if (ev.deltaY !== 0) {
@@ -398,6 +448,11 @@ const ShellTabs = () => {
       throttledWindowResizeHandler,
     );
 
+    const stopShellGridModifyListener = listen(
+      EventNameShellGridModify,
+      shellGridModifyHandler,
+    );
+
     return () => {
       (async () => {
         (await stopShellReadyListener)();
@@ -421,6 +476,10 @@ const ShellTabs = () => {
 
       (async () => {
         (await stopWindowResizeShellListener)();
+      })();
+
+      (async () => {
+        (await stopShellGridModifyListener)();
       })();
     };
   }, []);
@@ -456,8 +515,9 @@ const ShellTabs = () => {
           inner: style.gridInner,
           col: style.gridCol,
         }}
+        columns={LayoutColsWeight}
         gutter={0}
-        grow
+        // grow
       >
         <DragDropContext
           onDragEnd={({ destination, source }) => {
@@ -483,7 +543,7 @@ const ShellTabs = () => {
                 .map((_, colIndex) => (
                   <Grid.Col
                     key={`section-${rowIndex}-${colIndex}`}
-                    span={Math.floor(12 / gridCols)}
+                    span={LayoutColsWeight / gridCols}
                   >
                     <Droppable
                       droppableId={`shell-tabs:${rowIndex}-${colIndex}`}

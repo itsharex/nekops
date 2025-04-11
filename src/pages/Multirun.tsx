@@ -1,4 +1,4 @@
-import { ScrollArea, SimpleGrid } from "@mantine/core";
+import { SimpleGrid } from "@mantine/core";
 import { useEffect, useState } from "react";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
@@ -12,17 +12,17 @@ import {
 } from "@/events/name.ts";
 import type {
   EventPayloadShellSendCommandByNonce,
-  EventPayloadTabsListResponse,
+  EventPayloadShellTabsListResponse,
 } from "@/events/payload.ts";
 
-import TabsTable from "@/components/multirun/TabsTable";
-import CommandCenter from "@/components/multirun/CommandCenter.tsx";
+import LayoutCenter from "@/components/multirun/LayoutCenter";
+import CommandCenter from "@/components/multirun/CommandCenter";
 
 const MultirunPage = () => {
   const [selectedTabsNonce, setSelectedTabsNonce] = useState<string[]>([]);
-  const [tabs, setTabs] = useState<EventPayloadTabsListResponse>({
+  const [tabs, setTabs] = useState<EventPayloadShellTabsListResponse>({
+    grid: { row: 0, col: 0 },
     tabs: [],
-    currentActive: null,
   });
 
   const setActivatedTabByNonce = (nonce: string) => {
@@ -33,7 +33,9 @@ const MultirunPage = () => {
     emit(EventNameShellTabsListRequest);
   };
 
-  const responseTabsListHandler = (ev: Event<EventPayloadTabsListResponse>) => {
+  const responseTabsListHandler = (
+    ev: Event<EventPayloadShellTabsListResponse>,
+  ) => {
     setTabs(ev.payload);
   };
 
@@ -65,7 +67,7 @@ const MultirunPage = () => {
   useEffect(() => {
     // Prepare event listener for tabs update
     const stopShellTabsListResponseListener =
-      listen<EventPayloadTabsListResponse>(
+      listen<EventPayloadShellTabsListResponse>(
         EventNameShellTabsListResponse,
         responseTabsListHandler,
       );
@@ -85,14 +87,12 @@ const MultirunPage = () => {
     <>
       <SimpleGrid cols={2} h="100%" p="md">
         {/*Server Table*/}
-        <ScrollArea>
-          <TabsTable
-            tabs={tabs}
-            show={setActivatedTabByNonce}
-            selectedTabsNonce={selectedTabsNonce}
-            setSelectedTabsNonce={setSelectedTabsNonce}
-          />
-        </ScrollArea>
+        <LayoutCenter
+          tabs={tabs}
+          show={setActivatedTabByNonce}
+          selectedTabsNonce={selectedTabsNonce}
+          setSelectedTabsNonce={setSelectedTabsNonce}
+        />
         <CommandCenter
           isSendDisabled={selectedTabsNonce.length === 0}
           sendCommand={sendCommand}

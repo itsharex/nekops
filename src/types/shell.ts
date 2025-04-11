@@ -1,14 +1,14 @@
 export type ShellClientType = "embedded" | "system";
 
-export type ShellGridPos = {
+export type ShellGridBase = {
   row: number;
   col: number;
 };
 
-export type ShellGridLocation = ShellGridPos & {
+export type ShellGridTabLocation = ShellGridBase & {
   order: number;
 };
 
-export type ShellGridActiveTab = ShellGridPos & {
+export type ShellGridTabNonce = ShellGridBase & {
   nonce: string | null;
 };

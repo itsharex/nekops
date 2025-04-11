@@ -17,6 +17,7 @@ const TabsTableHead = ({ selectedState, selectAll }: TabsTableHeadProps) => {
         />
       </Table.Th>
       <Table.Th>Server Name</Table.Th>
+      <Table.Th>Grid Location</Table.Th>
       <Table.Th style={actionRowStyle(1)}>State</Table.Th>
     </Table.Tr>
   );

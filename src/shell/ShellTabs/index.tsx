@@ -439,169 +439,174 @@ const ShellTabs = () => {
   };
 
   return (
-    <Grid
-      classNames={{
-        root: style.gridRoot,
-        inner: style.gridInner,
-        col: style.gridCol,
-      }}
-      gutter={0}
-      grow
-    >
-      {Array(gridRows)
-        .fill(null)
-        .map((_, rowIndex) =>
-          Array(gridCols)
+    <>
+      <Grid
+        classNames={{
+          root: style.gridRoot,
+          inner: style.gridInner,
+          col: style.gridCol,
+        }}
+        gutter={0}
+        grow
+      >
+        <DragDropContext
+          onDragEnd={({ destination, source }) => {
+            if (destination) {
+              console.log("dnd", source, destination);
+              if (source.droppableId === destination.droppableId) {
+                // In same section
+              } else {
+                // Cross sections
+              }
+
+              // tabsDataHandlers.reorder(reorderOption);
+              // tabsStateHandlers.reorder(reorderOption);
+              // tabsNewMessageHandlers.reorder(reorderOption);
+            }
+          }}
+        >
+          {Array(gridRows)
             .fill(null)
-            .map((_, colIndex) => (
-              <Grid.Col
-                key={`section-${rowIndex}-${colIndex}`}
-                span={Math.floor(12 / gridCols)}
-              >
-                <Tabs
-                  className={style.tabs}
-                  value={
-                    currentActiveTab.find(
-                      (p) => p.row === rowIndex && p.col === colIndex,
-                    )?.nonce
-                  }
-                  onChange={(newActive) => {
-                    setCurrentActiveTab({
-                      row: rowIndex,
-                      col: colIndex,
-                      nonce: newActive,
-                    });
-
-                    if (newActive) {
-                      clearTabNewMessageState(newActive);
-                    }
-                  }}
-                  activateTabWithKeyboard={false}
-                  onContextMenu={(ev) => ev.preventDefault()}
-                >
-                  <DragDropContext
-                    onDragEnd={({ destination, source }) => {
-                      if (destination) {
-                        console.log("dnd", source, destination);
-                        if (source.droppableId === destination.droppableId) {
-                          // In same section
-                        } else {
-                          // Cross sections
-                        }
-
-                        // tabsDataHandlers.reorder(reorderOption);
-                        // tabsStateHandlers.reorder(reorderOption);
-                        // tabsNewMessageHandlers.reorder(reorderOption);
+            .map((_, rowIndex) =>
+              Array(gridCols)
+                .fill(null)
+                .map((_, colIndex) => (
+                  <Grid.Col
+                    key={`section-${rowIndex}-${colIndex}`}
+                    span={Math.floor(12 / gridCols)}
+                  >
+                    <Tabs
+                      className={style.tabs}
+                      value={
+                        currentActiveTab.find(
+                          (p) => p.row === rowIndex && p.col === colIndex,
+                        )?.nonce
                       }
-                    }}
-                  >
-                    <Droppable
-                      droppableId={`shell-tabs:${rowIndex}-${colIndex}`}
-                      direction="horizontal"
-                    >
-                      {(provided) => (
-                        <Tabs.List
-                          ref={provided.innerRef}
-                          mih={42}
-                          {...provided.droppableProps}
-                        >
-                          <ScrollArea scrollbars="x" onWheel={scrollTabs}>
-                            <Flex>
-                              {tabsGridLocation
-                                .filter(
-                                  (pos) =>
-                                    pos.row === rowIndex &&
-                                    pos.col === colIndex,
-                                )
-                                .toSorted((a, b) => a.order - b.order)
-                                .map((_, index) => (
-                                  <Draggable
-                                    key={tabsData[index].nonce}
-                                    draggableId={tabsData[index].nonce}
-                                    index={index}
-                                  >
-                                    {(provided) => (
-                                      <div
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        ref={provided.innerRef}
-                                      >
-                                        <ShellTab
-                                          data={tabsData[index]}
-                                          close={() => {
-                                            terminateByNonce(
-                                              tabsData[index].nonce,
-                                            );
-                                          }}
-                                          state={tabsState[index]}
-                                          isNewMessage={tabsNewMessage[index]}
-                                          onContextMenu={(ev) => {
-                                            ev.preventDefault();
-                                            rightClickTab(ev, tabsData[index]);
-                                          }}
-                                          isActive={
-                                            currentActiveTab.findIndex(
-                                              (v) =>
-                                                v.row === rowIndex &&
-                                                v.col === colIndex &&
-                                                v.nonce ===
-                                                  tabsData[index].nonce,
-                                            ) !== -1
-                                          }
-                                        />
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                              {provided.placeholder}
-                            </Flex>
-                          </ScrollArea>
-                        </Tabs.List>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
+                      onChange={(newActive) => {
+                        setCurrentActiveTab({
+                          row: rowIndex,
+                          col: colIndex,
+                          nonce: newActive,
+                        });
 
-                  <Box
-                    style={{
-                      flexGrow: 1,
-                      overflow: "clip",
-                      height: 0,
-                    }}
-                  >
-                    {tabsData
-                      .filter(
-                        (_, index) =>
-                          tabsGridLocation[index].row === rowIndex &&
-                          tabsGridLocation[index].col === colIndex,
-                      )
-                      .map((tabData, index) => (
-                        <ShellPanel
-                          key={tabData.nonce}
-                          data={tabData}
-                          setShellState={(state) => {
-                            setTabShellState(state, tabData.nonce);
-                          }}
-                          setNewMessage={() => {
-                            setTabNewMessageState(tabData.nonce, {
-                              row: rowIndex,
-                              col: colIndex,
-                            });
-                          }}
-                          isActive={
-                            currentActiveTab.findIndex(
-                              (v) =>
-                                v.row === rowIndex &&
-                                v.col === colIndex &&
-                                v.nonce === tabsData[index].nonce,
-                            ) !== -1
-                          }
-                        />
-                      ))}
-                  </Box>
-                </Tabs>
-              </Grid.Col>
-            )),
-        )}
+                        if (newActive) {
+                          clearTabNewMessageState(newActive);
+                        }
+                      }}
+                      activateTabWithKeyboard={false}
+                      onContextMenu={(ev) => ev.preventDefault()}
+                    >
+                      <Droppable
+                        droppableId={`shell-tabs:${rowIndex}-${colIndex}`}
+                        direction="horizontal"
+                      >
+                        {(provided) => (
+                          <Tabs.List
+                            ref={provided.innerRef}
+                            mih={42}
+                            {...provided.droppableProps}
+                          >
+                            <ScrollArea scrollbars="x" onWheel={scrollTabs}>
+                              <Flex>
+                                {tabsGridLocation
+                                  .filter(
+                                    (pos) =>
+                                      pos.row === rowIndex &&
+                                      pos.col === colIndex,
+                                  )
+                                  .toSorted((a, b) => a.order - b.order)
+                                  .map((_, index) => (
+                                    <Draggable
+                                      key={tabsData[index].nonce}
+                                      draggableId={tabsData[index].nonce}
+                                      index={index}
+                                    >
+                                      {(provided) => (
+                                        <div
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          ref={provided.innerRef}
+                                        >
+                                          <ShellTab
+                                            data={tabsData[index]}
+                                            close={() => {
+                                              terminateByNonce(
+                                                tabsData[index].nonce,
+                                              );
+                                            }}
+                                            state={tabsState[index]}
+                                            isNewMessage={tabsNewMessage[index]}
+                                            onContextMenu={(ev) => {
+                                              ev.preventDefault();
+                                              rightClickTab(
+                                                ev,
+                                                tabsData[index],
+                                              );
+                                            }}
+                                            isActive={
+                                              currentActiveTab.findIndex(
+                                                (v) =>
+                                                  v.row === rowIndex &&
+                                                  v.col === colIndex &&
+                                                  v.nonce ===
+                                                    tabsData[index].nonce,
+                                              ) !== -1
+                                            }
+                                          />
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                {provided.placeholder}
+                              </Flex>
+                            </ScrollArea>
+                          </Tabs.List>
+                        )}
+                      </Droppable>
+
+                      <Box
+                        style={{
+                          flexGrow: 1,
+                          overflow: "clip",
+                          height: 0,
+                        }}
+                      >
+                        {tabsData
+                          .filter(
+                            (_, index) =>
+                              tabsGridLocation[index].row === rowIndex &&
+                              tabsGridLocation[index].col === colIndex,
+                          )
+                          .map((tabData, index) => (
+                            <ShellPanel
+                              key={tabData.nonce}
+                              data={tabData}
+                              setShellState={(state) => {
+                                setTabShellState(state, tabData.nonce);
+                              }}
+                              setNewMessage={() => {
+                                setTabNewMessageState(tabData.nonce, {
+                                  row: rowIndex,
+                                  col: colIndex,
+                                });
+                              }}
+                              isActive={
+                                currentActiveTab.findIndex(
+                                  (v) =>
+                                    v.row === rowIndex &&
+                                    v.col === colIndex &&
+                                    v.nonce === tabsData[index].nonce,
+                                ) !== -1
+                              }
+                            />
+                          ))}
+                      </Box>
+                    </Tabs>
+                  </Grid.Col>
+                )),
+            )}
+        </DragDropContext>
+      </Grid>
 
       <ShellTabContextMenu
         isOpen={isContextMenuOpen}
@@ -637,7 +642,7 @@ const ShellTabs = () => {
           }
         }}
       />
-    </Grid>
+    </>
   );
 };
 

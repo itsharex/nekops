@@ -1,6 +1,6 @@
 import { Flex, Image, rem, Title } from "@mantine/core";
 
-const RescueBackground = () => (
+const WindowBackground = () => (
   <Flex
     w="100%"
     h="100%"
@@ -11,6 +11,7 @@ const RescueBackground = () => (
     style={{
       zIndex: -1,
       pointerEvents: "none",
+      userSelect: "none",
       overflow: "hidden",
     }}
   >
@@ -27,4 +28,4 @@ const RescueBackground = () => (
   </Flex>
 );
 
-export default RescueBackground;
+export default WindowBackground;

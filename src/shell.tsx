@@ -11,7 +11,7 @@ import "@xterm/xterm/css/xterm.css";
 import "@/shell/style.css";
 
 import ShellTabs from "@/shell/ShellTabs";
-import ShellBackground from "@/shell/ShellBackground.tsx";
+import WindowBackground from "@/common/WindowBackground.tsx";
 
 const theme = createTheme({
   /** Put your mantine theme override here */
@@ -22,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <MantineProvider theme={theme}>
       <Notifications />
       <ModalsProvider>
-        <ShellBackground />
+        <WindowBackground />
         <ShellTabs />
       </ModalsProvider>
     </MantineProvider>

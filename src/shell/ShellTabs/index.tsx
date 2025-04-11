@@ -377,6 +377,39 @@ const ShellTabs = () => {
     200,
   );
 
+  const tidyGridRows = () => {
+    let rowsToShrink = 0;
+    for (let i = gridSizeRef.current.row - 1; i > 0; i--) {
+      if (!tabsGridLocationRef.current.some((v) => v.row === i)) {
+        rowsToShrink++;
+        tabsGridLocationHandlers.applyWhere(
+          (v) => v.row > i,
+          (v) => ({
+            ...v,
+            row: v.row - 1,
+          }),
+        );
+      }
+    }
+    setGridRows(gridSizeRef.current.row - rowsToShrink);
+  };
+  const tidyGridCols = () => {
+    let colsToShrink = 0;
+    for (let i = gridSizeRef.current.col - 1; i > 0; i--) {
+      if (!tabsGridLocationRef.current.some((v) => v.col === i)) {
+        colsToShrink++;
+        tabsGridLocationHandlers.applyWhere(
+          (v) => v.col > i,
+          (v) => ({
+            ...v,
+            col: v.col - 1,
+          }),
+        );
+      }
+    }
+    setGridCols(gridSizeRef.current.col - colsToShrink);
+  };
+
   const shellGridModifyHandler = (ev: Event<EventPayloadShellGridModify>) => {
     console.log("Grid modify", ev.payload);
     switch (ev.payload.action) {
@@ -403,7 +436,8 @@ const ShellTabs = () => {
         }
         break;
       case "tidy":
-        // TODO
+        tidyGridRows();
+        tidyGridCols();
         break;
     }
     shellWindowResizeHandler();

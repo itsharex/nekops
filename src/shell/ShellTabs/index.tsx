@@ -36,9 +36,9 @@ import type {
   ShellSingleServer,
 } from "@/events/payload.ts";
 import type {
-  GridPos,
   ShellGridActiveTab,
   ShellGridLocation,
+  ShellGridPos,
 } from "@/types/shell.ts";
 
 import ShellTabContextMenu from "./ContextMenu.tsx";
@@ -68,7 +68,7 @@ const ShellTabs = () => {
   }, [tabsData]);
   useEffect(() => {
     tabsGridLocationRef.current = tabsGridLocation;
-  }, [tabsGridLocationRef]);
+  }, [tabsGridLocation]);
   useEffect(() => {
     tabsStateRef.current = tabsState;
   }, [tabsState]);
@@ -103,6 +103,10 @@ const ShellTabs = () => {
   // Response tabs data event (initialize / update)
   const responseTabsList = () => {
     const payload: EventPayloadTabsListResponse = {
+      grid: {
+        row: gridRows,
+        col: gridCols,
+      },
       tabs: tabsDataRef.current.map((server, i) => ({
         server: {
           nonce: server.nonce,
@@ -112,8 +116,14 @@ const ShellTabs = () => {
         state: tabsStateRef.current[i],
         isNewMessage: tabsNewMessageRef.current[i],
         gridLocation: tabsGridLocationRef.current[i],
+        isActive:
+          currentActiveTabRef.current.findIndex(
+            (v) =>
+              v.row === tabsGridLocationRef.current[i].row &&
+              v.col === tabsGridLocationRef.current[i].col &&
+              v.nonce === server.nonce,
+          ) !== -1,
       })),
-      currentActive: currentActiveTabRef.current,
     };
     emit(EventNameShellTabsListResponse, payload);
   };
@@ -266,7 +276,7 @@ const ShellTabs = () => {
     }
   };
 
-  const setTabNewMessageState = (nonce: string, pos: GridPos) => {
+  const setTabNewMessageState = (nonce: string, pos: ShellGridPos) => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
@@ -475,37 +485,36 @@ const ShellTabs = () => {
                     key={`section-${rowIndex}-${colIndex}`}
                     span={Math.floor(12 / gridCols)}
                   >
-                    <Tabs
-                      className={style.tabs}
-                      value={
-                        currentActiveTab.find(
-                          (p) => p.row === rowIndex && p.col === colIndex,
-                        )?.nonce
-                      }
-                      onChange={(newActive) => {
-                        setCurrentActiveTab({
-                          row: rowIndex,
-                          col: colIndex,
-                          nonce: newActive,
-                        });
-
-                        if (newActive) {
-                          clearTabNewMessageState(newActive);
-                        }
-                      }}
-                      activateTabWithKeyboard={false}
-                      onContextMenu={(ev) => ev.preventDefault()}
+                    <Droppable
+                      droppableId={`shell-tabs:${rowIndex}-${colIndex}`}
+                      direction="horizontal"
                     >
-                      <Droppable
-                        droppableId={`shell-tabs:${rowIndex}-${colIndex}`}
-                        direction="horizontal"
-                      >
-                        {(provided) => (
-                          <Tabs.List
-                            ref={provided.innerRef}
-                            mih={42}
-                            {...provided.droppableProps}
-                          >
+                      {(provided) => (
+                        <Tabs
+                          variant="none"
+                          className={style.tabs}
+                          value={
+                            currentActiveTab.find(
+                              (p) => p.row === rowIndex && p.col === colIndex,
+                            )?.nonce
+                          }
+                          onChange={(newActive) => {
+                            setCurrentActiveTab({
+                              row: rowIndex,
+                              col: colIndex,
+                              nonce: newActive,
+                            });
+
+                            if (newActive) {
+                              clearTabNewMessageState(newActive);
+                            }
+                          }}
+                          activateTabWithKeyboard={false}
+                          onContextMenu={(ev) => ev.preventDefault()}
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                        >
+                          <Tabs.List>
                             <ScrollArea scrollbars="x" onWheel={scrollTabs}>
                               <Flex>
                                 {tabsGridLocation
@@ -561,47 +570,47 @@ const ShellTabs = () => {
                               </Flex>
                             </ScrollArea>
                           </Tabs.List>
-                        )}
-                      </Droppable>
 
-                      <Box
-                        style={{
-                          flexGrow: 1,
-                          overflow: "clip",
-                          height: 0,
-                        }}
-                      >
-                        {tabsData
-                          .filter(
-                            (_, index) =>
-                              tabsGridLocation[index].row === rowIndex &&
-                              tabsGridLocation[index].col === colIndex,
-                          )
-                          .map((tabData, index) => (
-                            <ShellPanel
-                              key={tabData.nonce}
-                              data={tabData}
-                              setShellState={(state) => {
-                                setTabShellState(state, tabData.nonce);
-                              }}
-                              setNewMessage={() => {
-                                setTabNewMessageState(tabData.nonce, {
-                                  row: rowIndex,
-                                  col: colIndex,
-                                });
-                              }}
-                              isActive={
-                                currentActiveTab.findIndex(
-                                  (v) =>
-                                    v.row === rowIndex &&
-                                    v.col === colIndex &&
-                                    v.nonce === tabsData[index].nonce,
-                                ) !== -1
-                              }
-                            />
-                          ))}
-                      </Box>
-                    </Tabs>
+                          <Box
+                            style={{
+                              flexGrow: 1,
+                              overflow: "clip",
+                              height: 0,
+                            }}
+                          >
+                            {tabsData
+                              .filter(
+                                (_, index) =>
+                                  tabsGridLocation[index].row === rowIndex &&
+                                  tabsGridLocation[index].col === colIndex,
+                              )
+                              .map((tabData, index) => (
+                                <ShellPanel
+                                  key={tabData.nonce}
+                                  data={tabData}
+                                  setShellState={(state) => {
+                                    setTabShellState(state, tabData.nonce);
+                                  }}
+                                  setNewMessage={() => {
+                                    setTabNewMessageState(tabData.nonce, {
+                                      row: rowIndex,
+                                      col: colIndex,
+                                    });
+                                  }}
+                                  isActive={
+                                    currentActiveTab.findIndex(
+                                      (v) =>
+                                        v.row === rowIndex &&
+                                        v.col === colIndex &&
+                                        v.nonce === tabsData[index].nonce,
+                                    ) !== -1
+                                  }
+                                />
+                              ))}
+                          </Box>
+                        </Tabs>
+                      )}
+                    </Droppable>
                   </Grid.Col>
                 )),
             )}

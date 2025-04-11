@@ -1,9 +1,9 @@
 import type { AccessEmergency, AccessRegular } from "@/types/server.ts";
 import type { TabState } from "@/types/tabState.ts";
-import type {
+import {
   ShellClientType,
-  ShellGridActiveTab,
   ShellGridLocation,
+  ShellGridPos,
 } from "@/types/shell.ts";
 
 export interface ServerBase {
@@ -37,11 +37,12 @@ export interface EventPayloadTabsListResponseSingleTab {
   state: TabState;
   isNewMessage: boolean;
   gridLocation: ShellGridLocation;
+  isActive: boolean;
 }
 
 export interface EventPayloadTabsListResponse {
+  grid: ShellGridPos;
   tabs: EventPayloadTabsListResponseSingleTab[];
-  currentActive: ShellGridActiveTab[];
 }
 
 export interface RescueSingleServer extends ServerBase {

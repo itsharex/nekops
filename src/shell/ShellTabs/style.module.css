@@ -22,5 +22,5 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  box-shadow: 0 0 0 3px var(--mantine-color-red-5); /* DEBUG ONLY */
+  box-shadow: 0 0 0 3px var(--mantine-color-gray-light);
 }

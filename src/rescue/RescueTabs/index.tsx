@@ -18,39 +18,27 @@ import type {
 } from "@/events/payload.ts";
 import { Window } from "@tauri-apps/api/window";
 import type { TabState } from "@/types/tabState.ts";
-import { useListState } from "@mantine/hooks";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
+
+import { useRefListState } from "@/common/useRefListState.ts";
+import { useRefState } from "@/common/useRefState.ts";
 
 import RescueTabContextMenu from "./ContextMenu.tsx";
 import RescueTab from "./Tab.tsx";
 import RescuePanel from "./Panel.tsx";
 
 const RescueTabs = () => {
-  // For components render
-  const [tabsData, tabsDataHandlers] = useListState<RescueSingleServer>([]);
-  const [tabsState, tabsStateHandlers] = useListState<TabState>([]);
-  const [tabsNewMessage, tabsNewMessageHandlers] = useListState<boolean>([]);
-  // For events binding
-  const tabsDataRef = useRef<RescueSingleServer[]>([]);
-  const tabsStateRef = useRef<TabState[]>([]);
-  const tabsNewMessageRef = useRef<boolean[]>([]);
-  // Bind state : setTabsData -> tabsData -> tabsDataRef
-  useEffect(() => {
-    tabsDataRef.current = tabsData;
-  }, [tabsData]);
-  useEffect(() => {
-    tabsStateRef.current = tabsState;
-  }, [tabsState]);
-  useEffect(() => {
-    tabsNewMessageRef.current = tabsNewMessage;
-  }, [tabsNewMessage]);
+  // For components render & listen bindings
+  const [tabsData, tabsDataHandlers, tabsDataRef] =
+    useRefListState<RescueSingleServer>([]);
+  const [tabsState, tabsStateHandlers, tabsStateRef] =
+    useRefListState<TabState>([]);
+  const [tabsNewMessage, tabsNewMessageHandlers, tabsNewMessageRef] =
+    useRefListState<boolean>([]);
 
-  const [currentActiveTab, setCurrentActiveTab] = useState<string | null>(null);
-  const currentActiveTabRef = useRef<string | null>(null);
-  useEffect(() => {
-    currentActiveTabRef.current = currentActiveTab;
-  }, [currentActiveTab]);
+  const [currentActiveTab, setCurrentActiveTab, currentActiveTabRef] =
+    useRefState<string | null>(null);
 
   // Event listeners
   const newSSHEventHandler = (ev: Event<EventPayloadRescueNew>) => {

@@ -12,7 +12,7 @@ import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
 import { MouseEvent, useEffect, useRef, useState, WheelEvent } from "react";
 import { Window } from "@tauri-apps/api/window";
-import { useListState, useThrottledCallback } from "@mantine/hooks";
+import { useThrottledCallback } from "@mantine/hooks";
 import type { DraggableLocation } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
@@ -42,6 +42,8 @@ import type {
   ShellGridTabLocation,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
+import { useRefListState } from "@/common/useRefListState.ts";
+import { useRefState } from "@/common/useRefState.ts";
 
 import ShellTabContextMenu from "./ContextMenu.tsx";
 import ShellTab from "./Tab.tsx";
@@ -56,64 +58,31 @@ import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 
 const ShellTabs = () => {
   // Window layout
-  const [gridRows, setGridRows] = useState(1);
-  const [gridCols, setGridCols] = useState(1);
-  const gridSizeRef = useRef<ShellGridBase>({
-    row: 1,
-    col: 1,
-  });
-  useEffect(() => {
-    gridSizeRef.current = {
-      row: gridRows,
-      col: gridCols,
-    };
-  }, [gridRows, gridCols]);
+  const [gridRows, setGridRows, gridRowsRef] = useRefState(1);
+  const [gridCols, setGridCols, gridColsRef] = useRefState(1);
 
-  // For components render
-  const [tabsData, tabsDataHandlers] = useListState<ShellSingleServer>([]);
-  const [tabsGridLocation, tabsGridLocationHandlers] = useListState<
-    ShellGridTabLocation & {
-      dataIndex: number;
-    }
-  >([]);
-  const [tabsState, tabsStateHandlers] = useListState<TabState>([]);
-  const [tabsNewMessage, tabsNewMessageHandlers] = useListState<boolean>([]);
-  // For events binding
-  const tabsDataRef = useRef<ShellSingleServer[]>([]);
-  const tabsGridLocationRef = useRef<
-    (ShellGridTabLocation & {
-      dataIndex: number;
-    })[]
-  >([]);
-  const tabsStateRef = useRef<TabState[]>([]);
-  const tabsNewMessageRef = useRef<boolean[]>([]);
-  // Bind state : setTabsData -> tabsData -> tabsDataRef
-  useEffect(() => {
-    tabsDataRef.current = tabsData;
-  }, [tabsData]);
-  useEffect(() => {
-    tabsGridLocationRef.current = tabsGridLocation;
-  }, [tabsGridLocation]);
-  useEffect(() => {
-    tabsStateRef.current = tabsState;
-  }, [tabsState]);
-  useEffect(() => {
-    tabsNewMessageRef.current = tabsNewMessage;
-  }, [tabsNewMessage]);
+  // For components render & listen bindings
+  const [tabsData, tabsDataHandlers, tabsDataRef] =
+    useRefListState<ShellSingleServer>([]);
+  const [tabsGridLocation, tabsGridLocationHandlers, tabsGridLocationRef] =
+    useRefListState<
+      ShellGridTabLocation & {
+        dataIndex: number;
+      }
+    >([]);
+  const [tabsState, tabsStateHandlers, tabsStateRef] =
+    useRefListState<TabState>([]);
+  const [tabsNewMessage, tabsNewMessageHandlers, tabsNewMessageRef] =
+    useRefListState<boolean>([]);
 
-  const [currentActiveTab, currentActiveTabHandlers] =
-    useListState<ShellGridTabNonce>([
+  const [currentActiveTab, currentActiveTabHandlers, currentActiveTabRef] =
+    useRefListState<ShellGridTabNonce>([
       {
         row: 0,
         col: 0,
         nonce: null,
       },
     ]);
-  const currentActiveTabRef = useRef<ShellGridTabNonce[]>([]);
-  useEffect(() => {
-    console.log("currentActiveTab", currentActiveTab);
-    currentActiveTabRef.current = currentActiveTab;
-  }, [currentActiveTab]);
 
   const setCurrentActiveTab = (payload: ShellGridTabNonce) => {
     currentActiveTabHandlers.applyWhere(
@@ -126,8 +95,8 @@ const ShellTabs = () => {
   const responseTabsList = () => {
     const payload: EventPayloadShellTabsListResponse = {
       grid: {
-        row: gridSizeRef.current.row,
-        col: gridSizeRef.current.col,
+        row: gridRowsRef.current,
+        col: gridColsRef.current,
       },
       tabs: tabsDataRef.current.map((server, i) => ({
         server: {
@@ -414,7 +383,7 @@ const ShellTabs = () => {
   const tidyGrid = () => {
     // Tidy rows
     let rowsToShrink = 0;
-    for (let i = gridSizeRef.current.row - 1; i >= 0; i--) {
+    for (let i = gridRowsRef.current - 1; i >= 0; i--) {
       if (!tabsGridLocationRef.current.some((v) => v.row === i)) {
         rowsToShrink++;
         tabsGridLocationHandlers.applyWhere(
@@ -426,13 +395,13 @@ const ShellTabs = () => {
         );
       }
     }
-    if (rowsToShrink === gridSizeRef.current.row) {
+    if (rowsToShrink === gridRowsRef.current) {
       rowsToShrink--; // Keep last 1
     }
 
     // Tidy cols
     let colsToShrink = 0;
-    for (let i = gridSizeRef.current.col - 1; i >= 0; i--) {
+    for (let i = gridColsRef.current - 1; i >= 0; i--) {
       if (!tabsGridLocationRef.current.some((v) => v.col === i)) {
         colsToShrink++;
         tabsGridLocationHandlers.applyWhere(
@@ -444,7 +413,7 @@ const ShellTabs = () => {
         );
       }
     }
-    if (colsToShrink === gridSizeRef.current.col) {
+    if (colsToShrink === gridColsRef.current) {
       colsToShrink--; // Keep last 1
     }
 
@@ -453,28 +422,28 @@ const ShellTabs = () => {
       // Adjust current active tabs
       const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
         (v) =>
-          (v.row >= gridSizeRef.current.row - rowsToShrink ||
-            v.col >= gridSizeRef.current.col - colsToShrink) &&
+          (v.row >= gridRowsRef.current - rowsToShrink ||
+            v.col >= gridColsRef.current - colsToShrink) &&
           v.nonce !== null,
       );
       for (const record of activeTabRecordsToAdjust) {
         if (
-          record.row >= gridSizeRef.current.row - rowsToShrink &&
-          record.col >= gridSizeRef.current.col - colsToShrink
+          record.row >= gridRowsRef.current - rowsToShrink &&
+          record.col >= gridColsRef.current - colsToShrink
         ) {
           setCurrentActiveTab({
             row: record.row - rowsToShrink,
             col: record.col - colsToShrink,
             nonce: record.nonce,
           });
-        } else if (record.row >= gridSizeRef.current.row - rowsToShrink) {
+        } else if (record.row >= gridRowsRef.current - rowsToShrink) {
           setCurrentActiveTab({
             row: record.row - rowsToShrink,
             col: record.col,
             nonce: record.nonce,
           });
         } else {
-          // record.col >= gridSizeRef.current.col - colsToShrink
+          // record.col >= gridColsRef.current - colsToShrink
           setCurrentActiveTab({
             row: record.row,
             col: record.col - colsToShrink,
@@ -484,29 +453,29 @@ const ShellTabs = () => {
       }
 
       // Set new size
-      setGridRows(gridSizeRef.current.row - rowsToShrink);
-      setGridCols(gridSizeRef.current.col - colsToShrink);
+      setGridRows(gridRowsRef.current - rowsToShrink);
+      setGridCols(gridColsRef.current - colsToShrink);
 
       // Keep only in-field ones
       currentActiveTabHandlers.filter(
         (v) =>
-          v.row < gridSizeRef.current.row - rowsToShrink &&
-          v.col < gridSizeRef.current.col - colsToShrink,
+          v.row < gridRowsRef.current - rowsToShrink &&
+          v.col < gridColsRef.current - colsToShrink,
       );
     }
   };
 
   const expandGrid = (rows: number, cols: number) => {
-    setGridRows(gridSizeRef.current.row + rows);
-    setGridCols(gridSizeRef.current.col + cols);
+    setGridRows(gridRowsRef.current + rows);
+    setGridCols(gridColsRef.current + cols);
 
     // Expand active tabs
     const toAppendTabs: ShellGridTabNonce[] = [];
     // New rows old cols (bottom)
     for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < gridSizeRef.current.col; j++) {
+      for (let j = 0; j < gridColsRef.current; j++) {
         toAppendTabs.push({
-          row: gridSizeRef.current.row + i,
+          row: gridRowsRef.current + i,
           col: j,
           nonce: null, // Init
         });
@@ -514,10 +483,10 @@ const ShellTabs = () => {
     }
     // New cols old rows (right)
     for (let j = 0; j < cols; j++) {
-      for (let i = 0; i < gridSizeRef.current.row; i++) {
+      for (let i = 0; i < gridRowsRef.current; i++) {
         toAppendTabs.push({
           row: i,
-          col: gridSizeRef.current.col + j,
+          col: gridColsRef.current + j,
           nonce: null, // Init
         });
       }
@@ -526,8 +495,8 @@ const ShellTabs = () => {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         toAppendTabs.push({
-          row: gridSizeRef.current.row + i,
-          col: gridSizeRef.current.col + j,
+          row: gridRowsRef.current + i,
+          col: gridColsRef.current + j,
           nonce: null, // Init
         });
       }
@@ -542,14 +511,14 @@ const ShellTabs = () => {
         let acceptedRows = ev.payload.grid.row;
         if (acceptedRows < 0) {
           acceptedRows = 0;
-        } else if (gridSizeRef.current.row + acceptedRows > LayoutMaxRows) {
-          acceptedRows = LayoutMaxRows - gridSizeRef.current.row;
+        } else if (gridRowsRef.current + acceptedRows > LayoutMaxRows) {
+          acceptedRows = LayoutMaxRows - gridRowsRef.current;
         }
         let acceptedCols = ev.payload.grid.col;
         if (acceptedCols < 0) {
           acceptedCols = 0;
-        } else if (gridSizeRef.current.col + acceptedCols > LayoutMaxCols) {
-          acceptedCols = LayoutMaxCols - gridSizeRef.current.col;
+        } else if (gridColsRef.current + acceptedCols > LayoutMaxCols) {
+          acceptedCols = LayoutMaxCols - gridColsRef.current;
         }
         if (acceptedRows > 0 || acceptedCols > 0) {
           expandGrid(acceptedRows, acceptedCols);

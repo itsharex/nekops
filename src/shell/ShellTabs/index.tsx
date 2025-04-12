@@ -210,8 +210,9 @@ const ShellTabs = () => {
 
   // Close (terminate) confirm
   const doTerminate = (index: number) => {
-    const pos = tabsGridLocation[index];
-    if (isActiveTab(tabsData[index].nonce, pos)) {
+    console.log("do terminate", index);
+    const pos = tabsGridLocationRef.current[index];
+    if (isActiveTab(tabsDataRef.current[index].nonce, pos)) {
       fallbackActive(pos);
     }
 
@@ -383,8 +384,7 @@ const ShellTabs = () => {
   };
 
   const terminateAllAndExit = () => {
-    const len = tabsDataRef.current.length;
-    for (let i = len - 1; i >= 0; i--) {
+    for (let i = tabsDataRef.current.length - 1; i >= 0; i--) {
       // Reversely
       doTerminate(i);
     }

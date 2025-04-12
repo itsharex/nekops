@@ -256,15 +256,11 @@ const RescueTabs = () => {
 
     return () => {
       (async () => {
-        (await stopRescueReadyListener)();
-      })();
-
-      (async () => {
-        (await stopRescueNewListener)();
-      })();
-
-      (async () => {
-        (await stopWindowCloseRescueListener)();
+        await Promise.all([
+          await stopRescueReadyListener,
+          await stopRescueNewListener,
+          await stopWindowCloseRescueListener,
+        ]);
       })();
     };
   }, []);

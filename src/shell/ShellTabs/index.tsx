@@ -769,31 +769,15 @@ const ShellTabs = () => {
 
     return () => {
       (async () => {
-        (await stopShellReadyListener)();
-      })();
-
-      (async () => {
-        (await stopShellNewListener)();
-      })();
-
-      (async () => {
-        (await stopShellSetActiveTabByNonceListener)();
-      })();
-
-      (async () => {
-        (await stopShellTabsListRequestListener)();
-      })();
-
-      (async () => {
-        (await stopWindowCloseShellListener)();
-      })();
-
-      (async () => {
-        (await stopWindowResizeShellListener)();
-      })();
-
-      (async () => {
-        (await stopShellGridModifyListener)();
+        await Promise.all([
+          await stopShellReadyListener,
+          await stopShellNewListener,
+          await stopShellSetActiveTabByNonceListener,
+          await stopShellTabsListRequestListener,
+          await stopWindowCloseShellListener,
+          await stopWindowResizeShellListener,
+          await stopShellGridModifyListener,
+        ]);
       })();
     };
   }, []);

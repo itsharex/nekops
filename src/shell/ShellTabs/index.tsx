@@ -738,30 +738,12 @@ const ShellTabs = () => {
 
     return () => {
       (async () => {
-        (await stopShellReadyListener)();
-      })();
-
-      (async () => {
         (await stopShellNewListener)();
-      })();
-
-      (async () => {
+        (await stopShellReadyListener)();
         (await stopShellSetActiveTabByNonceListener)();
-      })();
-
-      (async () => {
         (await stopShellTabsListRequestListener)();
-      })();
-
-      (async () => {
         (await stopWindowCloseShellListener)();
-      })();
-
-      (async () => {
         (await stopWindowResizeShellListener)();
-      })();
-
-      (async () => {
         (await stopShellGridModifyListener)();
       })();
     };

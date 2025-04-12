@@ -245,13 +245,7 @@ const RescueTabs = () => {
     return () => {
       (async () => {
         (await stopRescueReadyListener)();
-      })();
-
-      (async () => {
         (await stopRescueNewListener)();
-      })();
-
-      (async () => {
         (await stopWindowCloseRescueListener)();
       })();
     };

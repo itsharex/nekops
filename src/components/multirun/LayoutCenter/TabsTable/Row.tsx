@@ -33,7 +33,7 @@ const TabsTableRow = ({
     </Table.Td>
     <Table.Td>{tab.server.name}</Table.Td>
     <Table.Td>
-      {tab.gridLocation.row + 1}#{tab.gridLocation.col + 1}-
+      {tab.gridLocation.row + 1}-{tab.gridLocation.col + 1} #
       {tab.gridLocation.order + 1}
     </Table.Td>
     <Table.Td ta="center">

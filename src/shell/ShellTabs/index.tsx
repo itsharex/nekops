@@ -411,7 +411,8 @@ const ShellTabs = () => {
     200,
   );
 
-  const tidyGridRows = () => {
+  const tidyGrid = () => {
+    // Tidy rows
     let rowsToShrink = 0;
     for (let i = gridSizeRef.current.row - 1; i >= 0; i--) {
       if (!tabsGridLocationRef.current.some((v) => v.row === i)) {
@@ -425,29 +426,11 @@ const ShellTabs = () => {
         );
       }
     }
-    if (rowsToShrink === 0) {
-      return; // Do nothing
-    } else if (rowsToShrink === gridSizeRef.current.row) {
+    if (rowsToShrink === gridSizeRef.current.row) {
       rowsToShrink--; // Keep last 1
     }
-    // Adjust current active tabs
-    const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
-      (v) =>
-        v.row >= gridSizeRef.current.row - rowsToShrink && v.nonce !== null,
-    );
-    for (const record of activeTabRecordsToAdjust) {
-      setCurrentActiveTab({
-        row: record.row - rowsToShrink,
-        col: record.col,
-        nonce: record.nonce,
-      });
-    }
-    setGridRows(gridSizeRef.current.row - rowsToShrink);
-    currentActiveTabHandlers.filter(
-      (v) => v.row < gridSizeRef.current.row - rowsToShrink,
-    );
-  };
-  const tidyGridCols = () => {
+
+    // Tidy cols
     let colsToShrink = 0;
     for (let i = gridSizeRef.current.col - 1; i >= 0; i--) {
       if (!tabsGridLocationRef.current.some((v) => v.col === i)) {
@@ -461,27 +444,56 @@ const ShellTabs = () => {
         );
       }
     }
-    if (colsToShrink === 0) {
-      return; // Do nothing
-    } else if (colsToShrink === gridSizeRef.current.col) {
+    if (colsToShrink === gridSizeRef.current.col) {
       colsToShrink--; // Keep last 1
     }
-    // Adjust current active tabs
-    const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
-      (v) =>
-        v.col >= gridSizeRef.current.col - colsToShrink && v.nonce !== null,
-    );
-    for (const record of activeTabRecordsToAdjust) {
-      setCurrentActiveTab({
-        row: record.row,
-        col: record.col - colsToShrink,
-        nonce: record.nonce,
-      });
+
+    // Check if need to shrink
+    if (rowsToShrink > 0 || colsToShrink > 0) {
+      // Adjust current active tabs
+      const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
+        (v) =>
+          (v.row >= gridSizeRef.current.row - rowsToShrink ||
+            v.col >= gridSizeRef.current.col - colsToShrink) &&
+          v.nonce !== null,
+      );
+      for (const record of activeTabRecordsToAdjust) {
+        if (
+          record.row >= gridSizeRef.current.row - rowsToShrink &&
+          record.col >= gridSizeRef.current.col - colsToShrink
+        ) {
+          setCurrentActiveTab({
+            row: record.row - rowsToShrink,
+            col: record.col - colsToShrink,
+            nonce: record.nonce,
+          });
+        } else if (record.row >= gridSizeRef.current.row - rowsToShrink) {
+          setCurrentActiveTab({
+            row: record.row - rowsToShrink,
+            col: record.col,
+            nonce: record.nonce,
+          });
+        } else {
+          // record.col >= gridSizeRef.current.col - colsToShrink
+          setCurrentActiveTab({
+            row: record.row,
+            col: record.col - colsToShrink,
+            nonce: record.nonce,
+          });
+        }
+      }
+
+      // Set new size
+      setGridRows(gridSizeRef.current.row - rowsToShrink);
+      setGridCols(gridSizeRef.current.col - colsToShrink);
+
+      // Keep only in-field ones
+      currentActiveTabHandlers.filter(
+        (v) =>
+          v.row < gridSizeRef.current.row - rowsToShrink &&
+          v.col < gridSizeRef.current.col - colsToShrink,
+      );
     }
-    setGridCols(gridSizeRef.current.col - colsToShrink);
-    currentActiveTabHandlers.filter(
-      (v) => v.col < gridSizeRef.current.col - colsToShrink,
-    );
   };
 
   const expandGrid = (rows: number, cols: number) => {
@@ -552,8 +564,7 @@ const ShellTabs = () => {
         }
         break;
       case "tidy":
-        tidyGridRows();
-        tidyGridCols();
+        tidyGrid();
         break;
     }
     shellWindowResizeHandler();

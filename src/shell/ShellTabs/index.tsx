@@ -499,39 +499,41 @@ const ShellTabs = () => {
 
     if (sourceGrid === destGrid) {
       // In same section
-      if (source.index !== destination.index) {
-        if (source.index > destination.index) {
-          // Move forward
-          tabsGridLocationHandlers.applyWhere(
-            (v) =>
-              v.row === tabLocation.row &&
-              v.col === tabLocation.col &&
-              v.order < source.index &&
-              v.order >= destination.index,
-            (v) => ({
-              ...v,
-              order: v.order + 1,
-            }),
-          );
-        } else {
-          // Move backward
-          tabsGridLocationHandlers.applyWhere(
-            (v) =>
-              v.row === tabLocation.row &&
-              v.col === tabLocation.col &&
-              v.order > source.index &&
-              v.order <= destination.index,
-            (v) => ({
-              ...v,
-              order: v.order - 1,
-            }),
-          );
+      if (destZone !== DndZonePanel) {
+        if (source.index !== destination.index) {
+          if (source.index > destination.index) {
+            // Move forward
+            tabsGridLocationHandlers.applyWhere(
+              (v) =>
+                v.row === tabLocation.row &&
+                v.col === tabLocation.col &&
+                v.order < source.index &&
+                v.order >= destination.index,
+              (v) => ({
+                ...v,
+                order: v.order + 1,
+              }),
+            );
+          } else {
+            // Move backward
+            tabsGridLocationHandlers.applyWhere(
+              (v) =>
+                v.row === tabLocation.row &&
+                v.col === tabLocation.col &&
+                v.order > source.index &&
+                v.order <= destination.index,
+              (v) => ({
+                ...v,
+                order: v.order - 1,
+              }),
+            );
+          }
+          // Set new order
+          tabsGridLocationHandlers.setItem(tabIndex, {
+            ...tabLocation,
+            order: destination.index,
+          });
         }
-        // Set new order
-        tabsGridLocationHandlers.setItem(tabIndex, {
-          ...tabLocation,
-          order: destination.index,
-        });
       }
     } else {
       // Cross sections
@@ -603,10 +605,10 @@ const ShellTabs = () => {
   };
 
   const fallbackActive = (pos: ShellGridTabLocation) => {
-    console.log("fallbackActive", pos);
     const tabsInSameGrid = tabsGridLocation.filter(
-      (v) => v.row === pos.row && v.col === pos.col,
+      (v) => v.row === pos.row && v.col === pos.col && v.order !== pos.order,
     );
+    console.log("fallbackActive", pos, tabsInSameGrid);
     if (tabsInSameGrid.length > pos.order + 1) {
       // Still has tab on right
       const nextOrderTab = tabsInSameGrid.find(
@@ -854,7 +856,6 @@ const ShellTabs = () => {
 
                       <Droppable
                         droppableId={`${DndZonePanel}:${rowIndex}-${colIndex}`}
-                        direction="horizontal"
                       >
                         {(provided) => (
                           <Box
@@ -896,6 +897,11 @@ const ShellTabs = () => {
                                   })}
                                 />
                               ))}
+
+                            {/*DnD Dropzone*/}
+                            <Box pos="absolute" w="100%" h="100%">
+                              {provided.placeholder}
+                            </Box>
                           </Box>
                         )}
                       </Droppable>

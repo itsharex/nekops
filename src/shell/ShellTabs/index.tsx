@@ -111,18 +111,15 @@ const ShellTabs = () => {
     ]);
   const currentActiveTabRef = useRef<ShellGridTabNonce[]>([]);
   useEffect(() => {
+    console.log("currentActiveTab", currentActiveTab);
     currentActiveTabRef.current = currentActiveTab;
   }, [currentActiveTab]);
 
   const setCurrentActiveTab = (payload: ShellGridTabNonce) => {
-    const currentActiveTabIndex = currentActiveTabRef.current.findIndex(
-      (p) => p.row === payload.row && p.col === payload.col,
+    currentActiveTabHandlers.applyWhere(
+      (v) => v.row === payload.row && v.col === payload.col,
+      (_) => payload,
     );
-    if (currentActiveTabIndex === -1) {
-      currentActiveTabHandlers.append(payload);
-    } else {
-      currentActiveTabHandlers.setItem(currentActiveTabIndex, payload);
-    }
   };
 
   // Response tabs data event (initialize / update)
@@ -428,10 +425,27 @@ const ShellTabs = () => {
         );
       }
     }
-    if (rowsToShrink === gridSizeRef.current.row) {
+    if (rowsToShrink === 0) {
+      return; // Do nothing
+    } else if (rowsToShrink === gridSizeRef.current.row) {
       rowsToShrink--; // Keep last 1
     }
+    // Adjust current active tabs
+    const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
+      (v) =>
+        v.row >= gridSizeRef.current.row - rowsToShrink && v.nonce !== null,
+    );
+    for (const record of activeTabRecordsToAdjust) {
+      setCurrentActiveTab({
+        row: record.row - rowsToShrink,
+        col: record.col,
+        nonce: record.nonce,
+      });
+    }
     setGridRows(gridSizeRef.current.row - rowsToShrink);
+    currentActiveTabHandlers.filter(
+      (v) => v.row < gridSizeRef.current.row - rowsToShrink,
+    );
   };
   const tidyGridCols = () => {
     let colsToShrink = 0;
@@ -447,27 +461,86 @@ const ShellTabs = () => {
         );
       }
     }
-    if (colsToShrink === gridSizeRef.current.col) {
+    if (colsToShrink === 0) {
+      return; // Do nothing
+    } else if (colsToShrink === gridSizeRef.current.col) {
       colsToShrink--; // Keep last 1
     }
+    // Adjust current active tabs
+    const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
+      (v) =>
+        v.col >= gridSizeRef.current.col - colsToShrink && v.nonce !== null,
+    );
+    for (const record of activeTabRecordsToAdjust) {
+      setCurrentActiveTab({
+        row: record.row,
+        col: record.col - colsToShrink,
+        nonce: record.nonce,
+      });
+    }
     setGridCols(gridSizeRef.current.col - colsToShrink);
+    currentActiveTabHandlers.filter(
+      (v) => v.col < gridSizeRef.current.col - colsToShrink,
+    );
+  };
+
+  const expandGrid = (rows: number, cols: number) => {
+    setGridRows(gridSizeRef.current.row + rows);
+    setGridCols(gridSizeRef.current.col + cols);
+
+    // Expand active tabs
+    const toAppendTabs: ShellGridTabNonce[] = [];
+    // New rows old cols (bottom)
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < gridSizeRef.current.col; j++) {
+        toAppendTabs.push({
+          row: gridSizeRef.current.row + i,
+          col: j,
+          nonce: null, // Init
+        });
+      }
+    }
+    // New cols old rows (right)
+    for (let j = 0; j < cols; j++) {
+      for (let i = 0; i < gridSizeRef.current.row; i++) {
+        toAppendTabs.push({
+          row: i,
+          col: gridSizeRef.current.col + j,
+          nonce: null, // Init
+        });
+      }
+    }
+    // New rows new cols (bottom-right)
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        toAppendTabs.push({
+          row: gridSizeRef.current.row + i,
+          col: gridSizeRef.current.col + j,
+          nonce: null, // Init
+        });
+      }
+    }
+    currentActiveTabHandlers.append(...toAppendTabs);
   };
 
   const shellGridModifyHandler = (ev: Event<EventPayloadShellGridModify>) => {
     console.log("Grid modify", ev.payload);
     switch (ev.payload.action) {
       case "add":
-        if (ev.payload.grid.row > 0) {
-          const newRows = gridSizeRef.current.row + ev.payload.grid.row;
-          if (newRows <= LayoutMaxRows) {
-            setGridRows(newRows);
-          }
+        let acceptedRows = ev.payload.grid.row;
+        if (acceptedRows < 0) {
+          acceptedRows = 0;
+        } else if (gridSizeRef.current.row + acceptedRows > LayoutMaxRows) {
+          acceptedRows = LayoutMaxRows - gridSizeRef.current.row;
         }
-        if (ev.payload.grid.col > 0) {
-          const newCols = gridSizeRef.current.col + ev.payload.grid.col;
-          if (newCols <= LayoutMaxCols) {
-            setGridCols(newCols);
-          }
+        let acceptedCols = ev.payload.grid.col;
+        if (acceptedCols < 0) {
+          acceptedCols = 0;
+        } else if (gridSizeRef.current.col + acceptedCols > LayoutMaxCols) {
+          acceptedCols = LayoutMaxCols - gridSizeRef.current.col;
+        }
+        if (acceptedRows > 0 || acceptedCols > 0) {
+          expandGrid(acceptedRows, acceptedCols);
         }
         break;
       case "set":

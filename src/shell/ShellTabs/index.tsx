@@ -930,7 +930,7 @@ const ShellTabs = () => {
                       <Droppable
                         droppableId={`${DndZonePanel}:${rowIndex}-${colIndex}`}
                       >
-                        {(provided) => (
+                        {(provided, snapshot) => (
                           <Box
                             style={{
                               flexGrow: 1,
@@ -940,6 +940,23 @@ const ShellTabs = () => {
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                           >
+                            {/*DnD Dropzone*/}
+                            <Box
+                              pos="absolute"
+                              w="100%"
+                              h="100%"
+                              top={0}
+                              left={0}
+                              bg="cyan"
+                              opacity={snapshot.isDraggingOver ? 0.2 : 0}
+                              style={{
+                                pointerEvents: "none",
+                                zIndex: 1,
+                              }}
+                            >
+                              {provided.placeholder}
+                            </Box>
+
                             {tabsGridLocation
                               .filter(
                                 (pos) =>
@@ -970,11 +987,6 @@ const ShellTabs = () => {
                                   })}
                                 />
                               ))}
-
-                            {/*DnD Dropzone*/}
-                            <Box pos="absolute" w="100%" h="100%">
-                              {provided.placeholder}
-                            </Box>
                           </Box>
                         )}
                       </Droppable>

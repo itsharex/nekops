@@ -13,6 +13,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { MouseEvent, useEffect, useRef, useState, WheelEvent } from "react";
 import { Window } from "@tauri-apps/api/window";
 import { useListState, useThrottledCallback } from "@mantine/hooks";
+import type { DraggableLocation } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
 
@@ -50,7 +51,8 @@ import {
   LayoutColsWeight,
   LayoutMaxCols,
   LayoutMaxRows,
-} from "@/shell/layoutConfig.ts";
+} from "./layoutConfig.ts";
+import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 
 const ShellTabs = () => {
   // Window layout
@@ -69,13 +71,20 @@ const ShellTabs = () => {
 
   // For components render
   const [tabsData, tabsDataHandlers] = useListState<ShellSingleServer>([]);
-  const [tabsGridLocation, tabsGridLocationHandlers] =
-    useListState<ShellGridTabLocation>([]);
+  const [tabsGridLocation, tabsGridLocationHandlers] = useListState<
+    ShellGridTabLocation & {
+      dataIndex: number;
+    }
+  >([]);
   const [tabsState, tabsStateHandlers] = useListState<TabState>([]);
   const [tabsNewMessage, tabsNewMessageHandlers] = useListState<boolean>([]);
   // For events binding
   const tabsDataRef = useRef<ShellSingleServer[]>([]);
-  const tabsGridLocationRef = useRef<ShellGridTabLocation[]>([]);
+  const tabsGridLocationRef = useRef<
+    (ShellGridTabLocation & {
+      dataIndex: number;
+    })[]
+  >([]);
   const tabsStateRef = useRef<TabState[]>([]);
   const tabsNewMessageRef = useRef<boolean[]>([]);
   // Bind state : setTabsData -> tabsData -> tabsDataRef
@@ -148,6 +157,7 @@ const ShellTabs = () => {
     tabsState,
     tabsNewMessage,
     currentActiveTab,
+    tabsGridLocation,
     gridRows,
     gridCols,
   ]);
@@ -155,15 +165,17 @@ const ShellTabs = () => {
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
     for (const server of ev.payload.server) {
-      tabsDataHandlers.append(server);
-      tabsStateHandlers.append("loading");
-      tabsNewMessageHandlers.append(false);
-      tabsGridLocationHandlers.append({
+      const dataIndex = tabsDataRef.current.length;
+      tabsDataHandlers.setItem(dataIndex, server);
+      tabsStateHandlers.setItem(dataIndex, "loading");
+      tabsNewMessageHandlers.setItem(dataIndex, false);
+      tabsGridLocationHandlers.setItem(dataIndex, {
         row: 0,
         col: 0,
         order: tabsGridLocationRef.current.filter(
           (v) => v.row === 0 && v.col === 0,
         ).length,
+        dataIndex,
       });
       setCurrentActiveTab({
         row: 0,
@@ -201,9 +213,34 @@ const ShellTabs = () => {
 
   // Close (terminate) confirm
   const doTerminate = (index: number) => {
+    const pos = tabsGridLocation[index];
+    if (isActiveTab(tabsData[index].nonce, pos)) {
+      fallbackActive(pos);
+    }
+
+    // Remove item
     tabsDataHandlers.remove(index);
     tabsStateHandlers.remove(index);
     tabsNewMessageHandlers.remove(index);
+
+    // Update reverse mapping of latter items
+    tabsGridLocationHandlers.applyWhere(
+      (v) => v.dataIndex > index,
+      (v) => ({
+        ...v,
+        dataIndex: v.dataIndex - 1,
+      }),
+    );
+    // Update order of latter tabs
+    tabsGridLocationHandlers.applyWhere(
+      (v) => v.row === pos.row && v.col === pos.col && v.order > pos.order,
+      (v) => ({
+        ...v,
+        order: v.order - 1,
+      }),
+    );
+
+    // Remove item
     tabsGridLocationHandlers.remove(index);
   };
 
@@ -379,7 +416,7 @@ const ShellTabs = () => {
 
   const tidyGridRows = () => {
     let rowsToShrink = 0;
-    for (let i = gridSizeRef.current.row - 1; i > 0; i--) {
+    for (let i = gridSizeRef.current.row - 1; i >= 0; i--) {
       if (!tabsGridLocationRef.current.some((v) => v.row === i)) {
         rowsToShrink++;
         tabsGridLocationHandlers.applyWhere(
@@ -391,11 +428,14 @@ const ShellTabs = () => {
         );
       }
     }
+    if (rowsToShrink === gridSizeRef.current.row) {
+      rowsToShrink--; // Keep last 1
+    }
     setGridRows(gridSizeRef.current.row - rowsToShrink);
   };
   const tidyGridCols = () => {
     let colsToShrink = 0;
-    for (let i = gridSizeRef.current.col - 1; i > 0; i--) {
+    for (let i = gridSizeRef.current.col - 1; i >= 0; i--) {
       if (!tabsGridLocationRef.current.some((v) => v.col === i)) {
         colsToShrink++;
         tabsGridLocationHandlers.applyWhere(
@@ -406,6 +446,9 @@ const ShellTabs = () => {
           }),
         );
       }
+    }
+    if (colsToShrink === gridSizeRef.current.col) {
+      colsToShrink--; // Keep last 1
     }
     setGridCols(gridSizeRef.current.col - colsToShrink);
   };
@@ -441,6 +484,157 @@ const ShellTabs = () => {
         break;
     }
     shellWindowResizeHandler();
+  };
+
+  const tabDragHandler = (
+    nonce: string,
+    source: DraggableLocation<string>,
+    destination: DraggableLocation<string>,
+  ) => {
+    const tabIndex = tabsData.findIndex((t) => t.nonce === nonce);
+    const tabLocation = tabsGridLocation[tabIndex];
+
+    const sourceGrid = source.droppableId.split(":")[1];
+    const [destZone, destGrid] = destination.droppableId.split(":");
+
+    if (sourceGrid === destGrid) {
+      // In same section
+      if (source.index !== destination.index) {
+        if (source.index > destination.index) {
+          // Move forward
+          tabsGridLocationHandlers.applyWhere(
+            (v) =>
+              v.row === tabLocation.row &&
+              v.col === tabLocation.col &&
+              v.order < source.index &&
+              v.order >= destination.index,
+            (v) => ({
+              ...v,
+              order: v.order + 1,
+            }),
+          );
+        } else {
+          // Move backward
+          tabsGridLocationHandlers.applyWhere(
+            (v) =>
+              v.row === tabLocation.row &&
+              v.col === tabLocation.col &&
+              v.order > source.index &&
+              v.order <= destination.index,
+            (v) => ({
+              ...v,
+              order: v.order - 1,
+            }),
+          );
+        }
+        // Set new order
+        tabsGridLocationHandlers.setItem(tabIndex, {
+          ...tabLocation,
+          order: destination.index,
+        });
+      }
+    } else {
+      // Cross sections
+      const destPos = destGrid.split("-");
+      const destRow = parseInt(destPos[0]);
+      const destCol = parseInt(destPos[1]);
+
+      const isActive = isActiveTab(nonce, tabLocation);
+      if (isActive) {
+        fallbackActive(tabLocation);
+      }
+
+      // Move tabs in source
+      tabsGridLocationHandlers.applyWhere(
+        (v) =>
+          v.row === tabLocation.row &&
+          v.col === tabLocation.col &&
+          v.order > tabLocation.order,
+        (v) => ({
+          ...v,
+          order: v.order - 1,
+        }),
+      );
+
+      // Move tabs in destination
+      const destOrder =
+        destZone === DndZoneTabs
+          ? destination.index // Target index
+          : tabsGridLocation.filter(
+              (v) => v.row === destRow && v.col === destCol, // Place at last
+            ).length;
+      tabsGridLocationHandlers.applyWhere(
+        (v) => v.row === destRow && v.col === destCol && v.order > destOrder,
+        (v) => ({
+          ...v,
+          order: v.order + 1,
+        }),
+      );
+      // Set new location
+      tabsGridLocationHandlers.setItem(tabIndex, {
+        row: destRow,
+        col: destCol,
+        order: destOrder,
+        dataIndex: tabLocation.dataIndex, // Keep unchanged
+      });
+
+      // Keep active state
+      if (
+        isActive || // Tab is active
+        !currentActiveTab.some(
+          (v) => v.row === destRow && v.col === destCol && v.nonce !== null, // No active tab in new grid, set current as active one
+        )
+      ) {
+        setCurrentActiveTab({
+          row: destRow,
+          col: destCol,
+          nonce: nonce,
+        });
+      }
+    }
+
+    // responseTabsList();
+  };
+
+  const isActiveTab = (nonce: string, pos: ShellGridBase) => {
+    return currentActiveTab.some(
+      (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
+    );
+  };
+
+  const fallbackActive = (pos: ShellGridTabLocation) => {
+    console.log("fallbackActive", pos);
+    const tabsInSameGrid = tabsGridLocation.filter(
+      (v) => v.row === pos.row && v.col === pos.col,
+    );
+    if (tabsInSameGrid.length > pos.order + 1) {
+      // Still has tab on right
+      const nextOrderTab = tabsInSameGrid.find(
+        (v) => v.order === pos.order + 1,
+      );
+      if (nextOrderTab) {
+        setCurrentActiveTab({
+          row: pos.row,
+          col: pos.col,
+          nonce: tabsData[nextOrderTab.dataIndex].nonce,
+        });
+      }
+    } else if (tabsInSameGrid.length > 0) {
+      // Still have tab
+      tabsInSameGrid.sort((a, b) => b.order - a.order); // DESC
+      setCurrentActiveTab({
+        row: pos.row,
+        col: pos.col,
+        nonce: tabsData[tabsInSameGrid[0].dataIndex].nonce,
+      });
+    } else {
+      // No remain tabs
+      setCurrentActiveTab({
+        row: pos.row,
+        col: pos.col,
+        nonce: null,
+      });
+    }
   };
 
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal
@@ -554,18 +748,10 @@ const ShellTabs = () => {
         // grow
       >
         <DragDropContext
-          onDragEnd={({ destination, source }) => {
+          onDragEnd={({ destination, source, draggableId }) => {
             if (destination) {
-              console.log("dnd", source, destination);
-              if (source.droppableId === destination.droppableId) {
-                // In same section
-              } else {
-                // Cross sections
-              }
-
-              // tabsDataHandlers.reorder(reorderOption);
-              // tabsStateHandlers.reorder(reorderOption);
-              // tabsNewMessageHandlers.reorder(reorderOption);
+              console.log("dnd", draggableId, source, destination);
+              tabDragHandler(draggableId, source, destination);
             }
           }}
         >
@@ -576,39 +762,40 @@ const ShellTabs = () => {
                 .fill(null)
                 .map((_, colIndex) => (
                   <Grid.Col
-                    key={`section-${rowIndex}-${colIndex}`}
+                    key={`grid-${rowIndex}-${colIndex}`}
                     span={LayoutColsWeight / gridCols}
                   >
-                    <Droppable
-                      droppableId={`shell-tabs:${rowIndex}-${colIndex}`}
-                      direction="horizontal"
-                    >
-                      {(provided) => (
-                        <Tabs
-                          variant="none"
-                          className={style.tabs}
-                          value={
-                            currentActiveTab.find(
-                              (p) => p.row === rowIndex && p.col === colIndex,
-                            )?.nonce
-                          }
-                          onChange={(newActive) => {
-                            setCurrentActiveTab({
-                              row: rowIndex,
-                              col: colIndex,
-                              nonce: newActive,
-                            });
+                    <Tabs
+                      variant="none"
+                      className={style.tabs}
+                      value={
+                        currentActiveTab.find(
+                          (p) => p.row === rowIndex && p.col === colIndex,
+                        )?.nonce
+                      }
+                      onChange={(newActive) => {
+                        setCurrentActiveTab({
+                          row: rowIndex,
+                          col: colIndex,
+                          nonce: newActive,
+                        });
 
-                            if (newActive) {
-                              clearTabNewMessageState(newActive);
-                            }
-                          }}
-                          activateTabWithKeyboard={false}
-                          onContextMenu={(ev) => ev.preventDefault()}
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                        >
-                          <Tabs.List>
+                        if (newActive) {
+                          clearTabNewMessageState(newActive);
+                        }
+                      }}
+                      activateTabWithKeyboard={false}
+                      onContextMenu={(ev) => ev.preventDefault()}
+                    >
+                      <Droppable
+                        droppableId={`${DndZoneTabs}:${rowIndex}-${colIndex}`}
+                        direction="horizontal"
+                      >
+                        {(provided) => (
+                          <Tabs.List
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                          >
                             <ScrollArea scrollbars="x" onWheel={scrollTabs}>
                               <Flex>
                                 {tabsGridLocation
@@ -618,11 +805,11 @@ const ShellTabs = () => {
                                       pos.col === colIndex,
                                   )
                                   .toSorted((a, b) => a.order - b.order)
-                                  .map((_, index) => (
+                                  .map(({ dataIndex: index }, arrayIndex) => (
                                     <Draggable
                                       key={tabsData[index].nonce}
                                       draggableId={tabsData[index].nonce}
-                                      index={index}
+                                      index={arrayIndex}
                                     >
                                       {(provided) => (
                                         <div
@@ -646,15 +833,13 @@ const ShellTabs = () => {
                                                 tabsData[index],
                                               );
                                             }}
-                                            isActive={
-                                              currentActiveTab.findIndex(
-                                                (v) =>
-                                                  v.row === rowIndex &&
-                                                  v.col === colIndex &&
-                                                  v.nonce ===
-                                                    tabsData[index].nonce,
-                                              ) !== -1
-                                            }
+                                            isActive={isActiveTab(
+                                              tabsData[index].nonce,
+                                              {
+                                                row: rowIndex,
+                                                col: colIndex,
+                                              },
+                                            )}
                                           />
                                         </div>
                                       )}
@@ -664,47 +849,57 @@ const ShellTabs = () => {
                               </Flex>
                             </ScrollArea>
                           </Tabs.List>
+                        )}
+                      </Droppable>
 
+                      <Droppable
+                        droppableId={`${DndZonePanel}:${rowIndex}-${colIndex}`}
+                        direction="horizontal"
+                      >
+                        {(provided) => (
                           <Box
                             style={{
                               flexGrow: 1,
                               overflow: "clip",
                               height: 0,
                             }}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
                           >
-                            {tabsData
+                            {tabsGridLocation
                               .filter(
-                                (_, index) =>
-                                  tabsGridLocation[index].row === rowIndex &&
-                                  tabsGridLocation[index].col === colIndex,
+                                (pos) =>
+                                  pos.row === rowIndex && pos.col === colIndex,
                               )
-                              .map((tabData, index) => (
+                              .map(({ dataIndex: index }) => (
                                 <ShellPanel
-                                  key={tabData.nonce}
-                                  data={tabData}
+                                  key={tabsData[index].nonce}
+                                  data={tabsData[index]}
                                   setShellState={(state) => {
-                                    setTabShellState(state, tabData.nonce);
+                                    setTabShellState(
+                                      state,
+                                      tabsData[index].nonce,
+                                    );
                                   }}
                                   setNewMessage={() => {
-                                    setTabNewMessageState(tabData.nonce, {
-                                      row: rowIndex,
-                                      col: colIndex,
-                                    });
+                                    setTabNewMessageState(
+                                      tabsData[index].nonce,
+                                      {
+                                        row: rowIndex,
+                                        col: colIndex,
+                                      },
+                                    );
                                   }}
-                                  isActive={
-                                    currentActiveTab.findIndex(
-                                      (v) =>
-                                        v.row === rowIndex &&
-                                        v.col === colIndex &&
-                                        v.nonce === tabsData[index].nonce,
-                                    ) !== -1
-                                  }
+                                  isActive={isActiveTab(tabsData[index].nonce, {
+                                    row: rowIndex,
+                                    col: colIndex,
+                                  })}
                                 />
                               ))}
                           </Box>
-                        </Tabs>
-                      )}
-                    </Droppable>
+                        )}
+                      </Droppable>
+                    </Tabs>
                   </Grid.Col>
                 )),
             )}

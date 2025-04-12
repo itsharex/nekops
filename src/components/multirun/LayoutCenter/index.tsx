@@ -10,7 +10,10 @@ import {
   EventNameShellTabsListRequest,
   EventNameShellTabsListResponse,
 } from "@/events/name.ts";
-import { LayoutMaxCols, LayoutMaxRows } from "@/shell/layoutConfig.ts";
+import {
+  LayoutMaxCols,
+  LayoutMaxRows,
+} from "@/shell/ShellTabs/layoutConfig.ts";
 import LayoutControlButtons from "./LayoutControlButtons.tsx";
 
 interface LayoutCenterProps {

@@ -1,5 +1,4 @@
 import { Tabs } from "@mantine/core";
-import { memo } from "react";
 
 import type { ShellSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
@@ -32,4 +31,4 @@ const ShellPanel = ({
   </Tabs.Panel>
 );
 
-export default memo(ShellPanel);
+export default ShellPanel;

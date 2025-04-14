@@ -891,6 +891,7 @@ const ShellTabs = () => {
 
                       <Droppable
                         droppableId={`${DndZonePanel}:${rowIndex}-${colIndex}`}
+                        isDropDisabled={gridRows <= 1 && gridCols <= 1}
                       >
                         {(provided, snapshot) => (
                           <Box

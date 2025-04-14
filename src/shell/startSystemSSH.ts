@@ -11,6 +11,11 @@ export const startSystemSSH = (
   server: AccessRegular,
   jumpServer?: AccessRegular,
 ) => {
+  let alreadyTerminated = false;
+  setTerminateSSHFunc(() => {
+    alreadyTerminated = true;
+  });
+
   const sshArgs = [
     "-tt", // force Pseudo-terminal
   ];
@@ -69,6 +74,15 @@ export const startSystemSSH = (
 
   // Start SSH process
   sshCommand.spawn().then((sshProcess) => {
+    if (alreadyTerminated) {
+      // Already sent terminate signal, but still loading, so should stop immediately
+      sshProcess.kill();
+      return;
+    } else {
+      // Terminate when close
+      setTerminateSSHFunc(() => sshProcess.kill());
+    }
+
     // console.log(sshProcess);
 
     // Pipe input from terminal to ssh
@@ -107,8 +121,5 @@ export const startSystemSSH = (
     //   //   height: terminal.element?.clientHeight || rows * 17,
     //   // });
     // });
-
-    // Terminate when close
-    setTerminateSSHFunc(() => sshProcess.kill());
   });
 };

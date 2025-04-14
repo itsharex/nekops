@@ -17,6 +17,11 @@ export const startEmbeddedSSH = (
   themeColor: string,
   jumpServer?: AccessRegular,
 ) => {
+  let alreadyTerminated = false;
+  setTerminateSSHFunc(() => {
+    alreadyTerminated = true;
+  });
+
   const sshArgs = [];
   if (client.workspaceKnownHostsFile) {
     sshArgs.push("-o", `UserKnownHostsFile=${client.workspaceKnownHostsFile}`);
@@ -151,6 +156,15 @@ export const startEmbeddedSSH = (
 
   // Start SSH process
   sshCommand.spawn().then((sshProcess) => {
+    if (alreadyTerminated) {
+      // Already sent terminate signal, but still loading, so should stop immediately
+      sshProcess.kill();
+      return;
+    } else {
+      // Terminate when close
+      setTerminateSSHFunc(() => sshProcess.kill());
+    }
+
     // console.log(sshProcess);
     stateSSHProcess = sshProcess;
 
@@ -166,8 +180,5 @@ export const startEmbeddedSSH = (
     terminal.onResize(({ cols, rows }) => {
       sshProcess.write(`\x1B[8;${rows};${cols}t`);
     });
-
-    // Terminate when close
-    setTerminateSSHFunc(() => sshProcess.kill());
   });
 };

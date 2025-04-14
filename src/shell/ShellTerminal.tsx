@@ -185,30 +185,17 @@ const ShellTerminal = ({
           );
         }
       };
-      const stopShellSTTYFitByNoncePromise = listen<string>(
+      const stopShellSTTYFitByNonceListener = listen<string>(
         EventNameShellSTTYFitByNonce,
         shellSTTYFitByNonceHandler,
       );
 
       return () => {
-        // Stop listen window resize event
         (async () => {
           (await stopWindowResizeEventListener)();
-        })();
-
-        // Stop listen start event
-        (async () => {
           (await stopSendCommandByNonceListener)();
-        })();
-
-        // Stop listen shell select all by nonce event
-        (async () => {
           (await stopShellSelectAllByNonceListener)();
-        })();
-
-        // Stop listen shell fit stty by terminal size event
-        (async () => {
-          (await stopShellSTTYFitByNoncePromise)();
+          (await stopShellSTTYFitByNonceListener)();
         })();
 
         // Terminate SSH

@@ -56,7 +56,7 @@ const ShellTerminal = ({
 
   const isPendingFit = useRef(false);
 
-  const setTerminateSSHFunc = (func: (() => void) | null) => {
+  const setTerminateFunc = (func: (() => void) | null) => {
     terminateFunc.current = func;
   };
 
@@ -119,7 +119,13 @@ const ShellTerminal = ({
         server.port === 0
       ) {
         // Start debug dummy server
-        startDummy(nonce, terminal, stateUpdateOnNewMessage, setShellState);
+        startDummy(
+          nonce,
+          terminal,
+          stateUpdateOnNewMessage,
+          setShellState,
+          setTerminateFunc,
+        );
       } else {
         // Start normal server
         switch (clientOptions.type) {
@@ -128,7 +134,7 @@ const ShellTerminal = ({
               terminal,
               stateUpdateOnNewMessage,
               setShellState,
-              setTerminateSSHFunc,
+              setTerminateFunc,
               clientOptions,
               server,
               serverName,
@@ -141,7 +147,7 @@ const ShellTerminal = ({
               terminal,
               stateUpdateOnNewMessage,
               setShellState,
-              setTerminateSSHFunc,
+              setTerminateFunc,
               server,
               jumpServer,
             );

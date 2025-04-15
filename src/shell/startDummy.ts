@@ -6,6 +6,7 @@ export const startDummy = (
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
   setShellState: (state: TabState) => void,
+  setTerminateFunc: (func: (() => void) | null) => void,
 ) => {
   let commandBuf = "";
   let isTerminated: boolean = false;
@@ -119,7 +120,7 @@ export const startDummy = (
   });
 
   // Loading
-  setTimeout(() => {
+  const startupTimeout = setTimeout(() => {
     stateUpdateOnNewMessage();
 
     terminal.writeln(`Start with nonce \x1B[1;3;31m${nonce}\x1B[0m`);
@@ -137,4 +138,9 @@ export const startDummy = (
 
     prompt();
   }, 3_000);
+
+  setTerminateFunc(() => {
+    clearTimeout(startupTimeout);
+    terminate();
+  });
 };

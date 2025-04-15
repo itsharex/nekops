@@ -226,7 +226,15 @@ const ShellTabs = () => {
       nonce: newNonce,
     });
     tabsStateHandlers.setItem(index, "loading");
-    // setCurrentActiveTab(newNonce);
+    if (
+      isActiveTab(serverData.nonce, tabsGridLocationRef.current[index], true)
+    ) {
+      setCurrentActiveTab({
+        row: tabsGridLocationRef.current[index].row,
+        col: tabsGridLocationRef.current[index].col,
+        nonce: newNonce,
+      });
+    }
   };
 
   const terminateByNonce = (nonce: string) => {

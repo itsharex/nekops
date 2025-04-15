@@ -304,10 +304,13 @@ const ShellTabs = () => {
     );
 
     // Find current active tab by pos
-    const currentActiveNonce = currentActiveTabRef.current.find(
-      (v) => v.row === pos.row && v.col === pos.col,
-    )?.nonce;
-    if (currentActiveNonce !== tabsDataRef.current[index].nonce) {
+    const isCurrentActive = currentActiveTabRef.current.some(
+      (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
+    );
+
+    // console.log("setTabNewMessageState", nonce, pos, index, isCurrentActive);
+
+    if (!isCurrentActive) {
       tabsNewMessageHandlers.setItem(index, true);
     }
   };

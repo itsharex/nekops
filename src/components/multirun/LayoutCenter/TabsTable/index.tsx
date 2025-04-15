@@ -39,6 +39,7 @@ const TabsTable = ({
               ? "all"
               : "partial"
         }
+        isShowingGrid={tabs.grid.row > 1 || tabs.grid.col > 1}
       />
     </Table.Thead>
     <Table.Tbody>
@@ -77,6 +78,7 @@ const TabsTable = ({
               }
             }}
             isCurrentActive={tab.isActive}
+            isShowingGrid={tabs.grid.row > 1 || tabs.grid.col > 1}
           />
         ))}
     </Table.Tbody>

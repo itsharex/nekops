@@ -9,6 +9,7 @@ interface TabsTableRowProps {
   isSelected: boolean;
   setIsSelected: (state: boolean) => void;
   isCurrentActive: boolean;
+  isShowingGrid: boolean;
 }
 const TabsTableRow = ({
   tab,
@@ -16,6 +17,7 @@ const TabsTableRow = ({
   isSelected,
   setIsSelected,
   isCurrentActive,
+  isShowingGrid,
 }: TabsTableRowProps) => (
   <Table.Tr
     onClick={show}
@@ -33,8 +35,9 @@ const TabsTableRow = ({
     </Table.Td>
     <Table.Td>{tab.server.name}</Table.Td>
     <Table.Td>
-      {tab.gridLocation.row + 1}-{tab.gridLocation.col + 1} #
-      {tab.gridLocation.order + 1}
+      {isShowingGrid &&
+        `${tab.gridLocation.row + 1}-${tab.gridLocation.col + 1} `}
+      #{tab.gridLocation.order + 1}
     </Table.Td>
     <Table.Td ta="center">
       <TabStateIcon state={tab.state} isNewMessage={tab.isNewMessage} />

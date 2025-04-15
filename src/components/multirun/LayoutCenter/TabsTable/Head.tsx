@@ -5,8 +5,13 @@ import { memo } from "react";
 interface TabsTableHeadProps {
   selectedState: "all" | "partial" | "none";
   selectAll: (state: boolean) => void;
+  isShowingGrid: boolean;
 }
-const TabsTableHead = ({ selectedState, selectAll }: TabsTableHeadProps) => {
+const TabsTableHead = ({
+  selectedState,
+  selectAll,
+  isShowingGrid,
+}: TabsTableHeadProps) => {
   return (
     <Table.Tr>
       <Table.Th style={{ width: rem(40) }}>
@@ -17,7 +22,7 @@ const TabsTableHead = ({ selectedState, selectAll }: TabsTableHeadProps) => {
         />
       </Table.Th>
       <Table.Th>Server Name</Table.Th>
-      <Table.Th>Grid Location</Table.Th>
+      <Table.Th>{isShowingGrid ? "Grid Location" : "Order"}</Table.Th>
       <Table.Th style={actionRowStyle(1)}>State</Table.Th>
     </Table.Tr>
   );

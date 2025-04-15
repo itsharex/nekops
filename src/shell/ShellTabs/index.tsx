@@ -303,14 +303,7 @@ const ShellTabs = () => {
       (state) => state.nonce === nonce,
     );
 
-    // Find current active tab by pos
-    const isCurrentActive = currentActiveTabRef.current.some(
-      (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
-    );
-
-    // console.log("setTabNewMessageState", nonce, pos, index, isCurrentActive);
-
-    if (!isCurrentActive) {
+    if (!isActiveTab(nonce, pos, true)) {
       tabsNewMessageHandlers.setItem(index, true);
     }
   };
@@ -654,8 +647,12 @@ const ShellTabs = () => {
     // responseTabsList();
   };
 
-  const isActiveTab = (nonce: string, pos: ShellGridBase) => {
-    return currentActiveTab.some(
+  const isActiveTab = (
+    nonce: string,
+    pos: ShellGridBase,
+    current: boolean = false,
+  ) => {
+    return (current ? currentActiveTabRef.current : currentActiveTab).some(
       (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
     );
   };

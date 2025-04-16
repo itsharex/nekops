@@ -179,7 +179,7 @@ const ShellTabs = () => {
 
   // Close (terminate) confirm
   const doTerminate = (index: number) => {
-    console.log("do terminate", index);
+    // console.log("do terminate", index);
     const pos = tabsGridLocationRef.current[index];
     if (isActiveTab(tabsDataRef.current[index].nonce, pos)) {
       fallbackActive(pos);
@@ -509,7 +509,7 @@ const ShellTabs = () => {
   };
 
   const shellGridModifyHandler = (ev: Event<EventPayloadShellGridModify>) => {
-    console.log("Grid modify", ev.payload);
+    // console.log("Grid modify", ev.payload);
     switch (ev.payload.action) {
       case "add":
         let acceptedRows = ev.payload.grid.row;
@@ -669,7 +669,7 @@ const ShellTabs = () => {
     const tabsInSameGrid = tabsGridLocation.filter(
       (v) => v.row === pos.row && v.col === pos.col && v.order !== pos.order,
     );
-    console.log("fallbackActive", pos, tabsInSameGrid);
+    // console.log("fallbackActive", pos, tabsInSameGrid);
     if (tabsInSameGrid.length > pos.order + 1) {
       // Still has tab on right
       const nextOrderTab = tabsInSameGrid.find(
@@ -795,7 +795,7 @@ const ShellTabs = () => {
         <DragDropContext
           onDragEnd={({ destination, source, draggableId }) => {
             if (destination) {
-              console.log("dnd", draggableId, source, destination);
+              // console.log("dnd", draggableId, source, destination);
               tabDragHandler(draggableId, source, destination);
             }
           }}

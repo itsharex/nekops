@@ -1,0 +1,26 @@
+.gridRoot {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+.gridInner {
+  height: 100%;
+  width: 100%;
+}
+
+.gridCol {
+  position: relative;
+}
+
+.tabs {
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  box-shadow: 0 0 0 3px var(--mantine-color-gray-light);
+}

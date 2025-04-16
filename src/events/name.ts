@@ -3,7 +3,7 @@ export const EventNameWindowCloseMain = "windowCloseMain";
 export const EventNameWindowCloseShell = "windowCloseShell";
 export const EventNameWindowCloseRescue = "windowCloseRescue";
 
-// Window resize (also for window-system's split event)
+// Window resize (also for grid-system's split event)
 export const EventNameWindowResizeShell = "windowResizeShell";
 
 // Create a new shell session
@@ -26,6 +26,9 @@ export const EventNameShellTabsListResponse = "shellTabsListResponse";
 // Send special command to shell by nonce
 export const EventNameShellSelectAllByNonce = "shellSelectAllByNonce";
 export const EventNameShellSTTYFitByNonce = "shellSTTYFitByNonce";
+
+// Shell grid system
+export const EventNameShellGridModify = "shellGridModify"; // Add 1 row
 
 // Create a new rescue session
 export const EventNameRescueNew = "rescueNew";

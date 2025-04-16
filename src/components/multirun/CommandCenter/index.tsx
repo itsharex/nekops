@@ -3,18 +3,14 @@ import SnippetsTable from "./SnippetsTable";
 import CodeHighlightEditor from "@/components/CodeHighlightEditor";
 import { getHotkeyHandler } from "@mantine/hooks";
 import ActionsBar from "./ActionsBar";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store.ts";
 import { memo, useState } from "react";
-import { SpecialCharsMapping } from "./ActionsBar/specialCharsMapping.ts";
+import { SpecialCharsMapping } from "./specialCharsMapping.ts";
 
 interface CommandCenterProps {
   isSendDisabled: boolean;
   sendCommand: (command: string) => void;
 }
 const CommandCenter = ({ isSendDisabled, sendCommand }: CommandCenterProps) => {
-  const snippets = useSelector((state: RootState) => state.snippets);
-
   const [command, setCommand] = useState("");
 
   const appendCode = (input: string) => {
@@ -53,7 +49,7 @@ const CommandCenter = ({ isSendDisabled, sendCommand }: CommandCenterProps) => {
           flexGrow: 1,
         }}
       >
-        <SnippetsTable snippets={snippets} show={setCommand} />
+        <SnippetsTable setCommand={setCommand} />
       </ScrollArea>
 
       {/*Code Input*/}

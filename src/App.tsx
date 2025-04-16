@@ -2,7 +2,7 @@ import { AppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Router from "@/Router.tsx";
 import Header from "@/components/Header.tsx";
-import Nav from "@/components/Nav.tsx";
+import Nav from "@/components/Nav";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store.ts";

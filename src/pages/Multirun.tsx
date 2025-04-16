@@ -1,53 +1,16 @@
-import { ScrollArea, SimpleGrid } from "@mantine/core";
-import { useEffect, useState } from "react";
-import type { Event } from "@tauri-apps/api/event";
-import { emit, listen } from "@tauri-apps/api/event";
+import { SimpleGrid } from "@mantine/core";
+import { useState } from "react";
+import { emit } from "@tauri-apps/api/event";
 import { notifications } from "@mantine/notifications";
 
-import {
-  EventNameShellSendCommandByNonce,
-  EventNameShellSetActiveTabByNonce,
-  EventNameShellTabsListRequest,
-  EventNameShellTabsListResponse,
-} from "@/events/name.ts";
-import type {
-  EventPayloadShellSendCommandByNonce,
-  EventPayloadTabsListResponse,
-} from "@/events/payload.ts";
+import { EventNameShellSendCommandByNonce } from "@/events/name.ts";
+import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
 
-import TabsTable from "@/components/multirun/TabsTable";
-import CommandCenter from "@/components/multirun/CommandCenter.tsx";
+import LayoutCenter from "@/components/multirun/LayoutCenter";
+import CommandCenter from "@/components/multirun/CommandCenter";
 
 const MultirunPage = () => {
   const [selectedTabsNonce, setSelectedTabsNonce] = useState<string[]>([]);
-  const [tabs, setTabs] = useState<EventPayloadTabsListResponse>({
-    tabs: [],
-    currentActive: null,
-  });
-
-  const setActivatedTabByNonce = (nonce: string) => {
-    emit(EventNameShellSetActiveTabByNonce, nonce);
-  };
-
-  const requestTabsList = () => {
-    emit(EventNameShellTabsListRequest);
-  };
-
-  const responseTabsListHandler = (ev: Event<EventPayloadTabsListResponse>) => {
-    setTabs(ev.payload);
-  };
-
-  useEffect(() => {
-    // Remove non-exist nonce when tabs change
-    const allNonce = tabs.tabs.map((tab) => tab.server.nonce);
-    const existSelectedNonce = selectedTabsNonce.filter((nonce) =>
-      allNonce.includes(nonce),
-    );
-    if (existSelectedNonce.length !== selectedTabsNonce.length) {
-      // Update selected
-      setSelectedTabsNonce(existSelectedNonce);
-    }
-  }, [tabs]);
 
   const sendCommand = (command: string) => {
     const sendCommandEventPayload: EventPayloadShellSendCommandByNonce = {
@@ -62,37 +25,14 @@ const MultirunPage = () => {
     });
   };
 
-  useEffect(() => {
-    // Prepare event listener for tabs update
-    const stopShellTabsListResponseListener =
-      listen<EventPayloadTabsListResponse>(
-        EventNameShellTabsListResponse,
-        responseTabsListHandler,
-      );
-
-    // Request for tabs list at startup
-    requestTabsList();
-
-    // Stop listen before component (page) destroy
-    return () => {
-      (async () => {
-        (await stopShellTabsListResponseListener)();
-      })();
-    };
-  }, []);
-
   return (
     <>
       <SimpleGrid cols={2} h="100%" p="md">
         {/*Server Table*/}
-        <ScrollArea>
-          <TabsTable
-            tabs={tabs}
-            show={setActivatedTabByNonce}
-            selectedTabsNonce={selectedTabsNonce}
-            setSelectedTabsNonce={setSelectedTabsNonce}
-          />
-        </ScrollArea>
+        <LayoutCenter
+          selectedTabsNonce={selectedTabsNonce}
+          setSelectedTabsNonce={setSelectedTabsNonce}
+        />
         <CommandCenter
           isSendDisabled={selectedTabsNonce.length === 0}
           sendCommand={sendCommand}

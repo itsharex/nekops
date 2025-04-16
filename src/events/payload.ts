@@ -1,6 +1,10 @@
 import type { AccessEmergency, AccessRegular } from "@/types/server.ts";
 import type { TabState } from "@/types/tabState.ts";
-import { ShellClientType } from "@/types/shell.ts";
+import {
+  ShellClientType,
+  ShellGridBase,
+  ShellGridTabLocation,
+} from "@/types/shell.ts";
 
 export interface ServerBase {
   nonce: string;
@@ -28,16 +32,27 @@ export interface EventPayloadShellSendCommandByNonce {
   command: string;
 }
 
-export interface EventPayloadTabsListResponseSingleTab {
+export interface ShellSingleTab {
   server: ServerBase;
   state: TabState;
   isNewMessage: boolean;
+  gridLocation: ShellGridTabLocation;
+  isActive: boolean;
 }
 
-export interface EventPayloadTabsListResponse {
-  tabs: EventPayloadTabsListResponseSingleTab[];
-  currentActive: string | null; // Nonce
+export interface EventPayloadShellTabsListResponse {
+  grid: ShellGridBase;
+  tabs: ShellSingleTab[];
 }
+
+export type EventPayloadShellGridModify =
+  | {
+      action: "add" | "set";
+      grid: ShellGridBase;
+    }
+  | {
+      action: "tidy";
+    };
 
 export interface RescueSingleServer extends ServerBase {
   access: AccessEmergency;

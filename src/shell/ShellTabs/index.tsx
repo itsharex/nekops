@@ -1,9 +1,25 @@
-import { Box, Flex, List, ScrollArea, Tabs, Text, Title } from "@mantine/core";
+import {
+  Box,
+  Flex,
+  Grid,
+  List,
+  ScrollArea,
+  Tabs,
+  Text,
+  Title,
+} from "@mantine/core";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
-import type { MouseEvent, WheelEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState, WheelEvent } from "react";
+import { Window } from "@tauri-apps/api/window";
+import { useThrottledCallback } from "@mantine/hooks";
+import type { DraggableLocation } from "@hello-pangea/dnd";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import { modals } from "@mantine/modals";
+
+import type { TabState } from "@/types/tabState.ts";
 import {
+  EventNameShellGridModify,
   EventNameShellNew,
   EventNameShellReadyRequest,
   EventNameShellReadyResponse,
@@ -16,49 +32,72 @@ import {
   EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import type {
+  EventPayloadShellGridModify,
   EventPayloadShellNew,
-  EventPayloadTabsListResponse,
+  EventPayloadShellTabsListResponse,
   ShellSingleServer,
 } from "@/events/payload.ts";
-import { Window } from "@tauri-apps/api/window";
-import type { TabState } from "@/types/tabState.ts";
-import { useListState } from "@mantine/hooks";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import { modals } from "@mantine/modals";
+import type {
+  ShellGridBase,
+  ShellGridTabLocation,
+  ShellGridTabNonce,
+} from "@/types/shell.ts";
+import { useRefListState } from "@/common/useRefListState.ts";
+import { useRefState } from "@/common/useRefState.ts";
 
 import ShellTabContextMenu from "./ContextMenu.tsx";
 import ShellTab from "./Tab.tsx";
 import ShellPanel from "./Panel.tsx";
+import style from "./style.module.css";
+import {
+  LayoutColsWeight,
+  LayoutMaxCols,
+  LayoutMaxRows,
+} from "./layoutConfig.ts";
+import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 
 const ShellTabs = () => {
-  // For components render
-  const [tabsData, tabsDataHandlers] = useListState<ShellSingleServer>([]);
-  const [tabsState, tabsStateHandlers] = useListState<TabState>([]);
-  const [tabsNewMessage, tabsNewMessageHandlers] = useListState<boolean>([]);
-  // For events binding
-  const tabsDataRef = useRef<ShellSingleServer[]>([]);
-  const tabsStateRef = useRef<TabState[]>([]);
-  const tabsNewMessageRef = useRef<boolean[]>([]);
-  // Bind state : setTabsData -> tabsData -> tabsDataRef
-  useEffect(() => {
-    tabsDataRef.current = tabsData;
-  }, [tabsData]);
-  useEffect(() => {
-    tabsStateRef.current = tabsState;
-  }, [tabsState]);
-  useEffect(() => {
-    tabsNewMessageRef.current = tabsNewMessage;
-  }, [tabsNewMessage]);
+  // Window layout
+  const [gridRows, setGridRows, gridRowsRef] = useRefState(1);
+  const [gridCols, setGridCols, gridColsRef] = useRefState(1);
 
-  const [currentActiveTab, setCurrentActiveTab] = useState<string | null>(null);
-  const currentActiveTabRef = useRef<string | null>(null);
-  useEffect(() => {
-    currentActiveTabRef.current = currentActiveTab;
-  }, [currentActiveTab]);
+  // For components render & listen bindings
+  const [tabsData, tabsDataHandlers, tabsDataRef] =
+    useRefListState<ShellSingleServer>([]);
+  const [tabsGridLocation, tabsGridLocationHandlers, tabsGridLocationRef] =
+    useRefListState<
+      ShellGridTabLocation & {
+        dataIndex: number;
+      }
+    >([]);
+  const [tabsState, tabsStateHandlers, tabsStateRef] =
+    useRefListState<TabState>([]);
+  const [tabsNewMessage, tabsNewMessageHandlers, tabsNewMessageRef] =
+    useRefListState<boolean>([]);
+
+  const [currentActiveTab, currentActiveTabHandlers, currentActiveTabRef] =
+    useRefListState<ShellGridTabNonce>([
+      {
+        row: 0,
+        col: 0,
+        nonce: null,
+      },
+    ]);
+
+  const setCurrentActiveTab = (payload: ShellGridTabNonce) => {
+    currentActiveTabHandlers.applyWhere(
+      (v) => v.row === payload.row && v.col === payload.col,
+      (_) => payload,
+    );
+  };
 
   // Response tabs data event (initialize / update)
   const responseTabsList = () => {
-    const payload: EventPayloadTabsListResponse = {
+    const payload: EventPayloadShellTabsListResponse = {
+      grid: {
+        row: gridRowsRef.current,
+        col: gridColsRef.current,
+      },
       tabs: tabsDataRef.current.map((server, i) => ({
         server: {
           nonce: server.nonce,
@@ -67,8 +106,15 @@ const ShellTabs = () => {
         },
         state: tabsStateRef.current[i],
         isNewMessage: tabsNewMessageRef.current[i],
+        gridLocation: tabsGridLocationRef.current[i],
+        isActive:
+          currentActiveTabRef.current.findIndex(
+            (v) =>
+              v.row === tabsGridLocationRef.current[i].row &&
+              v.col === tabsGridLocationRef.current[i].col &&
+              v.nonce === server.nonce,
+          ) !== -1,
       })),
-      currentActive: currentActiveTabRef.current,
     };
     emit(EventNameShellTabsListResponse, payload);
   };
@@ -77,20 +123,53 @@ const ShellTabs = () => {
     tabsState,
     tabsNewMessage,
     currentActiveTab,
+    tabsGridLocation,
+    gridRows,
+    gridCols,
   ]);
 
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
     for (const server of ev.payload.server) {
-      tabsDataHandlers.append(server);
-      tabsStateHandlers.append("loading");
-      tabsNewMessageHandlers.append(false);
-      setCurrentActiveTab(server.nonce);
+      const dataIndex = tabsDataRef.current.length;
+      tabsDataHandlers.setItem(dataIndex, server);
+      tabsStateHandlers.setItem(dataIndex, "loading");
+      tabsNewMessageHandlers.setItem(dataIndex, false);
+      tabsGridLocationHandlers.setItem(dataIndex, {
+        row: 0,
+        col: 0,
+        order: tabsGridLocationRef.current.filter(
+          (v) => v.row === 0 && v.col === 0,
+        ).length,
+        dataIndex,
+      });
+      setCurrentActiveTab({
+        row: 0,
+        col: 0,
+        nonce: server.nonce,
+      });
     }
   };
 
   const shellSetActiveTabByNonceHandler = (ev: Event<string>) => {
-    setCurrentActiveTab(ev.payload);
+    // Find index by nonce
+    const serverIndex = tabsDataRef.current.findIndex(
+      (server) => server.nonce === ev.payload,
+    );
+    if (serverIndex === -1) {
+      console.warn("Invalid server");
+      return;
+    }
+
+    // Get grid pos
+    const gridPos = tabsGridLocationRef.current[serverIndex];
+
+    // Set payload
+    setCurrentActiveTab({
+      row: gridPos.row,
+      col: gridPos.col,
+      nonce: ev.payload,
+    });
     clearTabNewMessageState(ev.payload);
   };
 
@@ -100,9 +179,36 @@ const ShellTabs = () => {
 
   // Close (terminate) confirm
   const doTerminate = (index: number) => {
+    console.log("do terminate", index);
+    const pos = tabsGridLocationRef.current[index];
+    if (isActiveTab(tabsDataRef.current[index].nonce, pos)) {
+      fallbackActive(pos);
+    }
+
+    // Remove item
     tabsDataHandlers.remove(index);
     tabsStateHandlers.remove(index);
     tabsNewMessageHandlers.remove(index);
+
+    // Update reverse mapping of latter items
+    tabsGridLocationHandlers.applyWhere(
+      (v) => v.dataIndex > index,
+      (v) => ({
+        ...v,
+        dataIndex: v.dataIndex - 1,
+      }),
+    );
+    // Update order of latter tabs
+    tabsGridLocationHandlers.applyWhere(
+      (v) => v.row === pos.row && v.col === pos.col && v.order > pos.order,
+      (v) => ({
+        ...v,
+        order: v.order - 1,
+      }),
+    );
+
+    // Remove item
+    tabsGridLocationHandlers.remove(index);
   };
 
   const doReconnect = (index: number) => {
@@ -120,7 +226,15 @@ const ShellTabs = () => {
       nonce: newNonce,
     });
     tabsStateHandlers.setItem(index, "loading");
-    setCurrentActiveTab(newNonce);
+    if (
+      isActiveTab(serverData.nonce, tabsGridLocationRef.current[index], true)
+    ) {
+      setCurrentActiveTab({
+        row: tabsGridLocationRef.current[index].row,
+        col: tabsGridLocationRef.current[index].col,
+        nonce: newNonce,
+      });
+    }
   };
 
   const terminateByNonce = (nonce: string) => {
@@ -192,11 +306,12 @@ const ShellTabs = () => {
     }
   };
 
-  const setTabNewMessageState = (nonce: string) => {
+  const setTabNewMessageState = (nonce: string, pos: ShellGridBase) => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
-    if (currentActiveTabRef.current !== tabsDataRef.current[index].nonce) {
+
+    if (!isActiveTab(nonce, pos, true)) {
       tabsNewMessageHandlers.setItem(index, true);
     }
   };
@@ -242,8 +357,7 @@ const ShellTabs = () => {
   };
 
   const terminateAllAndExit = () => {
-    const len = tabsDataRef.current.length;
-    for (let i = len - 1; i >= 0; i--) {
+    for (let i = tabsDataRef.current.length - 1; i >= 0; i--) {
       // Reversely
       doTerminate(i);
     }
@@ -265,13 +379,332 @@ const ShellTabs = () => {
   const shellWindowResizeHandler = () => {
     emit(EventNameWindowResizeShell);
   };
+  const throttledWindowResizeHandler = useThrottledCallback(
+    shellWindowResizeHandler,
+    200,
+  );
+
+  const tidyGrid = () => {
+    // Tidy rows
+    let rowsToShrink = 0;
+    for (let i = gridRowsRef.current - 1; i >= 0; i--) {
+      if (!tabsGridLocationRef.current.some((v) => v.row === i)) {
+        rowsToShrink++;
+        tabsGridLocationHandlers.applyWhere(
+          (v) => v.row > i,
+          (v) => ({
+            ...v,
+            row: v.row - 1,
+          }),
+        );
+      }
+    }
+    if (rowsToShrink === gridRowsRef.current) {
+      rowsToShrink--; // Keep last 1
+    }
+
+    // Tidy cols
+    let colsToShrink = 0;
+    for (let i = gridColsRef.current - 1; i >= 0; i--) {
+      if (!tabsGridLocationRef.current.some((v) => v.col === i)) {
+        colsToShrink++;
+        tabsGridLocationHandlers.applyWhere(
+          (v) => v.col > i,
+          (v) => ({
+            ...v,
+            col: v.col - 1,
+          }),
+        );
+      }
+    }
+    if (colsToShrink === gridColsRef.current) {
+      colsToShrink--; // Keep last 1
+    }
+
+    // Check if need to shrink
+    if (rowsToShrink > 0 || colsToShrink > 0) {
+      // Adjust current active tabs
+      const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
+        (v) =>
+          (v.row >= gridRowsRef.current - rowsToShrink ||
+            v.col >= gridColsRef.current - colsToShrink) &&
+          v.nonce !== null,
+      );
+      for (const record of activeTabRecordsToAdjust) {
+        if (
+          record.row >= gridRowsRef.current - rowsToShrink &&
+          record.col >= gridColsRef.current - colsToShrink
+        ) {
+          setCurrentActiveTab({
+            row: record.row - rowsToShrink,
+            col: record.col - colsToShrink,
+            nonce: record.nonce,
+          });
+        } else if (record.row >= gridRowsRef.current - rowsToShrink) {
+          setCurrentActiveTab({
+            row: record.row - rowsToShrink,
+            col: record.col,
+            nonce: record.nonce,
+          });
+        } else {
+          // record.col >= gridColsRef.current - colsToShrink
+          setCurrentActiveTab({
+            row: record.row,
+            col: record.col - colsToShrink,
+            nonce: record.nonce,
+          });
+        }
+      }
+
+      // Set new size
+      setGridRows(gridRowsRef.current - rowsToShrink);
+      setGridCols(gridColsRef.current - colsToShrink);
+
+      // Keep only in-field ones
+      currentActiveTabHandlers.filter(
+        (v) =>
+          v.row < gridRowsRef.current - rowsToShrink &&
+          v.col < gridColsRef.current - colsToShrink,
+      );
+    }
+  };
+
+  const expandGrid = (rows: number, cols: number) => {
+    setGridRows(gridRowsRef.current + rows);
+    setGridCols(gridColsRef.current + cols);
+
+    // Expand active tabs
+    const toAppendTabs: ShellGridTabNonce[] = [];
+    // New rows old cols (bottom)
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < gridColsRef.current; j++) {
+        toAppendTabs.push({
+          row: gridRowsRef.current + i,
+          col: j,
+          nonce: null, // Init
+        });
+      }
+    }
+    // New cols old rows (right)
+    for (let j = 0; j < cols; j++) {
+      for (let i = 0; i < gridRowsRef.current; i++) {
+        toAppendTabs.push({
+          row: i,
+          col: gridColsRef.current + j,
+          nonce: null, // Init
+        });
+      }
+    }
+    // New rows new cols (bottom-right)
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        toAppendTabs.push({
+          row: gridRowsRef.current + i,
+          col: gridColsRef.current + j,
+          nonce: null, // Init
+        });
+      }
+    }
+    currentActiveTabHandlers.append(...toAppendTabs);
+  };
+
+  const shellGridModifyHandler = (ev: Event<EventPayloadShellGridModify>) => {
+    console.log("Grid modify", ev.payload);
+    switch (ev.payload.action) {
+      case "add":
+        let acceptedRows = ev.payload.grid.row;
+        if (acceptedRows < 0) {
+          acceptedRows = 0;
+        } else if (gridRowsRef.current + acceptedRows > LayoutMaxRows) {
+          acceptedRows = LayoutMaxRows - gridRowsRef.current;
+        }
+        let acceptedCols = ev.payload.grid.col;
+        if (acceptedCols < 0) {
+          acceptedCols = 0;
+        } else if (gridColsRef.current + acceptedCols > LayoutMaxCols) {
+          acceptedCols = LayoutMaxCols - gridColsRef.current;
+        }
+        if (acceptedRows > 0 || acceptedCols > 0) {
+          expandGrid(acceptedRows, acceptedCols);
+        }
+        break;
+      case "set":
+        if (ev.payload.grid.row > 0 && ev.payload.grid.row < LayoutMaxRows) {
+          setGridRows(ev.payload.grid.row);
+        }
+        if (ev.payload.grid.col > 0 && ev.payload.grid.col < LayoutMaxCols) {
+          setGridCols(ev.payload.grid.col);
+        }
+        break;
+      case "tidy":
+        tidyGrid();
+        break;
+    }
+    shellWindowResizeHandler();
+  };
+
+  const tabDragHandler = (
+    nonce: string,
+    source: DraggableLocation<string>,
+    destination: DraggableLocation<string>,
+  ) => {
+    const tabIndex = tabsData.findIndex((t) => t.nonce === nonce);
+    const tabLocation = tabsGridLocation[tabIndex];
+
+    const sourceGrid = source.droppableId.split(":")[1];
+    const [destZone, destGrid] = destination.droppableId.split(":");
+
+    if (sourceGrid === destGrid) {
+      // In same section
+      if (destZone !== DndZonePanel) {
+        if (source.index !== destination.index) {
+          if (source.index > destination.index) {
+            // Move forward
+            tabsGridLocationHandlers.applyWhere(
+              (v) =>
+                v.row === tabLocation.row &&
+                v.col === tabLocation.col &&
+                v.order < source.index &&
+                v.order >= destination.index,
+              (v) => ({
+                ...v,
+                order: v.order + 1,
+              }),
+            );
+          } else {
+            // Move backward
+            tabsGridLocationHandlers.applyWhere(
+              (v) =>
+                v.row === tabLocation.row &&
+                v.col === tabLocation.col &&
+                v.order > source.index &&
+                v.order <= destination.index,
+              (v) => ({
+                ...v,
+                order: v.order - 1,
+              }),
+            );
+          }
+          // Set new order
+          tabsGridLocationHandlers.setItem(tabIndex, {
+            ...tabLocation,
+            order: destination.index,
+          });
+        }
+      }
+    } else {
+      // Cross sections
+      const destPos = destGrid.split("-");
+      const destRow = parseInt(destPos[0]);
+      const destCol = parseInt(destPos[1]);
+
+      const isActive = isActiveTab(nonce, tabLocation);
+      if (isActive) {
+        fallbackActive(tabLocation);
+      }
+
+      // Move tabs in source
+      tabsGridLocationHandlers.applyWhere(
+        (v) =>
+          v.row === tabLocation.row &&
+          v.col === tabLocation.col &&
+          v.order > tabLocation.order,
+        (v) => ({
+          ...v,
+          order: v.order - 1,
+        }),
+      );
+
+      // Move tabs in destination
+      const destOrder =
+        destZone === DndZoneTabs
+          ? destination.index // Target index
+          : tabsGridLocation.filter(
+              (v) => v.row === destRow && v.col === destCol, // Place at last
+            ).length;
+      tabsGridLocationHandlers.applyWhere(
+        (v) => v.row === destRow && v.col === destCol && v.order > destOrder,
+        (v) => ({
+          ...v,
+          order: v.order + 1,
+        }),
+      );
+      // Set new location
+      tabsGridLocationHandlers.setItem(tabIndex, {
+        row: destRow,
+        col: destCol,
+        order: destOrder,
+        dataIndex: tabLocation.dataIndex, // Keep unchanged
+      });
+
+      // Keep active state
+      if (
+        isActive || // Tab is active
+        !currentActiveTab.some(
+          (v) => v.row === destRow && v.col === destCol && v.nonce !== null, // No active tab in new grid, set current as active one
+        )
+      ) {
+        setCurrentActiveTab({
+          row: destRow,
+          col: destCol,
+          nonce: nonce,
+        });
+      }
+    }
+
+    // responseTabsList();
+  };
+
+  const isActiveTab = (
+    nonce: string,
+    pos: ShellGridBase,
+    current: boolean = false,
+  ) => {
+    return (current ? currentActiveTabRef.current : currentActiveTab).some(
+      (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
+    );
+  };
+
+  const fallbackActive = (pos: ShellGridTabLocation) => {
+    const tabsInSameGrid = tabsGridLocation.filter(
+      (v) => v.row === pos.row && v.col === pos.col && v.order !== pos.order,
+    );
+    console.log("fallbackActive", pos, tabsInSameGrid);
+    if (tabsInSameGrid.length > pos.order + 1) {
+      // Still has tab on right
+      const nextOrderTab = tabsInSameGrid.find(
+        (v) => v.order === pos.order + 1,
+      );
+      if (nextOrderTab) {
+        setCurrentActiveTab({
+          row: pos.row,
+          col: pos.col,
+          nonce: tabsData[nextOrderTab.dataIndex].nonce,
+        });
+      }
+    } else if (tabsInSameGrid.length > 0) {
+      // Still have tab
+      tabsInSameGrid.sort((a, b) => b.order - a.order); // DESC
+      setCurrentActiveTab({
+        row: pos.row,
+        col: pos.col,
+        nonce: tabsData[tabsInSameGrid[0].dataIndex].nonce,
+      });
+    } else {
+      // No remain tabs
+      setCurrentActiveTab({
+        row: pos.row,
+        col: pos.col,
+        nonce: null,
+      });
+    }
+  };
 
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal
-  const tabsScrollerRef = useRef<HTMLDivElement | null>(null);
   const scrollTabs = (ev: WheelEvent<HTMLDivElement>) => {
-    if (ev.deltaY !== 0 && !!tabsScrollerRef.current) {
-      // console.log("scroll", ev.deltaY);
-      tabsScrollerRef.current.scrollBy({
+    if (ev.deltaY !== 0) {
+      // console.log("scroll", ev.deltaY, ev.currentTarget);
+      ev.currentTarget.firstElementChild?.scrollBy({
         left: ev.deltaY, // Convert vertical to horizontal, this is not an error
       });
     }
@@ -303,32 +736,23 @@ const ShellTabs = () => {
     );
 
     const stopWindowResizeShellListener = Window.getCurrent().onResized(
-      shellWindowResizeHandler,
+      throttledWindowResizeHandler,
+    );
+
+    const stopShellGridModifyListener = listen(
+      EventNameShellGridModify,
+      shellGridModifyHandler,
     );
 
     return () => {
       (async () => {
-        (await stopShellReadyListener)();
-      })();
-
-      (async () => {
         (await stopShellNewListener)();
-      })();
-
-      (async () => {
+        (await stopShellReadyListener)();
         (await stopShellSetActiveTabByNonceListener)();
-      })();
-
-      (async () => {
         (await stopShellTabsListRequestListener)();
-      })();
-
-      (async () => {
         (await stopWindowCloseShellListener)();
-      })();
-
-      (async () => {
         (await stopWindowResizeShellListener)();
+        (await stopShellGridModifyListener)();
       })();
     };
   }, []);
@@ -358,106 +782,191 @@ const ShellTabs = () => {
 
   return (
     <>
-      <Tabs
-        // variant="unstyled"
-        // classNames={classes}
-        h="100%"
-        w="100%"
-        display="flex"
-        pos="fixed"
-        style={{
-          flexDirection: "column",
+      <Grid
+        classNames={{
+          root: style.gridRoot,
+          inner: style.gridInner,
+          col: style.gridCol,
         }}
-        value={currentActiveTab}
-        onChange={(newActive) => {
-          setCurrentActiveTab(newActive);
-          if (newActive) {
-            clearTabNewMessageState(newActive);
-          }
-        }}
-        activateTabWithKeyboard={false}
-        onContextMenu={(ev) => ev.preventDefault()}
+        columns={LayoutColsWeight}
+        gutter={0}
+        // grow
       >
         <DragDropContext
-          onDragEnd={({ destination, source }) => {
-            const reorderOption = {
-              from: source.index,
-              to: destination?.index || 0,
-            };
-
-            tabsDataHandlers.reorder(reorderOption);
-            tabsStateHandlers.reorder(reorderOption);
-            tabsNewMessageHandlers.reorder(reorderOption);
+          onDragEnd={({ destination, source, draggableId }) => {
+            if (destination) {
+              console.log("dnd", draggableId, source, destination);
+              tabDragHandler(draggableId, source, destination);
+            }
           }}
         >
-          <Droppable droppableId="shell-tabs" direction="horizontal">
-            {(provided) => (
-              <Tabs.List ref={provided.innerRef} {...provided.droppableProps}>
-                <ScrollArea
-                  viewportRef={tabsScrollerRef}
-                  scrollbars="x"
-                  onWheel={scrollTabs}
-                >
-                  <Flex>
-                    {tabsData.map((tabData, index) => (
-                      <Draggable
-                        key={tabData.nonce}
-                        draggableId={tabData.nonce}
-                        index={index}
+          {Array(gridRows)
+            .fill(null)
+            .map((_, rowIndex) =>
+              Array(gridCols)
+                .fill(null)
+                .map((_, colIndex) => (
+                  <Grid.Col
+                    key={`grid-${rowIndex}-${colIndex}`}
+                    span={LayoutColsWeight / gridCols}
+                  >
+                    <Tabs
+                      variant="none"
+                      className={style.tabs}
+                      value={
+                        currentActiveTab.find(
+                          (p) => p.row === rowIndex && p.col === colIndex,
+                        )?.nonce
+                      }
+                      onChange={(newActive) => {
+                        setCurrentActiveTab({
+                          row: rowIndex,
+                          col: colIndex,
+                          nonce: newActive,
+                        });
+
+                        if (newActive) {
+                          clearTabNewMessageState(newActive);
+                        }
+                      }}
+                      activateTabWithKeyboard={false}
+                      onContextMenu={(ev) => ev.preventDefault()}
+                    >
+                      <Droppable
+                        droppableId={`${DndZoneTabs}:${rowIndex}-${colIndex}`}
+                        direction="horizontal"
                       >
                         {(provided) => (
-                          <div
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
+                          <Tabs.List
                             ref={provided.innerRef}
+                            {...provided.droppableProps}
                           >
-                            <ShellTab
-                              data={tabData}
-                              close={() => {
-                                terminateByNonce(tabData.nonce);
-                              }}
-                              state={tabsState[index]}
-                              isNewMessage={tabsNewMessage[index]}
-                              onContextMenu={(ev) => {
-                                ev.preventDefault();
-                                rightClickTab(ev, tabData);
-                              }}
-                              isActive={currentActiveTab === tabData.nonce}
-                            />
-                          </div>
+                            <ScrollArea scrollbars="x" onWheel={scrollTabs}>
+                              <Flex>
+                                {tabsGridLocation
+                                  .filter(
+                                    (pos) =>
+                                      pos.row === rowIndex &&
+                                      pos.col === colIndex,
+                                  )
+                                  .toSorted((a, b) => a.order - b.order)
+                                  .map(({ dataIndex: index }, arrayIndex) => (
+                                    <Draggable
+                                      key={tabsData[index].nonce}
+                                      draggableId={tabsData[index].nonce}
+                                      index={arrayIndex}
+                                    >
+                                      {(provided) => (
+                                        <div
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          ref={provided.innerRef}
+                                        >
+                                          <ShellTab
+                                            data={tabsData[index]}
+                                            close={() => {
+                                              terminateByNonce(
+                                                tabsData[index].nonce,
+                                              );
+                                            }}
+                                            state={tabsState[index]}
+                                            isNewMessage={tabsNewMessage[index]}
+                                            onContextMenu={(ev) => {
+                                              ev.preventDefault();
+                                              rightClickTab(
+                                                ev,
+                                                tabsData[index],
+                                              );
+                                            }}
+                                            isActive={isActiveTab(
+                                              tabsData[index].nonce,
+                                              {
+                                                row: rowIndex,
+                                                col: colIndex,
+                                              },
+                                            )}
+                                          />
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                {provided.placeholder}
+                              </Flex>
+                            </ScrollArea>
+                          </Tabs.List>
                         )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </Flex>
-                </ScrollArea>
-              </Tabs.List>
-            )}
-          </Droppable>
-        </DragDropContext>
+                      </Droppable>
 
-        <Box
-          style={{
-            flexGrow: 1,
-            overflow: "clip",
-            height: 0,
-          }}
-        >
-          {tabsData.map((tabData) => (
-            <ShellPanel
-              key={tabData.nonce}
-              data={tabData}
-              setShellState={(state) => {
-                setTabShellState(state, tabData.nonce);
-              }}
-              setNewMessage={() => {
-                setTabNewMessageState(tabData.nonce);
-              }}
-              isActive={currentActiveTab === tabData.nonce}
-            />
-          ))}
-        </Box>
-      </Tabs>
+                      <Droppable
+                        droppableId={`${DndZonePanel}:${rowIndex}-${colIndex}`}
+                        isDropDisabled={gridRows <= 1 && gridCols <= 1}
+                      >
+                        {(provided, snapshot) => (
+                          <Box
+                            style={{
+                              flexGrow: 1,
+                              overflow: "clip",
+                              height: 0,
+                            }}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                          >
+                            {/*DnD Dropzone*/}
+                            <Box
+                              pos="absolute"
+                              w="100%"
+                              h="100%"
+                              top={0}
+                              left={0}
+                              bg="cyan"
+                              opacity={snapshot.isDraggingOver ? 0.2 : 0}
+                              style={{
+                                pointerEvents: "none",
+                                zIndex: 1,
+                              }}
+                            >
+                              {provided.placeholder}
+                            </Box>
+
+                            {tabsGridLocation
+                              .filter(
+                                (pos) =>
+                                  pos.row === rowIndex && pos.col === colIndex,
+                              )
+                              .map(({ dataIndex: index }) => (
+                                <ShellPanel
+                                  key={tabsData[index].nonce}
+                                  data={tabsData[index]}
+                                  setShellState={(state) => {
+                                    setTabShellState(
+                                      state,
+                                      tabsData[index].nonce,
+                                    );
+                                  }}
+                                  setNewMessage={() => {
+                                    setTabNewMessageState(
+                                      tabsData[index].nonce,
+                                      {
+                                        row: rowIndex,
+                                        col: colIndex,
+                                      },
+                                    );
+                                  }}
+                                  isActive={isActiveTab(tabsData[index].nonce, {
+                                    row: rowIndex,
+                                    col: colIndex,
+                                  })}
+                                />
+                              ))}
+                          </Box>
+                        )}
+                      </Droppable>
+                    </Tabs>
+                  </Grid.Col>
+                )),
+            )}
+        </DragDropContext>
+      </Grid>
 
       <ShellTabContextMenu
         isOpen={isContextMenuOpen}

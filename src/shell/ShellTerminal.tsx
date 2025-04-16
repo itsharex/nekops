@@ -56,7 +56,7 @@ const ShellTerminal = ({
 
   const isPendingFit = useRef(false);
 
-  const setTerminateSSHFunc = (func: (() => void) | null) => {
+  const setTerminateFunc = (func: (() => void) | null) => {
     terminateFunc.current = func;
   };
 
@@ -119,7 +119,13 @@ const ShellTerminal = ({
         server.port === 0
       ) {
         // Start debug dummy server
-        startDummy(nonce, terminal, stateUpdateOnNewMessage, setShellState);
+        startDummy(
+          nonce,
+          terminal,
+          stateUpdateOnNewMessage,
+          setShellState,
+          setTerminateFunc,
+        );
       } else {
         // Start normal server
         switch (clientOptions.type) {
@@ -128,7 +134,7 @@ const ShellTerminal = ({
               terminal,
               stateUpdateOnNewMessage,
               setShellState,
-              setTerminateSSHFunc,
+              setTerminateFunc,
               clientOptions,
               server,
               serverName,
@@ -141,7 +147,7 @@ const ShellTerminal = ({
               terminal,
               stateUpdateOnNewMessage,
               setShellState,
-              setTerminateSSHFunc,
+              setTerminateFunc,
               server,
               jumpServer,
             );
@@ -185,30 +191,17 @@ const ShellTerminal = ({
           );
         }
       };
-      const stopShellSTTYFitByNoncePromise = listen<string>(
+      const stopShellSTTYFitByNonceListener = listen<string>(
         EventNameShellSTTYFitByNonce,
         shellSTTYFitByNonceHandler,
       );
 
       return () => {
-        // Stop listen window resize event
         (async () => {
           (await stopWindowResizeEventListener)();
-        })();
-
-        // Stop listen start event
-        (async () => {
           (await stopSendCommandByNonceListener)();
-        })();
-
-        // Stop listen shell select all by nonce event
-        (async () => {
           (await stopShellSelectAllByNonceListener)();
-        })();
-
-        // Stop listen shell fit stty by terminal size event
-        (async () => {
-          (await stopShellSTTYFitByNoncePromise)();
+          (await stopShellSTTYFitByNonceListener)();
         })();
 
         // Terminate SSH

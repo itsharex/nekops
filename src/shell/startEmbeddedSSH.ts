@@ -72,7 +72,7 @@ export const startEmbeddedSSH = (
       // Not start, should be events
       const eventsStartIndex = data.indexOf(0x02);
       const eventsEndIndex = data.indexOf(0x03);
-      console.log("evStart", eventsStartIndex, "evEnd", eventsEndIndex);
+      // console.log("evStart", eventsStartIndex, "evEnd", eventsEndIndex);
 
       if (eventsStartIndex != -1 && eventsEndIndex != -1) {
         let isEventProcessed = false;
@@ -87,7 +87,7 @@ export const startEmbeddedSSH = (
           );
           switch (eventName) {
             case "sshStart":
-              console.log("SSH start!");
+              // console.log("SSH start!");
               stateUpdateOnNewMessage();
               isSSHStart = true;
               isEventProcessed = true;
@@ -106,7 +106,7 @@ export const startEmbeddedSSH = (
           );
           switch (eventName) {
             case "hostKey":
-              console.log("Host key mismatch event", eventPayload); // TODO
+              // console.log("Host key mismatch event", eventPayload);
               hostKeyEventHandler(
                 serverName,
                 themeColor,

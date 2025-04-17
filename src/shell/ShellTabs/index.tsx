@@ -16,6 +16,7 @@ import { useThrottledCallback } from "@mantine/hooks";
 import type { DraggableLocation } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
+import { TerminalProvider } from "@/shell/TerminalContext.tsx";
 
 import type { TabState } from "@/types/tabState.ts";
 import {
@@ -781,7 +782,7 @@ const ShellTabs = () => {
   };
 
   return (
-    <>
+    <TerminalProvider>
       <Grid
         classNames={{
           root: style.gridRoot,
@@ -1002,7 +1003,7 @@ const ShellTabs = () => {
           }
         }}
       />
-    </>
+    </TerminalProvider>
   );
 };
 

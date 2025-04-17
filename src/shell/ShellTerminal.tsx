@@ -110,6 +110,7 @@ const ShellTerminal = ({
 
       // Reattach to the new element
       instance.terminal.open(terminalElementRef.current);
+      console.log("foo", terminalElementRef.current);
 
       // Ensure the terminal is visible by setting isLoading to false
       // setTerminalInstance(nonce, { isLoading: false });
@@ -267,7 +268,7 @@ const ShellTerminal = ({
           // Remove from context
           removeTerminalInstance(nonce);
 
-          // console.log("terminate", nonce); // debug log
+          console.log("terminate", nonce); // debug log
         }
       }
     };

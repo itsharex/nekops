@@ -1,7 +1,7 @@
 import type { RescueSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
 import { Tabs } from "@mantine/core";
-import RescueTerminal from "@/rescue/RescueTerminal.tsx";
+import RescueTerminal from "@/rescue/RescueTerminal";
 
 interface RescuePanelProps {
   data: RescueSingleServer;

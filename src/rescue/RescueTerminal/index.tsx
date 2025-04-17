@@ -1,12 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Button,
-  Code,
-  LoadingOverlay,
-  PasswordInput,
-  Text,
-  TextInput,
-} from "@mantine/core";
+import { Code, LoadingOverlay, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import type { NoVncOptions } from "@novnc/novnc/lib/rfb";
 import RFB from "@novnc/novnc/lib/rfb";
@@ -16,12 +9,14 @@ import { notifications } from "@mantine/notifications";
 
 import type { TabState } from "@/types/tabState.ts";
 import type { AccessEmergency } from "@/types/server.ts";
-import { startProxy } from "./startProxy.tsx";
 import { EventPayloadRescuePowerCycleByNonce } from "@/events/payload.ts";
 import {
   EventNameRescuePowerCycleByNonce,
   EventNameRescueSendCtrlAltDelByNonce,
 } from "@/events/name.ts";
+
+import { startProxy } from "../startProxy.tsx";
+import VNCCredentialsForm from "./VNCCredentialsForm.tsx";
 
 interface RescueTerminalProps {
   nonce: string;
@@ -86,9 +81,9 @@ const RescueTerminal = ({
   // Prepare noVNC options
   const vncOptions: NoVncOptions = {
     credentials: {
-      // @ts-ignore: The type definition is maintained by 3rd party thus is wrong
+      // @ts-expect-error: 3rd party maintains the type definition and is wrong
       username: Boolean(server.username) ? server.username : undefined,
-      // @ts-ignore: The type definition is maintained by 3rd party thus is wrong
+      // @ts-expect-error: 3rd party maintains the type definition and is wrong
       password: Boolean(server.password) ? server.password : undefined,
     },
   };
@@ -127,34 +122,12 @@ const RescueTerminal = ({
               </>
             ),
             children: (
-              <form
-                onSubmit={(formSubmitEv) => {
-                  formSubmitEv.preventDefault(); // Prevent from generating requests
-                  console.log(formSubmitEv.currentTarget);
-                  // novnc.sendCredentials(); // TODO
-                }}
-              >
-                {ev.detail.types.includes("username") && (
-                  <TextInput
-                    name="username"
-                    label="Username"
-                    defaultValue={server.username}
-                  />
-                )}
-                {ev.detail.types.includes("password") && (
-                  <PasswordInput
-                    name="password"
-                    label="Password"
-                    defaultValue={server.password}
-                  />
-                )}
-                {ev.detail.types.includes("target") && (
-                  <TextInput name="target" label="Target" />
-                )}
-                <Button fullWidth type="submit">
-                  Submit
-                </Button>
-              </form>
+              <VNCCredentialsForm
+                requiredProps={ev.detail.types}
+                initialValues={server}
+                // @ts-expect-error: 3rd party maintains the type definition and is wrong
+                submitAction={novnc.sendCredentials}
+              />
             ),
           });
         });

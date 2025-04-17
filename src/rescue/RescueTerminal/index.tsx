@@ -217,8 +217,6 @@ const RescueTerminal = ({
       return () => {
         (async () => {
           (await stopRescuePowerCycleByNonceListener)();
-        })();
-        (async () => {
           (await stopRescueSendCtrlAltDelByNonce)();
         })();
 

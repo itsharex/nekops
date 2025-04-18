@@ -16,6 +16,8 @@ import { useThrottledCallback } from "@mantine/hooks";
 import type { DraggableLocation } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
+import { Terminal } from "xterm";
+import { FitAddon } from "xterm-addon-fit";
 
 import { useTerminal } from "@/shell/TerminalContext.tsx";
 import type { TabState } from "@/types/tabState.ts";
@@ -44,6 +46,9 @@ import type {
 } from "@/types/shell.ts";
 import { useRefListState } from "@/common/useRefListState.ts";
 import { useRefState } from "@/common/useRefState.ts";
+import { startDummy } from "@/shell/startDummy.ts";
+import { startSystemSSH } from "@/shell/startSystemSSH.ts";
+import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
 
 import ShellTabContextMenu from "./ContextMenu.tsx";
 import ShellTab from "./Tab.tsx";
@@ -58,7 +63,8 @@ import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 
 const ShellTabs = () => {
   // Terminal context
-  const { removeTerminalInstance } = useTerminal();
+  const { getTerminalInstance, setTerminalInstance, removeTerminalInstance } =
+    useTerminal();
 
   // Window layout
   const [gridRows, setGridRows, gridRowsRef] = useRefState(1);
@@ -131,6 +137,27 @@ const ShellTabs = () => {
     gridCols,
   ]);
 
+  // Helper function to set the terminate function
+  const setTerminateFunc = (nonce: string, func: (() => void) | null) => {
+    setTerminalInstance(nonce, { terminateFunc: func });
+  };
+
+  const stateUpdateOnNewMessage = (nonce: string) => {
+    const { isLoading } = getTerminalInstance(nonce);
+    if (isLoading) {
+      setTerminalInstance(nonce, { isLoading: false, isPendingFit: true });
+      setShellState(nonce, "active");
+    }
+    setNewMessage(nonce);
+  };
+
+  const setShellState = (nonce: string, state: TabState) => {
+    setTabShellState(state, nonce);
+  };
+  const setNewMessage = (nonce: string) => {
+    setTabNewMessageState(nonce);
+  };
+
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
     for (const server of ev.payload.server) {
@@ -146,12 +173,76 @@ const ShellTabs = () => {
         ).length,
         dataIndex,
       });
-      setCurrentActiveTab({
-        row: 0,
-        col: 0,
-        nonce: server.nonce,
+
+      // Initialize terminal
+      const terminal = new Terminal();
+      const fitAddon = new FitAddon();
+
+      // Store in context
+      setTerminalInstance(server.nonce, {
+        terminal,
+        fitAddon,
+        isLoading: true,
+        isPendingFit: false,
       });
+
+      // Apply size fit addon
+      terminal.loadAddon(fitAddon);
+
+      if (
+        server.access.user === "Candinya" &&
+        server.access.address === "dummy" &&
+        server.access.port === 0
+      ) {
+        // Start debug dummy server
+        startDummy(
+          server.nonce,
+          terminal,
+          () => stateUpdateOnNewMessage(server.nonce),
+          (state) => setShellState(server.nonce, state),
+          (func) => setTerminateFunc(server.nonce, func),
+        );
+      } else {
+        // Start normal server
+        switch (server.clientOptions.type) {
+          case "embedded":
+            startEmbeddedSSH(
+              server.nonce,
+              terminal,
+              () => stateUpdateOnNewMessage(server.nonce),
+              (state) => setShellState(server.nonce, state),
+              (func) => setTerminateFunc(server.nonce, func),
+              server.clientOptions,
+              server.access,
+              server.name,
+              server.color,
+              server.jumpServer,
+            );
+            break;
+          case "system":
+            startSystemSSH(
+              server.nonce,
+              terminal,
+              () => stateUpdateOnNewMessage(server.nonce),
+              (state) => setShellState(server.nonce, state),
+              (func) => setTerminateFunc(server.nonce, func),
+              server.access,
+              server.jumpServer,
+            );
+            break;
+          default:
+            console.warn("Unsupported client", server.clientOptions.type);
+            break;
+        }
+      }
     }
+
+    // Set active tab
+    setCurrentActiveTab({
+      row: 0,
+      col: 0,
+      nonce: ev.payload.server[0].nonce,
+    });
   };
 
   const shellSetActiveTabByNonceHandler = (ev: Event<string>) => {
@@ -182,7 +273,7 @@ const ShellTabs = () => {
 
   // Close (terminate) confirm
   const doTerminate = (index: number) => {
-    // Remove from shell state
+    // Remove from the shell state context
     removeTerminalInstance(tabsDataRef.current[index].nonce);
 
     // console.log("do terminate", index);
@@ -312,12 +403,12 @@ const ShellTabs = () => {
     }
   };
 
-  const setTabNewMessageState = (nonce: string, pos: ShellGridBase) => {
+  const setTabNewMessageState = (nonce: string) => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
 
-    if (!isActiveTab(nonce, pos, true)) {
+    if (!isActiveTab(nonce, tabsGridLocationRef.current[index], true)) {
       tabsNewMessageHandlers.setItem(index, true);
     }
   };
@@ -943,21 +1034,6 @@ const ShellTabs = () => {
                                 <ShellPanel
                                   key={tabsData[index].nonce}
                                   data={tabsData[index]}
-                                  setShellState={(state) => {
-                                    setTabShellState(
-                                      state,
-                                      tabsData[index].nonce,
-                                    );
-                                  }}
-                                  setNewMessage={() => {
-                                    setTabNewMessageState(
-                                      tabsData[index].nonce,
-                                      {
-                                        row: rowIndex,
-                                        col: colIndex,
-                                      },
-                                    );
-                                  }}
                                   isActive={isActiveTab(tabsData[index].nonce, {
                                     row: rowIndex,
                                     col: colIndex,

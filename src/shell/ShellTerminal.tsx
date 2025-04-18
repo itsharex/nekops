@@ -17,7 +17,6 @@ import type {
 import {
   EventNameShellSelectAllByNonce,
   EventNameShellSendCommandByNonce,
-  EventNameShellSTTYFitByNonce,
   EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
@@ -49,8 +48,7 @@ const ShellTerminal = ({
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
 
   // Use the terminal context to get and set terminal instances
-  const { getTerminalInstance, setTerminalInstance, removeTerminalInstance } =
-    useTerminal();
+  const { getTerminalInstance, setTerminalInstance } = useTerminal();
 
   // Get the terminal instance for this nonce
   const instance = getTerminalInstance(nonce);
@@ -96,58 +94,83 @@ const ShellTerminal = ({
     }
 
     // Check if we already have a terminal instance
+    let currentTerminal: Terminal;
     if (instance.terminal) {
       // If we have an existing terminal, reattach it to the new DOM element
       // This happens when the terminal is dragged to a new grid
 
-      // First, detach from the old element if it's still attached
-      const oldElement = instance.terminal.element?.parentElement;
-      if (oldElement && oldElement !== terminalElementRef.current) {
-        // The terminal is attached to a different element, detach it
-        instance.terminal.element?.remove();
-        console.log("boo");
-      }
-
       // Reattach to the new element
       instance.terminal.open(terminalElementRef.current);
-      console.log("foo", terminalElementRef.current);
 
-      // Ensure the terminal is visible by setting isLoading to false
-      // setTerminalInstance(nonce, { isLoading: false });
+      currentTerminal = instance.terminal;
+    } else {
+      // console.log("init", nonce); // debug log
 
-      // Always fit the terminal to the new container to ensure it's properly sized
-      instance.fitAddon?.fit();
+      // Initialize terminal
+      const terminal = new Terminal();
+      const fitAddon = new FitAddon();
 
-      // Schedule another fit after a short delay to ensure the terminal is properly sized
-      // This helps with cases where the terminal might not be fully rendered yet
-      // setTimeout(() => {
-      //   if (instance.fitAddon) {
-      //     instance.fitAddon.fit();
-      //   }
-      // }, 100);
+      // Store in context
+      setTerminalInstance(nonce, {
+        terminal,
+        fitAddon,
+        isLoading: true,
+        isPendingFit: false,
+      });
 
-      return;
+      // Apply size fit addon
+      terminal.loadAddon(fitAddon);
+
+      // Initialize element
+      terminal.open(terminalElementRef.current);
+
+      if (
+        server.user === "Candinya" &&
+        server.address === "dummy" &&
+        server.port === 0
+      ) {
+        // Start debug dummy server
+        startDummy(
+          nonce,
+          terminal,
+          stateUpdateOnNewMessage,
+          setShellState,
+          setTerminateFunc,
+        );
+      } else {
+        // Start normal server
+        switch (clientOptions.type) {
+          case "embedded":
+            startEmbeddedSSH(
+              terminal,
+              stateUpdateOnNewMessage,
+              setShellState,
+              setTerminateFunc,
+              clientOptions,
+              server,
+              serverName,
+              themeColor,
+              jumpServer,
+            );
+            break;
+          case "system":
+            startSystemSSH(
+              terminal,
+              stateUpdateOnNewMessage,
+              setShellState,
+              setTerminateFunc,
+              server,
+              jumpServer,
+            );
+            break;
+          default:
+            console.warn("Unsupported client", clientOptions.type);
+            break;
+        }
+      }
+
+      currentTerminal = terminal;
     }
-
-    // console.log("init", nonce); // debug log
-
-    // Initialize terminal
-    const terminal = new Terminal();
-    const fitAddon = new FitAddon();
-
-    // Store in context
-    setTerminalInstance(nonce, {
-      terminal,
-      fitAddon,
-      isLoading: true,
-      isPendingFit: false,
-    });
-
-    // Apply size fit addon
-    terminal.loadAddon(fitAddon);
-
-    // Initialize element
-    terminal.open(terminalElementRef.current);
 
     // Hook window resize event
     const stopWindowResizeEventListener = listen(
@@ -155,57 +178,12 @@ const ShellTerminal = ({
       throttledFit,
     );
 
-    if (
-      server.user === "Candinya" &&
-      server.address === "dummy" &&
-      server.port === 0
-    ) {
-      // Start debug dummy server
-      startDummy(
-        nonce,
-        terminal,
-        stateUpdateOnNewMessage,
-        setShellState,
-        setTerminateFunc,
-      );
-    } else {
-      // Start normal server
-      switch (clientOptions.type) {
-        case "embedded":
-          startEmbeddedSSH(
-            terminal,
-            stateUpdateOnNewMessage,
-            setShellState,
-            setTerminateFunc,
-            clientOptions,
-            server,
-            serverName,
-            themeColor,
-            jumpServer,
-          );
-          break;
-        case "system":
-          startSystemSSH(
-            terminal,
-            stateUpdateOnNewMessage,
-            setShellState,
-            setTerminateFunc,
-            server,
-            jumpServer,
-          );
-          break;
-        default:
-          console.warn("Unsupported client", clientOptions.type);
-          break;
-      }
-    }
-
     // Listen to multirun commands
     const sendCommandByNonceHandler = (
       ev: Event<EventPayloadShellSendCommandByNonce>,
     ) => {
       if (ev.payload.nonce.includes(nonce)) {
-        terminal.input(ev.payload.command);
+        currentTerminal.write(ev.payload.command); // TODO: fix
       }
     };
     const stopSendCommandByNonceListener =
@@ -217,7 +195,7 @@ const ShellTerminal = ({
     // Listen to select all event
     const shellSelectAllByNonceHandler = (ev: Event<string>) => {
       if (ev.payload === nonce) {
-        terminal.selectAll();
+        currentTerminal.selectAll();
       }
     };
     const stopShellSelectAllByNonceListener = listen<string>(
@@ -225,51 +203,12 @@ const ShellTerminal = ({
       shellSelectAllByNonceHandler,
     );
 
-    const shellSTTYFitByNonceHandler = (ev: Event<string>) => {
-      if (ev.payload === nonce) {
-        terminal.write(`stty columns ${terminal.cols} rows ${terminal.rows}\n`);
-      }
-    };
-    const stopShellSTTYFitByNonceListener = listen<string>(
-      EventNameShellSTTYFitByNonce,
-      shellSTTYFitByNonceHandler,
-    );
-
     return () => {
-      // terminal.dispose();
-
-      // Only clean up if this is the last instance of this terminal
-      // This prevents cleanup when the component is just being moved to a different location
-      const currentInstance = getTerminalInstance(nonce);
-      if (currentInstance.terminal === terminal) {
-        // Check if we're just moving the terminal or actually terminating it
-        // If we're in a React StrictMode development environment or the component is being
-        // remounted due to parent component changes, we don't want to terminate the SSH session
-        const isJustMoving = document.contains(terminalElementRef.current);
-
-        if (!isJustMoving) {
-          (async () => {
-            (await stopWindowResizeEventListener)();
-            (await stopSendCommandByNonceListener)();
-            (await stopShellSelectAllByNonceListener)();
-            (await stopShellSTTYFitByNonceListener)();
-          })();
-
-          // Only terminate SSH if we're actually removing the terminal from the DOM
-          // if (currentInstance.terminateFunc) {
-          //   currentInstance.terminateFunc();
-          // }
-          //
-          // // Close terminal
-          // fitAddon?.dispose();
-          // terminal?.dispose();
-          //
-          // // Remove from context
-          // removeTerminalInstance(nonce);
-          //
-          // console.log("terminate", nonce); // debug log
-        }
-      }
+      (async () => {
+        (await stopWindowResizeEventListener)();
+        (await stopSendCommandByNonceListener)();
+        (await stopShellSelectAllByNonceListener)();
+      })();
     };
   }, []);
 

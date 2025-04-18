@@ -1,5 +1,5 @@
 import { Child, Command } from "@tauri-apps/plugin-shell";
-import type { Terminal } from "@xterm/xterm";
+import type { Terminal } from "xterm";
 
 import type { AccessRegular } from "@/types/server.ts";
 import type { TabState } from "@/types/tabState.ts";

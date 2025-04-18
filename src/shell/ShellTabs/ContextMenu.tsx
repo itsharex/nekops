@@ -1,10 +1,5 @@
 import { Menu } from "@mantine/core";
-import {
-  IconArrowsMaximize,
-  IconCopyPlus,
-  IconLinkOff,
-  IconRotate,
-} from "@tabler/icons-react";
+import { IconCopyPlus, IconLinkOff, IconRotate } from "@tabler/icons-react";
 import { menuIconStyle } from "@/common/actionStyles.ts";
 
 interface ShellTabContextMenuProps {
@@ -15,10 +10,7 @@ interface ShellTabContextMenuProps {
     y: number;
   };
 
-  isEnableSTTYFit: boolean;
-
   onClickSelectAll: () => void;
-  onClickSTTYFit: () => void;
   onClickTerminate: () => void;
   onClickReconnect: () => void;
 }
@@ -27,10 +19,7 @@ const ShellTabContextMenu = ({
   setIsOpen,
   pos,
 
-  isEnableSTTYFit,
-
   onClickSelectAll,
-  onClickSTTYFit,
   onClickTerminate,
   onClickReconnect,
 }: ShellTabContextMenuProps) => (
@@ -52,14 +41,6 @@ const ShellTabContextMenu = ({
       >
         Select All
       </Menu.Item>
-      {isEnableSTTYFit && (
-        <Menu.Item
-          leftSection={<IconArrowsMaximize style={menuIconStyle} />}
-          onClick={onClickSTTYFit}
-        >
-          STTY Fit
-        </Menu.Item>
-      )}
 
       <Menu.Divider />
 

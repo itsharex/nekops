@@ -26,7 +26,6 @@ import {
   EventNameShellReadyResponse,
   EventNameShellSelectAllByNonce,
   EventNameShellSetActiveTabByNonce,
-  EventNameShellSTTYFitByNonce,
   EventNameShellTabsListRequest,
   EventNameShellTabsListResponse,
   EventNameWindowCloseShell,
@@ -981,17 +980,6 @@ const ShellTabs = () => {
         isOpen={isContextMenuOpen}
         setIsOpen={setIsContextMenuOpen}
         pos={contextMenuPos}
-        isEnableSTTYFit={
-          currentSelectedTab.current?.clientOptions.type !== "embedded"
-        }
-        onClickSTTYFit={() => {
-          if (currentSelectedTab.current) {
-            emit(
-              EventNameShellSTTYFitByNonce,
-              currentSelectedTab.current.nonce,
-            );
-          }
-        }}
         onClickSelectAll={() => {
           if (currentSelectedTab.current) {
             emit(

@@ -10,7 +10,8 @@ import {
 } from "@mantine/core";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
-import { MouseEvent, useEffect, useRef, useState, WheelEvent } from "react";
+import type { MouseEvent, WheelEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Window } from "@tauri-apps/api/window";
 import { useThrottledCallback } from "@mantine/hooks";
 import type { DraggableLocation } from "@hello-pangea/dnd";

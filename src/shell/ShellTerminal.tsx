@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
+import { Terminal } from "xterm";
+import { FitAddon } from "xterm-addon-fit";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
 import { useThrottledCallback } from "@mantine/hooks";
@@ -101,12 +101,12 @@ const ShellTerminal = ({
       // This happens when the terminal is dragged to a new grid
 
       // First, detach from the old element if it's still attached
-      // const oldElement = instance.terminal.element?.parentElement;
-      // if (oldElement && oldElement !== terminalElementRef.current) {
-      //   // The terminal is attached to a different element, detach it
-      //   instance.terminal.element?.remove();
-      //   console.log("boo");
-      // }
+      const oldElement = instance.terminal.element?.parentElement;
+      if (oldElement && oldElement !== terminalElementRef.current) {
+        // The terminal is attached to a different element, detach it
+        instance.terminal.element?.remove();
+        console.log("boo");
+      }
 
       // Reattach to the new element
       instance.terminal.open(terminalElementRef.current);
@@ -227,10 +227,7 @@ const ShellTerminal = ({
 
     const shellSTTYFitByNonceHandler = (ev: Event<string>) => {
       if (ev.payload === nonce) {
-        terminal.input(
-          `stty columns ${terminal.cols} rows ${terminal.rows}\n`,
-          false,
-        );
+        terminal.write(`stty columns ${terminal.cols} rows ${terminal.rows}\n`);
       }
     };
     const stopShellSTTYFitByNonceListener = listen<string>(
@@ -239,6 +236,8 @@ const ShellTerminal = ({
     );
 
     return () => {
+      // terminal.dispose();
+
       // Only clean up if this is the last instance of this terminal
       // This prevents cleanup when the component is just being moved to a different location
       const currentInstance = getTerminalInstance(nonce);
@@ -257,22 +256,22 @@ const ShellTerminal = ({
           })();
 
           // Only terminate SSH if we're actually removing the terminal from the DOM
-          if (currentInstance.terminateFunc) {
-            currentInstance.terminateFunc();
-          }
-
-          // Close terminal
-          fitAddon?.dispose();
-          terminal?.dispose();
-
-          // Remove from context
-          removeTerminalInstance(nonce);
-
-          console.log("terminate", nonce); // debug log
+          // if (currentInstance.terminateFunc) {
+          //   currentInstance.terminateFunc();
+          // }
+          //
+          // // Close terminal
+          // fitAddon?.dispose();
+          // terminal?.dispose();
+          //
+          // // Remove from context
+          // removeTerminalInstance(nonce);
+          //
+          // console.log("terminate", nonce); // debug log
         }
       }
     };
-  }, [nonce, instance.terminal]);
+  }, []);
 
   return (
     <div

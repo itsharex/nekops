@@ -6,7 +6,7 @@ import { ModalsProvider } from "@mantine/modals";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import "@xterm/xterm/css/xterm.css";
+import "xterm/css/xterm.css";
 
 import "@/shell/style.css";
 

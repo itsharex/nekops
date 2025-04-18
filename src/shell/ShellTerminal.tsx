@@ -53,7 +53,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
     }
 
     // First, detach from the old element if it's still attached
-    if (instance.terminal?.element?.parentElement) {
+    if (instance.terminal?.element) {
       // The terminal is attached to a different element, detach it
       instance.terminal.element.remove();
     }

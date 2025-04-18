@@ -39,7 +39,11 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   // Fit when become active
   useEffect(() => {
     if (isActive && isPendingFit.current) {
-      // Not sure why this is not working sometimes (resize after grid tidy) // TODO
+      // Not sure why this is not working sometimes (after grid tidy)
+      // Might be relevant to React's component mount mechanism.
+      // requestIdleCallback can work, but Safari doesn't support it.
+      // Need to find a better solution.
+      // TODO
       instance.fitAddon?.fit();
       isPendingFit.current = false;
     }

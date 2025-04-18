@@ -1,4 +1,4 @@
-import type { Terminal } from "@xterm/xterm";
+import type { Terminal } from "xterm";
 import { readText, writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";

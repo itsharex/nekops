@@ -1,4 +1,5 @@
-import React, { createContext, ReactNode, useContext, useRef } from "react";
+import type { PropsWithChildren } from "react";
+import { createContext, useContext, useRef } from "react";
 import type { Terminal } from "xterm";
 import type { FitAddon } from "xterm-addon-fit";
 
@@ -33,9 +34,7 @@ const TerminalContext = createContext<TerminalContextType>({
 });
 
 // Create a provider component
-export const TerminalProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+const TerminalProvider = ({ children }: PropsWithChildren) => {
   // Use a ref to store terminal instances
   const terminalInstancesRef = useRef<Record<string, TerminalInstance>>({});
 
@@ -87,3 +86,5 @@ export const TerminalProvider: React.FC<{ children: ReactNode }> = ({
 
 // Create a hook to use the context
 export const useTerminal = () => useContext(TerminalContext);
+
+export default TerminalProvider;

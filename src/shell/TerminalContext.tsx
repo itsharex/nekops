@@ -64,7 +64,7 @@ const TerminalProvider = ({ children }: PropsWithChildren) => {
 
   // Remove a terminal instance by nonce
   const removeTerminalInstance = (nonce: string) => {
-    console.log("terminate", nonce);
+    // console.log("terminate", nonce); // debug log
     terminalInstancesRef.current[nonce].terminateFunc?.();
     terminalInstancesRef.current[nonce].fitAddon?.dispose();
     terminalInstancesRef.current[nonce].terminal?.dispose();

@@ -93,6 +93,9 @@ const ShellTabs = () => {
       (v) => v.row === payload.row && v.col === payload.col,
       (_) => payload,
     );
+    if (payload.nonce) {
+      clearTabNewMessageState(payload.nonce);
+    }
   };
 
   // Response tabs data event (initialize / update)
@@ -188,7 +191,6 @@ const ShellTabs = () => {
       col: gridPos.col,
       nonce: ev.payload,
     });
-    clearTabNewMessageState(ev.payload);
   };
 
   const shellTabsListRequestHandler = () => {
@@ -439,7 +441,6 @@ const ShellTabs = () => {
           col: pos.col,
           nonce: tabsData[nextOrderTab.origIndex].nonce,
         });
-        clearTabNewMessageState(tabsData[nextOrderTab.origIndex].nonce);
       }
     } else if (tabsInSameGrid.length > 0) {
       // Still have tab
@@ -449,7 +450,6 @@ const ShellTabs = () => {
         col: pos.col,
         nonce: tabsData[tabsInSameGrid[0].origIndex].nonce,
       });
-      clearTabNewMessageState(tabsData[tabsInSameGrid[0].origIndex].nonce);
     } else {
       // No remain tabs
       setActiveTab({
@@ -584,10 +584,6 @@ const ShellTabs = () => {
                           col: colIndex,
                           nonce: newActive,
                         });
-
-                        if (newActive) {
-                          clearTabNewMessageState(newActive);
-                        }
                       }}
                       activateTabWithKeyboard={false}
                       onContextMenu={(ev) => ev.preventDefault()}

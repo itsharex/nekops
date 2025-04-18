@@ -533,13 +533,13 @@ const ShellTabs = () => {
           record.col >= gridColsRef.current - colsToShrink
         ) {
           setCurrentActiveTab({
-            row: record.row - rowsToShrink,
-            col: record.col - colsToShrink,
+            row: record.row - rowsToShrink >= 0 ? record.row - rowsToShrink : 0,
+            col: record.col - colsToShrink >= 0 ? record.col - colsToShrink : 0,
             nonce: record.nonce,
           });
         } else if (record.row >= gridRowsRef.current - rowsToShrink) {
           setCurrentActiveTab({
-            row: record.row - rowsToShrink,
+            row: record.row - rowsToShrink >= 0 ? record.row - rowsToShrink : 0,
             col: record.col,
             nonce: record.nonce,
           });
@@ -547,7 +547,7 @@ const ShellTabs = () => {
           // record.col >= gridColsRef.current - colsToShrink
           setCurrentActiveTab({
             row: record.row,
-            col: record.col - colsToShrink,
+            col: record.col - colsToShrink >= 0 ? record.col - colsToShrink : 0,
             nonce: record.nonce,
           });
         }

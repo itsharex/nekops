@@ -2,8 +2,12 @@ import type { Terminal } from "xterm";
 import type { AccessRegular } from "@/types/server.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 import type { TabState } from "@/types/tabState.ts";
+import { listen } from "@tauri-apps/api/event";
+import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
+import { EventNameShellSendCommandByNonce } from "@/events/name.ts";
 
 export const startSystemSSH = (
+  nonce: string,
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
   setShellState: (newState: TabState) => void,
@@ -79,8 +83,25 @@ export const startSystemSSH = (
       sshProcess.kill();
       return;
     } else {
+      // Listen to multirun commands // TODO: move into caller component after xterm upgrade
+      const stopSendCommandByNonceListener =
+        listen<EventPayloadShellSendCommandByNonce>(
+          EventNameShellSendCommandByNonce,
+          (ev) => {
+            if (ev.payload.nonce.includes(nonce)) {
+              sshProcess.write(ev.payload.command);
+            }
+          },
+        );
+
       // Terminate when close
-      setTerminateSSHFunc(() => sshProcess.kill());
+      setTerminateSSHFunc(() => {
+        sshProcess.kill();
+
+        (async () => {
+          (await stopSendCommandByNonceListener)();
+        })();
+      });
     }
 
     // console.log(sshProcess);

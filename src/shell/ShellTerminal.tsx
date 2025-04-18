@@ -138,6 +138,7 @@ const ShellTerminal = ({
         switch (clientOptions.type) {
           case "embedded":
             startEmbeddedSSH(
+              nonce,
               terminal,
               stateUpdateOnNewMessage,
               setShellState,
@@ -151,6 +152,7 @@ const ShellTerminal = ({
             break;
           case "system":
             startSystemSSH(
+              nonce,
               terminal,
               stateUpdateOnNewMessage,
               setShellState,

@@ -12,6 +12,6 @@ prepare: ./src-tauri/embedded/bin/websockify-* ./src-tauri/embedded/bin/pipessh-
 	cd ./src-tauri/embedded/workspace/pipessh/ && go build .
 	node ./utils/sidecar-rename.mjs pipessh
 
-.PHONY: app
-app:
+.PHONY: release
+release:
 	pnpm tauri build

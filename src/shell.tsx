@@ -6,12 +6,13 @@ import { ModalsProvider } from "@mantine/modals";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import "@xterm/xterm/css/xterm.css";
+import "xterm/css/xterm.css";
 
 import "@/shell/style.css";
 
 import ShellTabs from "@/shell/ShellTabs";
 import WindowBackground from "@/common/WindowBackground.tsx";
+import TerminalProvider from "@/shell/TerminalContext.tsx";
 
 const theme = createTheme({
   /** Put your mantine theme override here */
@@ -23,7 +24,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <Notifications />
       <ModalsProvider>
         <WindowBackground />
-        <ShellTabs />
+
+        <TerminalProvider>
+          <ShellTabs />
+        </TerminalProvider>
       </ModalsProvider>
     </MantineProvider>
   </React.StrictMode>,

@@ -1,12 +1,18 @@
 import { Child, Command } from "@tauri-apps/plugin-shell";
-import type { Terminal } from "@xterm/xterm";
+import type { Terminal } from "xterm";
 
 import type { AccessRegular } from "@/types/server.ts";
 import type { TabState } from "@/types/tabState.ts";
-import type { ShellClientOptions } from "@/events/payload.ts";
+import type {
+  EventPayloadShellSendCommandByNonce,
+  ShellClientOptions,
+} from "@/events/payload.ts";
 import { hostKeyEventHandler } from "./hostKeyEventHandler.tsx";
+import { listen } from "@tauri-apps/api/event";
+import { EventNameShellSendCommandByNonce } from "@/events/name.ts";
 
 export const startEmbeddedSSH = (
+  nonce: string,
   terminal: Terminal,
   stateUpdateOnNewMessage: () => void,
   setShellState: (newState: TabState) => void,
@@ -161,8 +167,25 @@ export const startEmbeddedSSH = (
       sshProcess.kill();
       return;
     } else {
+      // Listen to multirun commands // TODO: move into caller component after xterm upgrade
+      const stopSendCommandByNonceListener =
+        listen<EventPayloadShellSendCommandByNonce>(
+          EventNameShellSendCommandByNonce,
+          (ev) => {
+            if (ev.payload.nonce.includes(nonce)) {
+              sshProcess.write(ev.payload.command);
+            }
+          },
+        );
+
       // Terminate when close
-      setTerminateSSHFunc(() => sshProcess.kill());
+      setTerminateSSHFunc(() => {
+        sshProcess.kill();
+
+        (async () => {
+          (await stopSendCommandByNonceListener)();
+        })();
+      });
     }
 
     // console.log(sshProcess);

@@ -1,225 +1,107 @@
-import { useEffect, useRef, useState } from "react";
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
+import { useEffect, useRef } from "react";
 import type { Event } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
 import { useThrottledCallback } from "@mantine/hooks";
-
-import type { TabState } from "@/types/tabState.ts";
 import { LoadingOverlay, rem } from "@mantine/core";
-import type { AccessRegular } from "@/types/server.ts";
-import { startDummy } from "@/shell/startDummy.ts";
-import { startSystemSSH } from "@/shell/startSystemSSH.ts";
-import type {
-  EventPayloadShellSendCommandByNonce,
-  ShellClientOptions,
-} from "@/events/payload.ts";
 import {
   EventNameShellSelectAllByNonce,
-  EventNameShellSendCommandByNonce,
-  EventNameShellSTTYFitByNonce,
   EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
-import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
+import { useTerminal } from "@/shell/TerminalContext.tsx";
 
 interface ShellTerminalProps {
   nonce: string;
   themeColor: string;
-  server: AccessRegular;
-  serverName: string;
-  jumpServer?: AccessRegular;
-  clientOptions: ShellClientOptions;
-  setShellState: (state: TabState) => void;
-  setNewMessage: () => void;
   isActive: boolean;
 }
-const ShellTerminal = ({
-  nonce,
-  themeColor,
-  server,
-  serverName,
-  jumpServer,
-  clientOptions,
-  setShellState,
-  setNewMessage,
-  isActive,
-}: ShellTerminalProps) => {
+const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
-
-  const terminalInstanceRef = useRef<Terminal | null>(null);
-  const fitAddonInstanceRef = useRef<FitAddon | null>(null);
-
-  const terminateFunc = useRef<(() => void) | null>(null);
-
-  const [isLoading, setIsLoading] = useState(true);
-
   const isPendingFit = useRef(false);
 
-  const setTerminateFunc = (func: (() => void) | null) => {
-    terminateFunc.current = func;
-  };
+  // Use the terminal context to get and set terminal instances
+  const { getTerminalInstance } = useTerminal();
+
+  // Get the terminal instance for this nonce
+  const instance = getTerminalInstance(nonce);
 
   // Use throttle to reduce resource consumption on re-rendering
   const throttledFit = useThrottledCallback(() => {
     if (isActive) {
       // Fit now
-      fitAddonInstanceRef.current?.fit();
+      instance.fitAddon?.fit();
     } else if (!isPendingFit.current) {
       // Scheduled to fit later
       isPendingFit.current = true;
     }
   }, 200);
 
-  const stateUpdateOnNewMessage = () => {
-    if (isLoading) {
-      setIsLoading(false);
-      setShellState("active");
-      throttledFit(); // Initialize fit
-    }
-    setNewMessage();
-  };
-
   // Fit when become active
   useEffect(() => {
     if (isActive && isPendingFit.current) {
-      fitAddonInstanceRef.current?.fit();
+      // Not sure why this is not working sometimes (resize after grid tidy) // TODO
+      instance.fitAddon?.fit();
       isPendingFit.current = false;
     }
   }, [isActive]);
 
   // Mount hooks
   useEffect(() => {
-    if (terminalElementRef.current) {
-      // console.log("init", nonce); // debug log
-
-      // Initialize terminal
-      const terminal = new Terminal();
-      const fitAddon = new FitAddon();
-
-      // Bind instance ref
-      terminalInstanceRef.current = terminal;
-      fitAddonInstanceRef.current = fitAddon;
-
-      // Apply size fit addon
-      terminal.loadAddon(fitAddon);
-
-      // Initialize element
-      terminal.open(terminalElementRef.current);
-
-      // Hook window resize event
-      const stopWindowResizeEventListener = listen(
-        EventNameWindowResizeShell,
-        throttledFit,
-      );
-
-      if (
-        server.user === "Candinya" &&
-        server.address === "dummy" &&
-        server.port === 0
-      ) {
-        // Start debug dummy server
-        startDummy(
-          nonce,
-          terminal,
-          stateUpdateOnNewMessage,
-          setShellState,
-          setTerminateFunc,
-        );
-      } else {
-        // Start normal server
-        switch (clientOptions.type) {
-          case "embedded":
-            startEmbeddedSSH(
-              terminal,
-              stateUpdateOnNewMessage,
-              setShellState,
-              setTerminateFunc,
-              clientOptions,
-              server,
-              serverName,
-              themeColor,
-              jumpServer,
-            );
-            break;
-          case "system":
-            startSystemSSH(
-              terminal,
-              stateUpdateOnNewMessage,
-              setShellState,
-              setTerminateFunc,
-              server,
-              jumpServer,
-            );
-            break;
-          default:
-            console.warn("Unsupported client", clientOptions.type);
-            break;
-        }
-      }
-
-      // Listen to multirun commands
-      const sendCommandByNonceHandler = (
-        ev: Event<EventPayloadShellSendCommandByNonce>,
-      ) => {
-        if (ev.payload.nonce.includes(nonce)) {
-          terminal.input(ev.payload.command);
-        }
-      };
-      const stopSendCommandByNonceListener =
-        listen<EventPayloadShellSendCommandByNonce>(
-          EventNameShellSendCommandByNonce,
-          sendCommandByNonceHandler,
-        );
-
-      // Listen to select all event
-      const shellSelectAllByNonceHandler = (ev: Event<string>) => {
-        if (ev.payload === nonce) {
-          terminal.selectAll();
-        }
-      };
-      const stopShellSelectAllByNonceListener = listen<string>(
-        EventNameShellSelectAllByNonce,
-        shellSelectAllByNonceHandler,
-      );
-
-      const shellSTTYFitByNonceHandler = (ev: Event<string>) => {
-        if (ev.payload === nonce) {
-          terminal.input(
-            `stty columns ${terminal.cols} rows ${terminal.rows}\n`,
-            false,
-          );
-        }
-      };
-      const stopShellSTTYFitByNonceListener = listen<string>(
-        EventNameShellSTTYFitByNonce,
-        shellSTTYFitByNonceHandler,
-      );
-
-      return () => {
-        (async () => {
-          (await stopWindowResizeEventListener)();
-          (await stopSendCommandByNonceListener)();
-          (await stopShellSelectAllByNonceListener)();
-          (await stopShellSTTYFitByNonceListener)();
-        })();
-
-        // Terminate SSH
-        if (terminateFunc.current !== null) {
-          terminateFunc.current();
-        }
-
-        // Clear instance ref
-        terminalInstanceRef.current = null;
-        fitAddonInstanceRef.current = null;
-
-        // Close terminal
-        fitAddon?.dispose();
-        terminal?.dispose();
-
-        // console.log("terminate", nonce); // debug log
-      };
+    // Skip if the element ref is not set
+    if (!terminalElementRef.current) {
+      return;
     }
+
+    // First, detach from the old element if it's still attached
+    if (instance.terminal?.element) {
+      // The terminal is attached to a different element, detach it
+      instance.terminal.element.remove();
+    }
+
+    // Attach to the new element
+    instance.terminal?.open(terminalElementRef.current);
+
+    // Init fit
+    throttledFit();
+
+    // Hook window resize event
+    const stopWindowResizeEventListener = listen(
+      EventNameWindowResizeShell,
+      throttledFit,
+    );
+
+    // Listen to multirun commands
+    // const sendCommandByNonceHandler = (
+    //   ev: Event<EventPayloadShellSendCommandByNonce>,
+    // ) => {
+    //   if (ev.payload.nonce.includes(nonce)) {
+    //     currentTerminal.input(ev.payload.command, true); // This method is implemented from 5.4.0, which is also the version that breaks open function. So we can't process this event here until we upgrade to newer versions (if they fixed the open issue).
+    //   }
+    // };
+    // const stopSendCommandByNonceListener =
+    //   listen<EventPayloadShellSendCommandByNonce>(
+    //     EventNameShellSendCommandByNonce,
+    //     sendCommandByNonceHandler,
+    //   );
+
+    // Listen to select all event
+    const shellSelectAllByNonceHandler = (ev: Event<string>) => {
+      if (ev.payload === nonce) {
+        instance.terminal?.selectAll();
+      }
+    };
+    const stopShellSelectAllByNonceListener = listen<string>(
+      EventNameShellSelectAllByNonce,
+      shellSelectAllByNonceHandler,
+    );
+
+    return () => {
+      (async () => {
+        (await stopWindowResizeEventListener)();
+        // (await stopSendCommandByNonceListener)();
+        (await stopShellSelectAllByNonceListener)();
+      })();
+    };
   }, []);
 
   return (
@@ -236,17 +118,17 @@ const ShellTerminal = ({
         ref={terminalElementRef}
         style={{
           height: "100%",
-          opacity: isLoading ? 0 : 100,
+          opacity: instance.isLoading ? 0 : 100,
         }}
         onContextMenu={(ev) => {
           ev.preventDefault();
-          if (terminalInstanceRef.current) {
-            copyOrPaste(terminalInstanceRef.current);
+          if (instance.terminal) {
+            copyOrPaste(instance.terminal);
           }
         }}
       />
       <LoadingOverlay
-        visible={isLoading}
+        visible={instance.isLoading}
         overlayProps={{ radius: "sm", blur: 2 }}
         onContextMenu={(ev) => {
           ev.preventDefault();

@@ -1,4 +1,4 @@
-import type { Terminal } from "@xterm/xterm";
+import type { Terminal } from "xterm";
 import type { TabState } from "@/types/tabState.ts";
 
 export const startDummy = (

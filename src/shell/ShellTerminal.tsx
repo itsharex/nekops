@@ -39,6 +39,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   // Fit when become active
   useEffect(() => {
     if (isActive && isPendingFit.current) {
+      // Not sure why this is not working sometimes (resize after grid tidy) // TODO
       instance.fitAddon?.fit();
       isPendingFit.current = false;
     }

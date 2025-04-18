@@ -17,9 +17,10 @@ interface ShellTerminalProps {
 }
 const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
+  const isPendingFit = useRef(false);
 
   // Use the terminal context to get and set terminal instances
-  const { getTerminalInstance, setTerminalInstance } = useTerminal();
+  const { getTerminalInstance } = useTerminal();
 
   // Get the terminal instance for this nonce
   const instance = getTerminalInstance(nonce);
@@ -29,25 +30,31 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
     if (isActive) {
       // Fit now
       instance.fitAddon?.fit();
-    } else if (!instance.isPendingFit) {
+    } else if (!isPendingFit.current) {
       // Scheduled to fit later
-      setTerminalInstance(nonce, { isPendingFit: true });
+      isPendingFit.current = true;
     }
   }, 200);
 
   // Fit when become active
   useEffect(() => {
-    if (isActive && instance.isPendingFit) {
+    if (isActive && isPendingFit.current) {
       instance.fitAddon?.fit();
-      setTerminalInstance(nonce, { isPendingFit: false });
+      isPendingFit.current = false;
     }
-  }, [isActive, instance.isPendingFit, nonce]);
+  }, [isActive]);
 
   // Mount hooks
   useEffect(() => {
     // Skip if the element ref is not set
     if (!terminalElementRef.current) {
       return;
+    }
+
+    // First, detach from the old element if it's still attached
+    if (instance.terminal?.element?.parentElement) {
+      // The terminal is attached to a different element, detach it
+      instance.terminal.element.remove();
     }
 
     // Attach to the new element

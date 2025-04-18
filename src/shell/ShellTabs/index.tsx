@@ -145,7 +145,7 @@ const ShellTabs = () => {
   const stateUpdateOnNewMessage = (nonce: string) => {
     const { isLoading } = getTerminalInstance(nonce);
     if (isLoading) {
-      setTerminalInstance(nonce, { isLoading: false, isPendingFit: true });
+      setTerminalInstance(nonce, { isLoading: false });
       setShellState(nonce, "active");
     }
     setNewMessage(nonce);
@@ -183,7 +183,6 @@ const ShellTabs = () => {
         terminal,
         fitAddon,
         isLoading: true,
-        isPendingFit: false,
       });
 
       // Apply size fit addon

@@ -8,7 +8,6 @@ interface TerminalInstance {
   fitAddon: FitAddon | null;
   terminateFunc: (() => void) | null;
   isLoading: boolean;
-  isPendingFit: boolean;
 }
 
 // Define the context structure
@@ -28,7 +27,6 @@ const TerminalContext = createContext<TerminalContextType>({
     fitAddon: null,
     terminateFunc: null,
     isLoading: true,
-    isPendingFit: false,
   }),
   setTerminalInstance: () => {},
   removeTerminalInstance: () => {},
@@ -49,7 +47,6 @@ export const TerminalProvider: React.FC<{ children: ReactNode }> = ({
         fitAddon: null,
         terminateFunc: null,
         isLoading: true,
-        isPendingFit: false,
       };
     }
     return terminalInstancesRef.current[nonce];

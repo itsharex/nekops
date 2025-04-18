@@ -68,6 +68,10 @@ export const TerminalProvider: React.FC<{ children: ReactNode }> = ({
 
   // Remove a terminal instance by nonce
   const removeTerminalInstance = (nonce: string) => {
+    console.log("terminate", nonce);
+    terminalInstancesRef.current[nonce].terminateFunc?.();
+    terminalInstancesRef.current[nonce].fitAddon?.dispose();
+    terminalInstancesRef.current[nonce].terminal?.dispose();
     delete terminalInstancesRef.current[nonce];
   };
 

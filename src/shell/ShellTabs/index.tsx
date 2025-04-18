@@ -41,7 +41,6 @@ import type {
 import {
   ShellGridBase,
   ShellGridTabLocation,
-  ShellGridTabLocationWithDataIndex,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
 import { useRefListState } from "@/common/useRefListState.ts";
@@ -74,7 +73,7 @@ const ShellTabs = () => {
   const [tabsData, tabsDataHandlers, tabsDataRef] =
     useRefListState<ShellSingleServer>([]);
   const [tabsGridLocation, tabsGridLocationHandlers, tabsGridLocationRef] =
-    useRefListState<ShellGridTabLocationWithDataIndex>([]);
+    useRefListState<ShellGridTabLocation>([]);
   const [tabsState, tabsStateHandlers, tabsStateRef] =
     useRefListState<TabState>([]);
   const [tabsNewMessage, tabsNewMessageHandlers, tabsNewMessageRef] =
@@ -197,9 +196,9 @@ const ShellTabs = () => {
   };
 
   // Close (terminate) confirm
-  const doTerminate = (index: number) => {
+  const doTerminate = (nonce: string) => {
     terminateShell(
-      index,
+      nonce,
       removeTerminalInstance,
       tabsDataRef.current,
       tabsDataHandlers,
@@ -212,9 +211,9 @@ const ShellTabs = () => {
     );
   };
 
-  const doReconnect = (index: number) => {
+  const doReconnect = (nonce: string) => {
     reconnectShell(
-      index,
+      nonce,
       tabsDataRef.current,
       tabsDataHandlers,
       tabsStateHandlers,
@@ -244,11 +243,11 @@ const ShellTabs = () => {
           confirmProps: { color: "red" },
           centered: true,
           onConfirm: () => {
-            doTerminate(index);
+            doTerminate(nonce);
           },
         });
       } else {
-        doTerminate(index);
+        doTerminate(nonce);
       }
     }
   };
@@ -275,11 +274,11 @@ const ShellTabs = () => {
           confirmProps: { color: "red" },
           centered: true,
           onConfirm: () => {
-            doReconnect(index);
+            doReconnect(nonce);
           },
         });
       } else {
-        doReconnect(index);
+        doReconnect(nonce);
       }
     }
   };
@@ -344,9 +343,9 @@ const ShellTabs = () => {
   };
 
   const terminateAllAndExit = () => {
-    for (let i = tabsDataRef.current.length - 1; i >= 0; i--) {
+    for (const { nonce } of tabsDataRef.current) {
       // Reversely
-      doTerminate(i);
+      doTerminate(nonce);
     }
 
     // Destroy window
@@ -420,9 +419,14 @@ const ShellTabs = () => {
   };
 
   const fallbackActive = (pos: ShellGridTabLocation) => {
-    const tabsInSameGrid = tabsGridLocation.filter(
-      (v) => v.row === pos.row && v.col === pos.col && v.order !== pos.order,
-    );
+    const tabsInSameGrid = tabsGridLocation
+      .map((v, origIndex) => ({
+        ...v,
+        origIndex,
+      }))
+      .filter(
+        (v) => v.row === pos.row && v.col === pos.col && v.order !== pos.order,
+      );
     // console.log("fallbackActive", pos, tabsInSameGrid);
     if (tabsInSameGrid.length > pos.order + 1) {
       // Still has tab on right
@@ -433,9 +437,9 @@ const ShellTabs = () => {
         setActiveTab({
           row: pos.row,
           col: pos.col,
-          nonce: tabsData[nextOrderTab.dataIndex].nonce,
+          nonce: tabsData[nextOrderTab.origIndex].nonce,
         });
-        clearTabNewMessageState(tabsData[nextOrderTab.dataIndex].nonce);
+        clearTabNewMessageState(tabsData[nextOrderTab.origIndex].nonce);
       }
     } else if (tabsInSameGrid.length > 0) {
       // Still have tab
@@ -443,9 +447,9 @@ const ShellTabs = () => {
       setActiveTab({
         row: pos.row,
         col: pos.col,
-        nonce: tabsData[tabsInSameGrid[0].dataIndex].nonce,
+        nonce: tabsData[tabsInSameGrid[0].origIndex].nonce,
       });
-      clearTabNewMessageState(tabsData[tabsInSameGrid[0].dataIndex].nonce);
+      clearTabNewMessageState(tabsData[tabsInSameGrid[0].origIndex].nonce);
     } else {
       // No remain tabs
       setActiveTab({
@@ -600,13 +604,17 @@ const ShellTabs = () => {
                             <ScrollArea scrollbars="x" onWheel={scrollTabs}>
                               <Flex>
                                 {tabsGridLocation
+                                  .map((v, origIndex) => ({
+                                    ...v,
+                                    origIndex,
+                                  }))
                                   .filter(
                                     (pos) =>
                                       pos.row === rowIndex &&
                                       pos.col === colIndex,
                                   )
                                   .toSorted((a, b) => a.order - b.order)
-                                  .map(({ dataIndex: index }, arrayIndex) => (
+                                  .map(({ origIndex: index }, arrayIndex) => (
                                     <Draggable
                                       key={tabsData[index].nonce}
                                       draggableId={tabsData[index].nonce}
@@ -685,11 +693,15 @@ const ShellTabs = () => {
                             </Box>
 
                             {tabsGridLocation
+                              .map((v, origIndex) => ({
+                                ...v,
+                                origIndex,
+                              }))
                               .filter(
                                 (pos) =>
                                   pos.row === rowIndex && pos.col === colIndex,
                               )
-                              .map(({ dataIndex: index }) => (
+                              .map(({ origIndex: index }) => (
                                 <ShellPanel
                                   key={tabsData[index].nonce}
                                   data={tabsData[index]}

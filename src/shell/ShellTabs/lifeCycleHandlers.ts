@@ -13,19 +13,18 @@ import type { TabState } from "@/types/tabState.ts";
 import type {
   ShellGridBase,
   ShellGridTabLocation,
-  ShellGridTabLocationWithDataIndex,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
 import type { TerminalInstance } from "@/shell/TerminalContext.tsx";
 
 export const newShell = (
   ev: Event<EventPayloadShellNew>,
-  dataIndex: number,
+  index: number,
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
   tabsNewMessageHandlers: UseListStateHandlers<boolean>,
-  tabsGridLocationCurrent: ShellGridTabLocationWithDataIndex[],
-  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocationWithDataIndex>,
+  tabsGridLocationCurrent: ShellGridTabLocation[],
+  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocation>,
   setTerminalInstance: (
     nonce: string,
     instance: Partial<TerminalInstance>,
@@ -36,15 +35,14 @@ export const newShell = (
   stateUpdateOnNewMessage: (nonce: string) => void,
 ) => {
   for (const server of ev.payload.server) {
-    tabsDataHandlers.setItem(dataIndex, server);
-    tabsStateHandlers.setItem(dataIndex, "loading");
-    tabsNewMessageHandlers.setItem(dataIndex, false);
-    tabsGridLocationHandlers.setItem(dataIndex, {
+    tabsDataHandlers.setItem(index, server);
+    tabsStateHandlers.setItem(index, "loading");
+    tabsNewMessageHandlers.setItem(index, false);
+    tabsGridLocationHandlers.setItem(index, {
       row: 0,
       col: 0,
       order: tabsGridLocationCurrent.filter((v) => v.row === 0 && v.col === 0)
         .length,
-      dataIndex,
     });
 
     // Initialize terminal
@@ -118,7 +116,7 @@ export const newShell = (
 };
 
 export const reconnectShell = (
-  index: number,
+  nonce: string,
   tabsDataCurrent: ShellSingleServer[],
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
@@ -128,8 +126,10 @@ export const reconnectShell = (
     current?: boolean,
   ) => boolean,
   setActiveTab: (payload: ShellGridTabNonce) => void,
-  tabsGridLocationCurrent: ShellGridTabLocationWithDataIndex[],
+  tabsGridLocationCurrent: ShellGridTabLocation[],
 ) => {
+  const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
+
   // Update with a different nonce (so it would be automatically restarted), using # split as counter
   const serverData = tabsDataCurrent[index];
   const splits = serverData.nonce.split("#");
@@ -154,14 +154,14 @@ export const reconnectShell = (
 };
 
 export const terminateShell = (
-  index: number,
+  nonce: string,
   removeTerminalInstance: (nonce: string) => void,
   tabsDataCurrent: ShellSingleServer[],
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
   tabsNewMessageHandlers: UseListStateHandlers<boolean>,
-  tabsGridLocationCurrent: ShellGridTabLocationWithDataIndex[],
-  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocationWithDataIndex>,
+  tabsGridLocationCurrent: ShellGridTabLocation[],
+  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocation>,
   isActiveTab: (
     nonce: string,
     pos: ShellGridBase,
@@ -169,6 +169,8 @@ export const terminateShell = (
   ) => boolean,
   fallbackActive: (pos: ShellGridTabLocation) => void,
 ) => {
+  const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
+
   // Remove from the shell state context
   removeTerminalInstance(tabsDataCurrent[index].nonce);
 
@@ -183,14 +185,6 @@ export const terminateShell = (
   tabsStateHandlers.remove(index);
   tabsNewMessageHandlers.remove(index);
 
-  // Update reverse mapping of latter items
-  tabsGridLocationHandlers.applyWhere(
-    (v) => v.dataIndex > index,
-    (v) => ({
-      ...v,
-      dataIndex: v.dataIndex - 1,
-    }),
-  );
   // Update order of latter tabs
   tabsGridLocationHandlers.applyWhere(
     (v) => v.row === pos.row && v.col === pos.col && v.order > pos.order,

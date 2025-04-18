@@ -9,10 +9,6 @@ export type ShellGridTabLocation = ShellGridBase & {
   order: number;
 };
 
-export type ShellGridTabLocationWithDataIndex = ShellGridTabLocation & {
-  dataIndex: number;
-};
-
 export type ShellGridTabNonce = ShellGridBase & {
   nonce: string | null;
 };

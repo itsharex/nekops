@@ -1,7 +1,4 @@
-import type {
-  ShellGridTabLocationWithDataIndex,
-  ShellGridTabNonce,
-} from "@/types/shell.ts";
+import type { ShellGridTabLocation, ShellGridTabNonce } from "@/types/shell.ts";
 import {
   LayoutMaxCols,
   LayoutMaxRows,
@@ -17,8 +14,8 @@ const tidyGrid = (
   setGridCols: (cols: number) => void,
   activeTabCurrent: ShellGridTabNonce[],
   activeTabHandlers: UseListStateHandlers<ShellGridTabNonce>,
-  tabsGridLocationCurrent: ShellGridTabLocationWithDataIndex[],
-  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocationWithDataIndex>,
+  tabsGridLocationCurrent: ShellGridTabLocation[],
+  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocation>,
   setCurrentActiveTab: (tab: ShellGridTabNonce) => void,
 ) => {
   // Tidy rows
@@ -160,8 +157,8 @@ export const gridModifyHandler = (
   setGridCols: (cols: number) => void,
   activeTabCurrent: ShellGridTabNonce[],
   activeTabHandlers: UseListStateHandlers<ShellGridTabNonce>,
-  tabsGridLocationCurrent: ShellGridTabLocationWithDataIndex[],
-  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocationWithDataIndex>,
+  tabsGridLocationCurrent: ShellGridTabLocation[],
+  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocation>,
   setCurrentActiveTab: (tab: ShellGridTabNonce) => void,
 ) => {
   switch (ev.payload.action) {

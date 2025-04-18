@@ -4,7 +4,6 @@ import type { ShellSingleServer } from "@/events/payload.ts";
 import type {
   ShellGridBase,
   ShellGridTabLocation,
-  ShellGridTabLocationWithDataIndex,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
 import type { UseListStateHandlers } from "@mantine/hooks";
@@ -14,8 +13,8 @@ export const dndHandler = (
   source: DraggableLocation<string>,
   destination: DraggableLocation<string>,
   tabsData: ShellSingleServer[],
-  tabsGridLocation: ShellGridTabLocationWithDataIndex[],
-  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocationWithDataIndex>,
+  tabsGridLocation: ShellGridTabLocation[],
+  tabsGridLocationHandlers: UseListStateHandlers<ShellGridTabLocation>,
   isActiveTab: (
     nonce: string,
     pos: ShellGridBase,
@@ -111,7 +110,6 @@ export const dndHandler = (
       row: destRow,
       col: destCol,
       order: destOrder,
-      dataIndex: tabLocation.dataIndex, // Keep unchanged
     });
 
     // Keep active state

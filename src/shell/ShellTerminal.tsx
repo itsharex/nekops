@@ -61,7 +61,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
     instance.terminal?.open(terminalElementRef.current);
 
     // Init fit
-    instance.fitAddon?.fit();
+    throttledFit();
 
     // Hook window resize event
     const stopWindowResizeEventListener = listen(

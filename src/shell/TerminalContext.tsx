@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useRef, ReactNode } from "react";
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
+import React, { createContext, ReactNode, useContext, useRef } from "react";
+import type { Terminal } from "xterm";
+import type { FitAddon } from "xterm-addon-fit";
 
 // Define the structure of a terminal instance
 interface TerminalInstance {

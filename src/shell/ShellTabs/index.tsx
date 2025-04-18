@@ -778,6 +778,7 @@ const ShellTabs = () => {
           col: pos.col,
           nonce: tabsData[nextOrderTab.dataIndex].nonce,
         });
+        clearTabNewMessageState(tabsData[nextOrderTab.dataIndex].nonce);
       }
     } else if (tabsInSameGrid.length > 0) {
       // Still have tab
@@ -787,6 +788,7 @@ const ShellTabs = () => {
         col: pos.col,
         nonce: tabsData[tabsInSameGrid[0].dataIndex].nonce,
       });
+      clearTabNewMessageState(tabsData[tabsInSameGrid[0].dataIndex].nonce);
     } else {
       // No remain tabs
       setCurrentActiveTab({

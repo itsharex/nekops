@@ -10,13 +10,9 @@ import { LoadingOverlay, rem } from "@mantine/core";
 import type { AccessRegular } from "@/types/server.ts";
 import { startDummy } from "@/shell/startDummy.ts";
 import { startSystemSSH } from "@/shell/startSystemSSH.ts";
-import type {
-  EventPayloadShellSendCommandByNonce,
-  ShellClientOptions,
-} from "@/events/payload.ts";
+import type { ShellClientOptions } from "@/events/payload.ts";
 import {
   EventNameShellSelectAllByNonce,
-  EventNameShellSendCommandByNonce,
   EventNameWindowResizeShell,
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
@@ -179,18 +175,18 @@ const ShellTerminal = ({
     );
 
     // Listen to multirun commands
-    const sendCommandByNonceHandler = (
-      ev: Event<EventPayloadShellSendCommandByNonce>,
-    ) => {
-      if (ev.payload.nonce.includes(nonce)) {
-        currentTerminal.write(ev.payload.command); // TODO: fix
-      }
-    };
-    const stopSendCommandByNonceListener =
-      listen<EventPayloadShellSendCommandByNonce>(
-        EventNameShellSendCommandByNonce,
-        sendCommandByNonceHandler,
-      );
+    // const sendCommandByNonceHandler = (
+    //   ev: Event<EventPayloadShellSendCommandByNonce>,
+    // ) => {
+    //   if (ev.payload.nonce.includes(nonce)) {
+    //     currentTerminal.input(ev.payload.command, true); // This method is implemented from 5.4.0, which is also the version that breaks open function. So we can't process this event here until we upgrade to newer versions (if they fixed the open issue).
+    //   }
+    // };
+    // const stopSendCommandByNonceListener =
+    //   listen<EventPayloadShellSendCommandByNonce>(
+    //     EventNameShellSendCommandByNonce,
+    //     sendCommandByNonceHandler,
+    //   );
 
     // Listen to select all event
     const shellSelectAllByNonceHandler = (ev: Event<string>) => {
@@ -206,7 +202,7 @@ const ShellTerminal = ({
     return () => {
       (async () => {
         (await stopWindowResizeEventListener)();
-        (await stopSendCommandByNonceListener)();
+        // (await stopSendCommandByNonceListener)();
         (await stopShellSelectAllByNonceListener)();
       })();
     };

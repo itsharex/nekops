@@ -4,7 +4,7 @@ import type { Terminal } from "xterm";
 import type { FitAddon } from "xterm-addon-fit";
 
 // Define the structure of a terminal instance
-interface TerminalInstance {
+export interface TerminalInstance {
   terminal: Terminal | null;
   fitAddon: FitAddon | null;
   terminateFunc: (() => void) | null;

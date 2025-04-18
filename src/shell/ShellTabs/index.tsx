@@ -17,8 +17,6 @@ import { useThrottledCallback } from "@mantine/hooks";
 import type { DraggableLocation } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { modals } from "@mantine/modals";
-import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
 
 import { useTerminal } from "@/shell/TerminalContext.tsx";
 import type { TabState } from "@/types/tabState.ts";
@@ -40,27 +38,28 @@ import type {
   EventPayloadShellTabsListResponse,
   ShellSingleServer,
 } from "@/events/payload.ts";
-import type {
+import {
   ShellGridBase,
   ShellGridTabLocation,
+  ShellGridTabLocationWithDataIndex,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
 import { useRefListState } from "@/common/useRefListState.ts";
 import { useRefState } from "@/common/useRefState.ts";
-import { startDummy } from "@/shell/startDummy.ts";
-import { startSystemSSH } from "@/shell/startSystemSSH.ts";
-import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
 
 import ShellTabContextMenu from "./ContextMenu.tsx";
 import ShellTab from "./Tab.tsx";
 import ShellPanel from "./Panel.tsx";
 import style from "./style.module.css";
-import {
-  LayoutColsWeight,
-  LayoutMaxCols,
-  LayoutMaxRows,
-} from "./layoutConfig.ts";
+import { LayoutColsWeight } from "./layoutConfig.ts";
 import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
+import { gridModifyHandler } from "./gridModifyHandlers.ts";
+import {
+  newShell,
+  reconnectShell,
+  terminateShell,
+} from "./lifeCycleHandlers.ts";
+import { dndHandler } from "./dndHandler.ts";
 
 const ShellTabs = () => {
   // Terminal context
@@ -75,17 +74,13 @@ const ShellTabs = () => {
   const [tabsData, tabsDataHandlers, tabsDataRef] =
     useRefListState<ShellSingleServer>([]);
   const [tabsGridLocation, tabsGridLocationHandlers, tabsGridLocationRef] =
-    useRefListState<
-      ShellGridTabLocation & {
-        dataIndex: number;
-      }
-    >([]);
+    useRefListState<ShellGridTabLocationWithDataIndex>([]);
   const [tabsState, tabsStateHandlers, tabsStateRef] =
     useRefListState<TabState>([]);
   const [tabsNewMessage, tabsNewMessageHandlers, tabsNewMessageRef] =
     useRefListState<boolean>([]);
 
-  const [currentActiveTab, currentActiveTabHandlers, currentActiveTabRef] =
+  const [activeTab, activeTabHandlers, activeTabRef] =
     useRefListState<ShellGridTabNonce>([
       {
         row: 0,
@@ -94,8 +89,8 @@ const ShellTabs = () => {
       },
     ]);
 
-  const setCurrentActiveTab = (payload: ShellGridTabNonce) => {
-    currentActiveTabHandlers.applyWhere(
+  const setActiveTab = (payload: ShellGridTabNonce) => {
+    activeTabHandlers.applyWhere(
       (v) => v.row === payload.row && v.col === payload.col,
       (_) => payload,
     );
@@ -117,13 +112,11 @@ const ShellTabs = () => {
         state: tabsStateRef.current[i],
         isNewMessage: tabsNewMessageRef.current[i],
         gridLocation: tabsGridLocationRef.current[i],
-        isActive:
-          currentActiveTabRef.current.findIndex(
-            (v) =>
-              v.row === tabsGridLocationRef.current[i].row &&
-              v.col === tabsGridLocationRef.current[i].col &&
-              v.nonce === server.nonce,
-          ) !== -1,
+        isActive: isActiveTab(
+          server.nonce,
+          tabsGridLocationRef.current[i],
+          true,
+        ),
       })),
     };
     emit(EventNameShellTabsListResponse, payload);
@@ -132,7 +125,7 @@ const ShellTabs = () => {
     tabsData,
     tabsState,
     tabsNewMessage,
-    currentActiveTab,
+    activeTab,
     tabsGridLocation,
     gridRows,
     gridCols,
@@ -161,88 +154,20 @@ const ShellTabs = () => {
 
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
-    for (const server of ev.payload.server) {
-      const dataIndex = tabsDataRef.current.length;
-      tabsDataHandlers.setItem(dataIndex, server);
-      tabsStateHandlers.setItem(dataIndex, "loading");
-      tabsNewMessageHandlers.setItem(dataIndex, false);
-      tabsGridLocationHandlers.setItem(dataIndex, {
-        row: 0,
-        col: 0,
-        order: tabsGridLocationRef.current.filter(
-          (v) => v.row === 0 && v.col === 0,
-        ).length,
-        dataIndex,
-      });
-
-      // Initialize terminal
-      const terminal = new Terminal();
-      const fitAddon = new FitAddon();
-
-      // Store in context
-      setTerminalInstance(server.nonce, {
-        terminal,
-        fitAddon,
-        isLoading: true,
-      });
-
-      // Apply size fit addon
-      terminal.loadAddon(fitAddon);
-
-      if (
-        server.access.user === "Candinya" &&
-        server.access.address === "dummy" &&
-        server.access.port === 0
-      ) {
-        // Start debug dummy server
-        startDummy(
-          server.nonce,
-          terminal,
-          () => stateUpdateOnNewMessage(server.nonce),
-          (state) => setShellState(server.nonce, state),
-          (func) => setTerminateFunc(server.nonce, func),
-        );
-      } else {
-        // Start normal server
-        switch (server.clientOptions.type) {
-          case "embedded":
-            startEmbeddedSSH(
-              server.nonce,
-              terminal,
-              () => stateUpdateOnNewMessage(server.nonce),
-              (state) => setShellState(server.nonce, state),
-              (func) => setTerminateFunc(server.nonce, func),
-              server.clientOptions,
-              server.access,
-              server.name,
-              server.color,
-              server.jumpServer,
-            );
-            break;
-          case "system":
-            startSystemSSH(
-              server.nonce,
-              terminal,
-              () => stateUpdateOnNewMessage(server.nonce),
-              (state) => setShellState(server.nonce, state),
-              (func) => setTerminateFunc(server.nonce, func),
-              server.access,
-              server.jumpServer,
-            );
-            break;
-          default:
-            console.warn("Unsupported client", server.clientOptions.type);
-            break;
-        }
-      }
-    }
-
-    // Set active tab
-    setCurrentActiveTab({
-      row: 0,
-      col: 0,
-      nonce: ev.payload.server[0].nonce,
-    });
+    newShell(
+      ev,
+      tabsDataRef.current.length,
+      tabsDataHandlers,
+      tabsStateHandlers,
+      tabsNewMessageHandlers,
+      tabsGridLocationRef.current,
+      tabsGridLocationHandlers,
+      setTerminalInstance,
+      setActiveTab,
+      setTerminateFunc,
+      setShellState,
+      stateUpdateOnNewMessage,
+    );
   };
 
   const shellSetActiveTabByNonceHandler = (ev: Event<string>) => {
@@ -259,7 +184,7 @@ const ShellTabs = () => {
     const gridPos = tabsGridLocationRef.current[serverIndex];
 
     // Set payload
-    setCurrentActiveTab({
+    setActiveTab({
       row: gridPos.row,
       col: gridPos.col,
       nonce: ev.payload,
@@ -273,65 +198,30 @@ const ShellTabs = () => {
 
   // Close (terminate) confirm
   const doTerminate = (index: number) => {
-    // Remove from the shell state context
-    removeTerminalInstance(tabsDataRef.current[index].nonce);
-
-    // console.log("do terminate", index);
-    const pos = tabsGridLocationRef.current[index];
-    if (isActiveTab(tabsDataRef.current[index].nonce, pos)) {
-      fallbackActive(pos);
-    }
-
-    // Remove item
-    tabsDataHandlers.remove(index);
-    tabsStateHandlers.remove(index);
-    tabsNewMessageHandlers.remove(index);
-
-    // Update reverse mapping of latter items
-    tabsGridLocationHandlers.applyWhere(
-      (v) => v.dataIndex > index,
-      (v) => ({
-        ...v,
-        dataIndex: v.dataIndex - 1,
-      }),
+    terminateShell(
+      index,
+      removeTerminalInstance,
+      tabsDataRef.current,
+      tabsDataHandlers,
+      tabsStateHandlers,
+      tabsNewMessageHandlers,
+      tabsGridLocationRef.current,
+      tabsGridLocationHandlers,
+      isActiveTab,
+      fallbackActive,
     );
-    // Update order of latter tabs
-    tabsGridLocationHandlers.applyWhere(
-      (v) => v.row === pos.row && v.col === pos.col && v.order > pos.order,
-      (v) => ({
-        ...v,
-        order: v.order - 1,
-      }),
-    );
-
-    // Remove item
-    tabsGridLocationHandlers.remove(index);
   };
 
   const doReconnect = (index: number) => {
-    // Update with a different nonce (so it would be automatically restarted), using # split as counter
-    const serverData = tabsDataRef.current[index];
-    const splits = serverData.nonce.split("#");
-    let counter = 2; // First reconnect is the 2nd connect
-    if (splits.length > 1) {
-      counter = parseInt(splits[1]) + 1;
-    }
-    // Set with new nonce
-    const newNonce = `${splits[0]}#${counter}`;
-    tabsDataHandlers.setItem(index, {
-      ...serverData,
-      nonce: newNonce,
-    });
-    tabsStateHandlers.setItem(index, "loading");
-    if (
-      isActiveTab(serverData.nonce, tabsGridLocationRef.current[index], true)
-    ) {
-      setCurrentActiveTab({
-        row: tabsGridLocationRef.current[index].row,
-        col: tabsGridLocationRef.current[index].col,
-        nonce: newNonce,
-      });
-    }
+    reconnectShell(
+      index,
+      tabsDataRef.current,
+      tabsDataHandlers,
+      tabsStateHandlers,
+      isActiveTab,
+      setActiveTab,
+      tabsGridLocationRef.current,
+    );
   };
 
   const terminateByNonce = (nonce: string) => {
@@ -481,162 +371,20 @@ const ShellTabs = () => {
     200,
   );
 
-  const tidyGrid = () => {
-    // Tidy rows
-    let rowsToShrink = 0;
-    for (let i = gridRowsRef.current - 1; i >= 0; i--) {
-      if (!tabsGridLocationRef.current.some((v) => v.row === i)) {
-        rowsToShrink++;
-        tabsGridLocationHandlers.applyWhere(
-          (v) => v.row > i,
-          (v) => ({
-            ...v,
-            row: v.row - 1,
-          }),
-        );
-      }
-    }
-    if (rowsToShrink === gridRowsRef.current) {
-      rowsToShrink--; // Keep last 1
-    }
-
-    // Tidy cols
-    let colsToShrink = 0;
-    for (let i = gridColsRef.current - 1; i >= 0; i--) {
-      if (!tabsGridLocationRef.current.some((v) => v.col === i)) {
-        colsToShrink++;
-        tabsGridLocationHandlers.applyWhere(
-          (v) => v.col > i,
-          (v) => ({
-            ...v,
-            col: v.col - 1,
-          }),
-        );
-      }
-    }
-    if (colsToShrink === gridColsRef.current) {
-      colsToShrink--; // Keep last 1
-    }
-
-    // Check if need to shrink
-    if (rowsToShrink > 0 || colsToShrink > 0) {
-      // Adjust current active tabs
-      const activeTabRecordsToAdjust = currentActiveTabRef.current.filter(
-        (v) =>
-          (v.row >= gridRowsRef.current - rowsToShrink ||
-            v.col >= gridColsRef.current - colsToShrink) &&
-          v.nonce !== null,
-      );
-      for (const record of activeTabRecordsToAdjust) {
-        if (
-          record.row >= gridRowsRef.current - rowsToShrink &&
-          record.col >= gridColsRef.current - colsToShrink
-        ) {
-          setCurrentActiveTab({
-            row: record.row - rowsToShrink >= 0 ? record.row - rowsToShrink : 0,
-            col: record.col - colsToShrink >= 0 ? record.col - colsToShrink : 0,
-            nonce: record.nonce,
-          });
-        } else if (record.row >= gridRowsRef.current - rowsToShrink) {
-          setCurrentActiveTab({
-            row: record.row - rowsToShrink >= 0 ? record.row - rowsToShrink : 0,
-            col: record.col,
-            nonce: record.nonce,
-          });
-        } else {
-          // record.col >= gridColsRef.current - colsToShrink
-          setCurrentActiveTab({
-            row: record.row,
-            col: record.col - colsToShrink >= 0 ? record.col - colsToShrink : 0,
-            nonce: record.nonce,
-          });
-        }
-      }
-
-      // Set new size
-      setGridRows(gridRowsRef.current - rowsToShrink);
-      setGridCols(gridColsRef.current - colsToShrink);
-
-      // Keep only in-field ones
-      currentActiveTabHandlers.filter(
-        (v) =>
-          v.row < gridRowsRef.current - rowsToShrink &&
-          v.col < gridColsRef.current - colsToShrink,
-      );
-    }
-  };
-
-  const expandGrid = (rows: number, cols: number) => {
-    setGridRows(gridRowsRef.current + rows);
-    setGridCols(gridColsRef.current + cols);
-
-    // Expand active tabs
-    const toAppendTabs: ShellGridTabNonce[] = [];
-    // New rows old cols (bottom)
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < gridColsRef.current; j++) {
-        toAppendTabs.push({
-          row: gridRowsRef.current + i,
-          col: j,
-          nonce: null, // Init
-        });
-      }
-    }
-    // New cols old rows (right)
-    for (let j = 0; j < cols; j++) {
-      for (let i = 0; i < gridRowsRef.current; i++) {
-        toAppendTabs.push({
-          row: i,
-          col: gridColsRef.current + j,
-          nonce: null, // Init
-        });
-      }
-    }
-    // New rows new cols (bottom-right)
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        toAppendTabs.push({
-          row: gridRowsRef.current + i,
-          col: gridColsRef.current + j,
-          nonce: null, // Init
-        });
-      }
-    }
-    currentActiveTabHandlers.append(...toAppendTabs);
-  };
-
   const shellGridModifyHandler = (ev: Event<EventPayloadShellGridModify>) => {
     // console.log("Grid modify", ev.payload);
-    switch (ev.payload.action) {
-      case "add":
-        let acceptedRows = ev.payload.grid.row;
-        if (acceptedRows < 0) {
-          acceptedRows = 0;
-        } else if (gridRowsRef.current + acceptedRows > LayoutMaxRows) {
-          acceptedRows = LayoutMaxRows - gridRowsRef.current;
-        }
-        let acceptedCols = ev.payload.grid.col;
-        if (acceptedCols < 0) {
-          acceptedCols = 0;
-        } else if (gridColsRef.current + acceptedCols > LayoutMaxCols) {
-          acceptedCols = LayoutMaxCols - gridColsRef.current;
-        }
-        if (acceptedRows > 0 || acceptedCols > 0) {
-          expandGrid(acceptedRows, acceptedCols);
-        }
-        break;
-      case "set":
-        if (ev.payload.grid.row > 0 && ev.payload.grid.row < LayoutMaxRows) {
-          setGridRows(ev.payload.grid.row);
-        }
-        if (ev.payload.grid.col > 0 && ev.payload.grid.col < LayoutMaxCols) {
-          setGridCols(ev.payload.grid.col);
-        }
-        break;
-      case "tidy":
-        tidyGrid();
-        break;
-    }
+    gridModifyHandler(
+      ev,
+      gridRowsRef.current,
+      gridColsRef.current,
+      setGridRows,
+      setGridCols,
+      activeTabRef.current,
+      activeTabHandlers,
+      tabsGridLocationRef.current,
+      tabsGridLocationHandlers,
+      setActiveTab,
+    );
     shellWindowResizeHandler();
   };
 
@@ -645,109 +393,18 @@ const ShellTabs = () => {
     source: DraggableLocation<string>,
     destination: DraggableLocation<string>,
   ) => {
-    const tabIndex = tabsData.findIndex((t) => t.nonce === nonce);
-    const tabLocation = tabsGridLocation[tabIndex];
-
-    const sourceGrid = source.droppableId.split(":")[1];
-    const [destZone, destGrid] = destination.droppableId.split(":");
-
-    if (sourceGrid === destGrid) {
-      // In same section
-      if (destZone !== DndZonePanel) {
-        if (source.index !== destination.index) {
-          if (source.index > destination.index) {
-            // Move forward
-            tabsGridLocationHandlers.applyWhere(
-              (v) =>
-                v.row === tabLocation.row &&
-                v.col === tabLocation.col &&
-                v.order < source.index &&
-                v.order >= destination.index,
-              (v) => ({
-                ...v,
-                order: v.order + 1,
-              }),
-            );
-          } else {
-            // Move backward
-            tabsGridLocationHandlers.applyWhere(
-              (v) =>
-                v.row === tabLocation.row &&
-                v.col === tabLocation.col &&
-                v.order > source.index &&
-                v.order <= destination.index,
-              (v) => ({
-                ...v,
-                order: v.order - 1,
-              }),
-            );
-          }
-          // Set new order
-          tabsGridLocationHandlers.setItem(tabIndex, {
-            ...tabLocation,
-            order: destination.index,
-          });
-        }
-      }
-    } else {
-      // Cross sections
-      const destPos = destGrid.split("-");
-      const destRow = parseInt(destPos[0]);
-      const destCol = parseInt(destPos[1]);
-
-      const isActive = isActiveTab(nonce, tabLocation);
-      if (isActive) {
-        fallbackActive(tabLocation);
-      }
-
-      // Move tabs in source
-      tabsGridLocationHandlers.applyWhere(
-        (v) =>
-          v.row === tabLocation.row &&
-          v.col === tabLocation.col &&
-          v.order > tabLocation.order,
-        (v) => ({
-          ...v,
-          order: v.order - 1,
-        }),
-      );
-
-      // Move tabs in destination
-      const destOrder =
-        destZone === DndZoneTabs
-          ? destination.index // Target index
-          : tabsGridLocation.filter(
-              (v) => v.row === destRow && v.col === destCol, // Place at last
-            ).length;
-      tabsGridLocationHandlers.applyWhere(
-        (v) => v.row === destRow && v.col === destCol && v.order > destOrder,
-        (v) => ({
-          ...v,
-          order: v.order + 1,
-        }),
-      );
-      // Set new location
-      tabsGridLocationHandlers.setItem(tabIndex, {
-        row: destRow,
-        col: destCol,
-        order: destOrder,
-        dataIndex: tabLocation.dataIndex, // Keep unchanged
-      });
-
-      // Keep active state
-      if (
-        isActive || // Tab is active
-        !currentActiveTab.some(
-          (v) => v.row === destRow && v.col === destCol && v.nonce !== null, // No active tab in new grid, set current as active one
-        )
-      ) {
-        setCurrentActiveTab({
-          row: destRow,
-          col: destCol,
-          nonce: nonce,
-        });
-      }
-    }
+    dndHandler(
+      nonce,
+      source,
+      destination,
+      tabsData,
+      tabsGridLocation,
+      tabsGridLocationHandlers,
+      isActiveTab,
+      fallbackActive,
+      activeTab,
+      setActiveTab,
+    );
 
     // responseTabsList();
   };
@@ -757,7 +414,7 @@ const ShellTabs = () => {
     pos: ShellGridBase,
     current: boolean = false,
   ) => {
-    return (current ? currentActiveTabRef.current : currentActiveTab).some(
+    return (current ? activeTabRef.current : activeTab).some(
       (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
     );
   };
@@ -773,7 +430,7 @@ const ShellTabs = () => {
         (v) => v.order === pos.order + 1,
       );
       if (nextOrderTab) {
-        setCurrentActiveTab({
+        setActiveTab({
           row: pos.row,
           col: pos.col,
           nonce: tabsData[nextOrderTab.dataIndex].nonce,
@@ -783,7 +440,7 @@ const ShellTabs = () => {
     } else if (tabsInSameGrid.length > 0) {
       // Still have tab
       tabsInSameGrid.sort((a, b) => b.order - a.order); // DESC
-      setCurrentActiveTab({
+      setActiveTab({
         row: pos.row,
         col: pos.col,
         nonce: tabsData[tabsInSameGrid[0].dataIndex].nonce,
@@ -791,7 +448,7 @@ const ShellTabs = () => {
       clearTabNewMessageState(tabsData[tabsInSameGrid[0].dataIndex].nonce);
     } else {
       // No remain tabs
-      setCurrentActiveTab({
+      setActiveTab({
         row: pos.row,
         col: pos.col,
         nonce: null,
@@ -913,12 +570,12 @@ const ShellTabs = () => {
                       variant="none"
                       className={style.tabs}
                       value={
-                        currentActiveTab.find(
+                        activeTab.find(
                           (p) => p.row === rowIndex && p.col === colIndex,
                         )?.nonce
                       }
                       onChange={(newActive) => {
-                        setCurrentActiveTab({
+                        setActiveTab({
                           row: rowIndex,
                           col: colIndex,
                           nonce: newActive,

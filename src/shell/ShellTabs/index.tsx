@@ -1,13 +1,4 @@
-import {
-  Box,
-  Flex,
-  Grid,
-  List,
-  ScrollArea,
-  Tabs,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Box, Flex, Grid, ScrollArea, Tabs } from "@mantine/core";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
 import type { MouseEvent, WheelEvent } from "react";
@@ -59,6 +50,11 @@ import {
   terminateShell,
 } from "./lifeCycleHandlers.ts";
 import { dndHandler } from "./dndHandler.ts";
+import {
+  reconnectConfirmModal,
+  terminateAllConfirmModal,
+  terminateConfirmModal,
+} from "./modalConfig.tsx";
 
 const ShellTabs = () => {
   // Terminal context
@@ -231,23 +227,11 @@ const ShellTabs = () => {
     );
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
-        modals.openConfirmModal({
-          title: "Terminate confirmation",
-          children: (
-            <>
-              <Text>Are you sure to terminate :</Text>
-              <Title order={3} my="md" c="red">
-                {tabsData[index].name}
-              </Title>
-            </>
-          ),
-          labels: { confirm: "Terminate", cancel: "Cancel" },
-          confirmProps: { color: "red" },
-          centered: true,
-          onConfirm: () => {
+        modals.openConfirmModal(
+          terminateConfirmModal(tabsDataRef.current[index].name, () => {
             doTerminate(nonce);
-          },
-        });
+          }),
+        );
       } else {
         doTerminate(nonce);
       }
@@ -262,23 +246,11 @@ const ShellTabs = () => {
     // Check current state
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
-        modals.openConfirmModal({
-          title: "Reconnect confirmation",
-          children: (
-            <>
-              <Text>Are you sure to reconnect :</Text>
-              <Title order={3} my="md" c="red">
-                {tabsData[index].name}
-              </Title>
-            </>
-          ),
-          labels: { confirm: "Reconnect", cancel: "Cancel" },
-          confirmProps: { color: "red" },
-          centered: true,
-          onConfirm: () => {
+        modals.openConfirmModal(
+          reconnectConfirmModal(tabsDataRef.current[index].name, () => {
             doReconnect(nonce);
-          },
-        });
+          }),
+        );
       } else {
         doReconnect(nonce);
       }
@@ -319,28 +291,15 @@ const ShellTabs = () => {
       terminateAllAndExit();
     } else {
       // Open close confirmation modal
-      modals.openConfirmModal({
-        title: "Terminate All",
-        children: (
-          <>
-            <Text>These shells are still running...</Text>
-            <List my="md" ml="md">
-              {tabsDataRef.current
-                .filter((_, i) => tabsStateRef.current[i] === "active")
-                .map((server) => (
-                  <List.Item key={server.nonce} c={server.color}>
-                    {server.name}
-                  </List.Item>
-                ))}
-            </List>
-            <Text>Are you sure to terminate them all?</Text>
-          </>
+
+      modals.openConfirmModal(
+        terminateAllConfirmModal(
+          tabsDataRef.current.filter(
+            (_, i) => tabsStateRef.current[i] === "active",
+          ),
+          terminateAllAndExit,
         ),
-        labels: { confirm: "Terminate", cancel: "Cancel" },
-        confirmProps: { color: "red" },
-        centered: true,
-        onConfirm: terminateAllAndExit,
-      });
+      );
     }
   };
 

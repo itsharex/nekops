@@ -19,6 +19,7 @@ export const startDummy = (
     isTerminated = true;
     terminal.writeln(`Session end`);
     setShellState("terminated");
+    console.log("terminate", nonce);
   };
 
   const runCommand = () => {
@@ -117,6 +118,10 @@ export const startDummy = (
           }
       }
     }
+  });
+
+  terminal.onResize(({ cols, rows }) => {
+    console.log("resize", nonce, rows, cols);
   });
 
   // Loading

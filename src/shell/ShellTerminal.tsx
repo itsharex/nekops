@@ -27,7 +27,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
 
   // Use throttle to reduce resource consumption on re-rendering
   const throttledFit = useThrottledCallback(() => {
-    if (isActive) {
+    if (isActive && !instance.isLoading) {
       // Fit now
       instance.fitAddon?.fit();
     } else if (!isPendingFit.current) {
@@ -38,7 +38,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
 
   // Fit when become active
   useEffect(() => {
-    if (isActive && isPendingFit.current) {
+    if (isActive && !instance.isLoading && isPendingFit.current) {
       // Not sure why this is not working sometimes (after grid tidy)
       // Might be relevant to React's component mount mechanism.
       // requestIdleCallback can work, but Safari doesn't support it.
@@ -47,7 +47,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
       instance.fitAddon?.fit();
       isPendingFit.current = false;
     }
-  }, [isActive]);
+  }, [isActive, instance.isLoading]);
 
   // Mount hooks
   useEffect(() => {

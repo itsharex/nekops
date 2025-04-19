@@ -132,6 +132,11 @@ export const reconnectShell = (
   setActiveTab: (payload: ShellGridTabNonce) => void,
 ) => {
   const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
+  if (index === -1) {
+    // Invalid, it might already have been terminated
+    console.warn("invalid nonce", nonce);
+    return;
+  }
 
   // Update with a different nonce (so it would be automatically restarted), using # split as counter
   const serverData = tabsDataCurrent[index];
@@ -173,6 +178,11 @@ export const terminateShell = (
   setActiveTab: (payload: ShellGridTabNonce) => void,
 ) => {
   const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
+  if (index === -1) {
+    // Invalid, it might already have been terminated
+    console.warn("invalid nonce", nonce);
+    return;
+  }
 
   // Remove from the shell state context
   removeTerminalInstance(tabsDataCurrent[index].nonce);

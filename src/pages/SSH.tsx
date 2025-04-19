@@ -11,7 +11,6 @@ import SSHContextMenu from "@/components/shell/SSHContextMenu.tsx";
 import { startSSHSession } from "@/components/shell/startSSHSession.ts";
 import { copySSHCommand } from "@/components/shell/copySSHCommand.ts";
 import { path } from "@tauri-apps/api";
-import { useThrottledCallback } from "@mantine/hooks";
 
 const SSHPage = () => {
   const servers = useSelector((state: RootState) => state.servers);
@@ -50,8 +49,6 @@ const SSHPage = () => {
         break;
     }
   };
-
-  const throttledClick = useThrottledCallback(clickServerCard, 500);
 
   // Context menu
   const [sshContextMenuPos, setSSHContextMenuPos] = useState<{
@@ -96,7 +93,7 @@ const SSHPage = () => {
         </Box>
         <ServerCardsVirtualScroll
           servers={searchServers(searchInput, serversWithRegularAccess)}
-          onClick={throttledClick}
+          onClick={clickServerCard}
           onContextMenu={rightClickServerCard}
         />
       </Flex>

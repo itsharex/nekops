@@ -48,6 +48,7 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
       // (not sure whether this is related to the version of xterm.js).
       // So we need to wait for the next tick.
       // But safari doesn't support requestIdleCallback, so we have to use setTimeout here.
+      // TODO: find a better way to fix this
       setTimeout(() => {
         instance.fitAddon?.fit();
         isPendingFit.current = false;

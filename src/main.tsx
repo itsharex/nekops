@@ -6,6 +6,8 @@ import Layout from "./Layout.tsx";
 import { store } from "@/store.ts";
 import { Provider } from "react-redux";
 
+import "@/i18n/init.ts";
+
 scan({
   enabled: true,
 });

@@ -1,0 +1,13 @@
+{
+  "router": {
+    "connect": "连接",
+    "ssh": "SSH",
+    "multirun": "批处理",
+    "rescue": "救援",
+    "library": "库",
+    "servers": "服务器",
+    "snippets": "代码片段",
+    "analysis": "分析",
+    "settings": "设置"
+  }
+}

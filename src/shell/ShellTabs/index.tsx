@@ -289,7 +289,6 @@ const ShellTabs = () => {
       terminateAllAndExit();
     } else {
       // Open close confirmation modal
-
       modals.openConfirmModal(
         terminateAllConfirmModal(
           tabsDataRef.current.filter(
@@ -302,7 +301,7 @@ const ShellTabs = () => {
   };
 
   const terminateAllAndExit = () => {
-    for (const { nonce } of tabsDataRef.current) {
+    for (const { nonce } of tabsDataRef.current.toReversed()) {
       // Reversely
       doTerminate(nonce);
     }

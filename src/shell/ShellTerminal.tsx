@@ -26,6 +26,11 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   const instance = getTerminalInstance(nonce);
 
   // Use throttle to reduce resource consumption on re-rendering
+  // This also provides a wrapper for state, so it won't be stuck
+  // at the initial values when listen is called.
+  // BTW, can we use the same idea for those useRefState
+  // (wrap callback in useCallback or the `use-callback-ref.ts` of `Mantine`)
+  // in the ShellTabs component?
   const throttledFit = useThrottledCallback(() => {
     if (isActive && !instance.isLoading) {
       // Fit now
@@ -39,13 +44,14 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   // Fit when become active
   useEffect(() => {
     if (isActive && !instance.isLoading && isPendingFit.current) {
-      // Not sure why this is not working sometimes (after grid tidy)
-      // Might be relevant to React's component mount mechanism.
-      // requestIdleCallback can work, but Safari doesn't support it.
-      // Need to find a better solution.
-      // TODO
-      instance.fitAddon?.fit();
-      isPendingFit.current = false;
+      // If we call fit just after mount, it will not work
+      // (not sure whether this is related to the version of xterm.js).
+      // So we need to wait for the next tick.
+      // But safari doesn't support requestIdleCallback, so we have to use setTimeout here.
+      setTimeout(() => {
+        instance.fitAddon?.fit();
+        isPendingFit.current = false;
+      }, 100);
     }
   }, [isActive, instance.isLoading]);
 

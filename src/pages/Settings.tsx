@@ -1,9 +1,11 @@
-import type { SettingsState } from "@/types/settings.ts";
-import { defaultWorkspace } from "@/types/settings.ts";
 import { useForm } from "@mantine/form";
 import { Box, Button, ButtonGroup, Flex } from "@mantine/core";
-import { saveSettings } from "@/slices/settingsSlice.ts";
 import { useDispatch, useSelector } from "react-redux";
+import { useDisclosure } from "@mantine/hooks";
+
+import type { SettingsState } from "@/types/settings.ts";
+import { defaultSettings, defaultWorkspace } from "@/types/settings.ts";
+import { saveSettings } from "@/slices/settingsSlice.ts";
 import type { AppDispatch, RootState } from "@/store.ts";
 import {
   decryptServer,
@@ -11,7 +13,6 @@ import {
   readEncryption,
   updatePassword,
 } from "@/slices/encryptionSlice.ts";
-import { useDisclosure } from "@mantine/hooks";
 import UnlockModal from "@/components/UnlockModal.tsx";
 import {
   readServers,
@@ -24,6 +25,7 @@ import type { SettingsExtended } from "@/components/settings/types.ts";
 import WorkspaceGroup from "@/components/settings/Workspace";
 import GlobalGroup from "@/components/settings/Global";
 import CurrentWorkspaceGroup from "@/components/settings/CurrentWorkspace";
+import CustomizeGroup from "@/components/settings/Customize";
 
 const passwordUnchanged = "keep-unchanged";
 
@@ -36,6 +38,7 @@ const SettingsPage = () => {
 
   const form = useForm<SettingsExtended>({
     initialValues: {
+      ...defaultSettings,
       ...structuredClone(settings),
       password: encryption.isEncryptionEnabled ? passwordUnchanged : "",
     },
@@ -82,6 +85,7 @@ const SettingsPage = () => {
       current_workspace: targetWorkspace,
       default_ssh_action: newSettings.default_ssh_action,
       default_ssh_client: newSettings.default_ssh_client,
+      font_family: newSettings.font_family,
     };
     await dispatch(saveSettings(newSettingsState)).unwrap();
     if (form.isDirty("workspaces")) {
@@ -108,6 +112,8 @@ const SettingsPage = () => {
         <form onSubmit={form.onSubmit(save)}>
           <Flex direction="column" gap="md">
             <GlobalGroup form={form} />
+
+            <CustomizeGroup form={form} />
 
             <WorkspaceGroup form={form} />
 

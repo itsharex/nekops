@@ -1,12 +1,15 @@
-import { DndZonePanel, DndZoneTabs } from "@/shell/ShellTabs/dndConfig.ts";
 import type { DraggableLocation } from "@hello-pangea/dnd";
+import type { UseListStateHandlers } from "@mantine/hooks";
+
 import type { ShellSingleServer } from "@/events/payload.ts";
 import type {
   ShellGridBase,
   ShellGridTabLocation,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
-import type { UseListStateHandlers } from "@mantine/hooks";
+
+import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
+import { fallbackActive } from "./stateHandlers.ts";
 
 export const dndHandler = (
   nonce: string,
@@ -20,7 +23,6 @@ export const dndHandler = (
     pos: ShellGridBase,
     current?: boolean,
   ) => boolean,
-  fallbackActive: (pos: ShellGridTabLocation) => void,
   activeTab: ShellGridTabNonce[],
   setActiveTab: (payload: ShellGridTabNonce) => void,
 ) => {
@@ -76,7 +78,7 @@ export const dndHandler = (
 
     const isActive = isActiveTab(nonce, tabLocation);
     if (isActive) {
-      fallbackActive(tabLocation);
+      fallbackActive(tabLocation, tabsGridLocation, tabsData, setActiveTab);
     }
 
     // Move tabs in source

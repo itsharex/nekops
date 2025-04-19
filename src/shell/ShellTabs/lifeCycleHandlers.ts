@@ -1,21 +1,24 @@
 import type { Event } from "@tauri-apps/api/event";
+import { Terminal } from "xterm";
+import { FitAddon } from "xterm-addon-fit";
+import type { UseListStateHandlers } from "@mantine/hooks";
+
 import type {
   EventPayloadShellNew,
   ShellSingleServer,
 } from "@/events/payload.ts";
-import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
-import { startDummy } from "@/shell/startDummy.ts";
-import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
-import { startSystemSSH } from "@/shell/startSystemSSH.ts";
-import type { UseListStateHandlers } from "@mantine/hooks";
 import type { TabState } from "@/types/tabState.ts";
 import type {
   ShellGridBase,
   ShellGridTabLocation,
   ShellGridTabNonce,
 } from "@/types/shell.ts";
+import { startDummy } from "@/shell/startDummy.ts";
+import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
+import { startSystemSSH } from "@/shell/startSystemSSH.ts";
 import type { TerminalInstance } from "@/shell/TerminalContext.tsx";
+
+import { fallbackActive } from "./stateHandlers.ts";
 
 export const newShell = (
   ev: Event<EventPayloadShellNew>,
@@ -120,13 +123,13 @@ export const reconnectShell = (
   tabsDataCurrent: ShellSingleServer[],
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
+  tabsGridLocationCurrent: ShellGridTabLocation[],
   isActiveTab: (
     nonce: string,
     pos: ShellGridBase,
     current?: boolean,
   ) => boolean,
   setActiveTab: (payload: ShellGridTabNonce) => void,
-  tabsGridLocationCurrent: ShellGridTabLocation[],
 ) => {
   const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
 
@@ -167,7 +170,7 @@ export const terminateShell = (
     pos: ShellGridBase,
     current?: boolean,
   ) => boolean,
-  fallbackActive: (pos: ShellGridTabLocation) => void,
+  setActiveTab: (payload: ShellGridTabNonce) => void,
 ) => {
   const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
 
@@ -177,7 +180,7 @@ export const terminateShell = (
   // console.log("do terminate", index);
   const pos = tabsGridLocationCurrent[index];
   if (isActiveTab(tabsDataCurrent[index].nonce, pos)) {
-    fallbackActive(pos);
+    fallbackActive(pos, tabsGridLocationCurrent, tabsDataCurrent, setActiveTab);
   }
 
   // Remove item

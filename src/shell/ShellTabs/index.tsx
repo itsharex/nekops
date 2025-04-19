@@ -205,7 +205,7 @@ const ShellTabs = () => {
       tabsGridLocationRef.current,
       tabsGridLocationHandlers,
       isActiveTab,
-      fallbackActive,
+      setActiveTab,
     );
   };
 
@@ -215,9 +215,9 @@ const ShellTabs = () => {
       tabsDataRef.current,
       tabsDataHandlers,
       tabsStateHandlers,
+      tabsGridLocationRef.current,
       isActiveTab,
       setActiveTab,
-      tabsGridLocationRef.current,
     );
   };
 
@@ -242,8 +242,6 @@ const ShellTabs = () => {
     const index = tabsDataRef.current.findIndex(
       (state) => state.nonce === nonce,
     );
-
-    // Check current state
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
         modals.openConfirmModal(
@@ -361,7 +359,6 @@ const ShellTabs = () => {
       tabsGridLocation,
       tabsGridLocationHandlers,
       isActiveTab,
-      fallbackActive,
       activeTab,
       setActiveTab,
     );
@@ -377,46 +374,6 @@ const ShellTabs = () => {
     return (current ? activeTabRef.current : activeTab).some(
       (v) => v.row === pos.row && v.col === pos.col && v.nonce === nonce,
     );
-  };
-
-  const fallbackActive = (pos: ShellGridTabLocation) => {
-    const tabsInSameGrid = tabsGridLocation
-      .map((v, origIndex) => ({
-        ...v,
-        origIndex,
-      }))
-      .filter(
-        (v) => v.row === pos.row && v.col === pos.col && v.order !== pos.order,
-      );
-    // console.log("fallbackActive", pos, tabsInSameGrid);
-    if (tabsInSameGrid.length > pos.order + 1) {
-      // Still has tab on right
-      const nextOrderTab = tabsInSameGrid.find(
-        (v) => v.order === pos.order + 1,
-      );
-      if (nextOrderTab) {
-        setActiveTab({
-          row: pos.row,
-          col: pos.col,
-          nonce: tabsData[nextOrderTab.origIndex].nonce,
-        });
-      }
-    } else if (tabsInSameGrid.length > 0) {
-      // Still have tab
-      tabsInSameGrid.sort((a, b) => b.order - a.order); // DESC
-      setActiveTab({
-        row: pos.row,
-        col: pos.col,
-        nonce: tabsData[tabsInSameGrid[0].origIndex].nonce,
-      });
-    } else {
-      // No remain tabs
-      setActiveTab({
-        row: pos.row,
-        col: pos.col,
-        nonce: null,
-      });
-    }
   };
 
   // Scroll tabs: convert vertical scroll (default mouse behavior) to horizontal

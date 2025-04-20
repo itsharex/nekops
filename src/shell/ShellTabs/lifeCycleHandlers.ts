@@ -18,6 +18,7 @@ import { fallbackActive } from "./stateHandlers.ts";
 
 export const newShell = (
   newServers: ShellSingleServer[],
+  pos: ShellGridBase,
   startIndex: number,
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
@@ -41,10 +42,11 @@ export const newShell = (
     tabsStateHandlers.setItem(index, "loading");
     tabsNewMessageHandlers.setItem(index, false);
     tabsGridLocationHandlers.setItem(index, {
-      row: 0,
-      col: 0,
-      order: tabsGridLocationCurrent.filter((v) => v.row === 0 && v.col === 0)
-        .length,
+      row: pos.row,
+      col: pos.col,
+      order: tabsGridLocationCurrent.filter(
+        (v) => v.row === pos.row && v.col === pos.col,
+      ).length,
     });
 
     // Initialize terminal
@@ -128,8 +130,8 @@ export const newShell = (
 
   // Set active tab
   setActiveTab({
-    row: 0,
-    col: 0,
+    row: pos.row,
+    col: pos.col,
     nonce: newServers[0].nonce,
   });
 };

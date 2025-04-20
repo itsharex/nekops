@@ -152,12 +152,16 @@ const ShellTabs = () => {
 
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
-    doStart(ev.payload.server);
+    doStart(ev.payload.server, {
+      row: 0,
+      col: 0,
+    });
   };
 
-  const doStart = (servers: ShellSingleServer[]) => {
+  const doStart = (servers: ShellSingleServer[], pos: ShellGridBase) => {
     newShell(
       servers,
+      pos,
       tabsDataRef.current.length,
       tabsDataHandlers,
       tabsStateHandlers,
@@ -214,19 +218,23 @@ const ShellTabs = () => {
   };
 
   const doReconnect = (nonce: string) => {
-    const data = tabsDataRef.current.find((state) => state.nonce === nonce);
-    if (!data) {
+    const index = tabsDataRef.current.findIndex(
+      (state) => state.nonce === nonce,
+    );
+    if (index === -1) {
       console.warn("Invalid nonce", nonce);
       return;
     }
+    const data = {
+      ...tabsDataRef.current[index],
+      nonce: buildReconnectNonce(nonce),
+    };
+    const pos = {
+      ...tabsGridLocationRef.current[index],
+    };
     doTerminate(nonce);
     setTimeout(() => {
-      doStart([
-        {
-          ...data!,
-          nonce: buildReconnectNonce(nonce),
-        },
-      ]);
+      doStart([data], pos);
     }); // Call in the next tick to avoid race condition
   };
 

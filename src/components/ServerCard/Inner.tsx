@@ -11,7 +11,6 @@ import {
 } from "@mantine/core";
 import { IconCloudComputing, IconServer, IconTag } from "@tabler/icons-react";
 import { memo } from "react";
-import Twemoji from "@/components/Twemoji";
 
 import type { ServerCardInnerProps } from "@/components/ServerCard/props.ts";
 
@@ -73,7 +72,7 @@ const Inner = ({ server }: ServerCardInnerProps) => (
       <Flex direction="column" gap="xs">
         <Group>
           <Title order={2} size="h1">
-            <Twemoji content={server.name} />
+            {server.name}
           </Title>
           <Tooltip label={server.id}>
             <Badge color={server.color}>{server.id.split(".")?.[0]}</Badge>

@@ -45,8 +45,8 @@ import { LayoutColsWeight } from "./layoutConfig.ts";
 import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 import { gridModifyHandler } from "./gridModifyHandlers.ts";
 import {
+  buildReconnectNonce,
   newShell,
-  reconnectShell,
   terminateShell,
 } from "./lifeCycleHandlers.ts";
 import { dndHandler } from "./dndHandler.ts";
@@ -152,8 +152,12 @@ const ShellTabs = () => {
 
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
+    doStart(ev.payload.server);
+  };
+
+  const doStart = (servers: ShellSingleServer[]) => {
     newShell(
-      ev,
+      servers,
       tabsDataRef.current.length,
       tabsDataHandlers,
       tabsStateHandlers,
@@ -210,15 +214,20 @@ const ShellTabs = () => {
   };
 
   const doReconnect = (nonce: string) => {
-    reconnectShell(
-      nonce,
-      tabsDataRef.current,
-      tabsDataHandlers,
-      tabsStateHandlers,
-      tabsGridLocationRef.current,
-      isActiveTab,
-      setActiveTab,
-    );
+    const data = tabsDataRef.current.find((state) => state.nonce === nonce);
+    if (!data) {
+      console.warn("Invalid nonce", nonce);
+      return;
+    }
+    doTerminate(nonce);
+    setTimeout(() => {
+      doStart([
+        {
+          ...data!,
+          nonce: buildReconnectNonce(nonce),
+        },
+      ]);
+    }); // Call in the next tick to avoid race condition
   };
 
   const terminateByNonce = (nonce: string) => {

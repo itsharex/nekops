@@ -1,12 +1,8 @@
-import type { Event } from "@tauri-apps/api/event";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import type { UseListStateHandlers } from "@mantine/hooks";
 
-import type {
-  EventPayloadShellNew,
-  ShellSingleServer,
-} from "@/events/payload.ts";
+import type { ShellSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
 import type {
   ShellGridBase,
@@ -21,8 +17,8 @@ import type { TerminalInstance } from "@/shell/TerminalContext.tsx";
 import { fallbackActive } from "./stateHandlers.ts";
 
 export const newShell = (
-  ev: Event<EventPayloadShellNew>,
-  index: number,
+  newServers: ShellSingleServer[],
+  startIndex: number,
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
   tabsNewMessageHandlers: UseListStateHandlers<boolean>,
@@ -37,7 +33,10 @@ export const newShell = (
   setShellState: (nonce: string, state: TabState) => void,
   stateUpdateOnNewMessage: (nonce: string) => void,
 ) => {
-  for (const server of ev.payload.server) {
+  for (let i = 0; i < newServers.length; i++) {
+    const server = newServers[i];
+    const index = startIndex + i;
+
     tabsDataHandlers.setItem(index, server);
     tabsStateHandlers.setItem(index, "loading");
     tabsNewMessageHandlers.setItem(index, false);
@@ -114,51 +113,18 @@ export const newShell = (
   setActiveTab({
     row: 0,
     col: 0,
-    nonce: ev.payload.server[0].nonce,
+    nonce: newServers[0].nonce,
   });
 };
 
-export const reconnectShell = (
-  nonce: string,
-  tabsDataCurrent: ShellSingleServer[],
-  tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
-  tabsStateHandlers: UseListStateHandlers<TabState>,
-  tabsGridLocationCurrent: ShellGridTabLocation[],
-  isActiveTab: (
-    nonce: string,
-    pos: ShellGridBase,
-    current?: boolean,
-  ) => boolean,
-  setActiveTab: (payload: ShellGridTabNonce) => void,
-) => {
-  const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
-  if (index === -1) {
-    // Invalid, it might already have been terminated
-    console.warn("invalid nonce", nonce);
-    return;
-  }
-
-  // Update with a different nonce (so it would be automatically restarted), using # split as counter
-  const serverData = tabsDataCurrent[index];
-  const splits = serverData.nonce.split("#");
+export const buildReconnectNonce = (nonce: string) => {
+  const splits = nonce.split("#");
   let counter = 2; // First reconnection is the 2nd connection
   if (splits.length > 1) {
     counter = parseInt(splits[1]) + 1;
   }
   // Set with new nonce
-  const newNonce = `${splits[0]}#${counter}`;
-  tabsDataHandlers.setItem(index, {
-    ...serverData,
-    nonce: newNonce,
-  });
-  tabsStateHandlers.setItem(index, "loading");
-  if (isActiveTab(serverData.nonce, tabsGridLocationCurrent[index], true)) {
-    setActiveTab({
-      row: tabsGridLocationCurrent[index].row,
-      col: tabsGridLocationCurrent[index].col,
-      nonce: newNonce,
-    });
-  }
+  return `${splits[0]}#${counter}`;
 };
 
 export const terminateShell = (

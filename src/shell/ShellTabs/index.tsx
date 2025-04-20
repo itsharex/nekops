@@ -237,9 +237,13 @@ const ShellTabs = () => {
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
         modals.openConfirmModal(
-          terminateConfirmModal(tabsDataRef.current[index].name, () => {
-            doTerminate(nonce);
-          }),
+          terminateConfirmModal(
+            tabsDataRef.current[index].name,
+            tabsDataRef.current[index].color,
+            () => {
+              doTerminate(nonce);
+            },
+          ),
         );
       } else {
         doTerminate(nonce);
@@ -254,9 +258,13 @@ const ShellTabs = () => {
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
         modals.openConfirmModal(
-          reconnectConfirmModal(tabsDataRef.current[index].name, () => {
-            doReconnect(nonce);
-          }),
+          reconnectConfirmModal(
+            tabsDataRef.current[index].name,
+            tabsDataRef.current[index].color,
+            () => {
+              doReconnect(nonce);
+            },
+          ),
         );
       } else {
         doReconnect(nonce);

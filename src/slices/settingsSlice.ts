@@ -30,8 +30,8 @@ export const readSettings = createAsyncThunk(
     if (await exists(settingsFilePath)) {
       // Read and parse
       const settingsFile = await readTextFile(settingsFilePath);
-      const settingsSaved: SettingsSave = JSON.parse(settingsFile);
-      if (settingsSaved.workspaces.length > 0) {
+      const settingsSaved: Partial<SettingsSave> = JSON.parse(settingsFile);
+      if (settingsSaved.workspaces?.length) {
         // Find current active workspace
         let targetWorkspace: WorkSpace | undefined = undefined;
         if (settingsSaved.current_workspace_id) {
@@ -46,9 +46,13 @@ export const readSettings = createAsyncThunk(
         return {
           workspaces: settingsSaved.workspaces,
           current_workspace: targetWorkspace,
-          default_ssh_action: settingsSaved.default_ssh_action,
-          default_ssh_client: settingsSaved.default_ssh_client,
-          font_family: settingsSaved.font_family,
+          default_ssh_action:
+            settingsSaved.default_ssh_action ||
+            defaultSettings.default_ssh_action,
+          default_ssh_client:
+            settingsSaved.default_ssh_client ||
+            defaultSettings.default_ssh_client,
+          font_family: settingsSaved.font_family || defaultSettings.font_family,
         };
       } else {
         return defaultSettings;

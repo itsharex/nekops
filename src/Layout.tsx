@@ -17,17 +17,17 @@ const Layout = () => {
       {
         /** Put your mantine theme override here */
       },
-      font_family?.common
+      font_family.common
         ? {
             fontFamily: font_family.common,
           }
         : undefined,
-      font_family?.monospace
+      font_family.monospace
         ? {
             fontFamilyMonospace: font_family.monospace,
           }
         : undefined,
-      font_family?.headings
+      font_family.headings
         ? {
             headings: {
               fontFamily: font_family.headings,

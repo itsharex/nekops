@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useDisclosure } from "@mantine/hooks";
 
 import type { SettingsState } from "@/types/settings.ts";
-import { defaultSettings, defaultWorkspace } from "@/types/settings.ts";
+import { defaultWorkspace } from "@/types/settings.ts";
 import { saveSettings } from "@/slices/settingsSlice.ts";
 import type { AppDispatch, RootState } from "@/store.ts";
 import {
@@ -38,7 +38,6 @@ const SettingsPage = () => {
 
   const form = useForm<SettingsExtended>({
     initialValues: {
-      ...defaultSettings,
       ...structuredClone(settings),
       password: encryption.isEncryptionEnabled ? passwordUnchanged : "",
     },

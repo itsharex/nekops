@@ -48,7 +48,13 @@ export const newShell = (
     });
 
     // Initialize terminal
-    const terminal = new Terminal();
+    const terminal = new Terminal({
+      theme: {
+        background: "#000000E6",
+        cursor: server.color,
+      },
+      allowTransparency: true,
+    });
     const fitAddon = new FitAddon();
 
     // Store in context

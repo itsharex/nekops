@@ -96,7 +96,7 @@ const SettingsPage = () => {
       dispatch(readEncryption());
     }
     form.setInitialValues({
-      ...newSettings,
+      ...structuredClone(newSettings),
       password: Boolean(newSettings.password) ? passwordUnchanged : "",
     });
     form.reset();

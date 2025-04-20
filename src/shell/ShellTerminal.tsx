@@ -9,13 +9,20 @@ import {
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 import { useTerminal } from "@/shell/TerminalContext.tsx";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 interface ShellTerminalProps {
   nonce: string;
   themeColor: string;
+  backgroundImage: string;
   isActive: boolean;
 }
-const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
+const ShellTerminal = ({
+  nonce,
+  themeColor,
+  backgroundImage,
+  isActive,
+}: ShellTerminalProps) => {
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
   const isPendingFit = useRef(false);
 
@@ -123,6 +130,13 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
         borderLeftStyle: "solid",
         borderLeftWidth: rem(16),
         borderLeftColor: themeColor,
+        backgroundImage: backgroundImage
+          ? `url(${convertFileSrc(backgroundImage)})`
+          : undefined,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        // backgroundAttachment: "fixed",
       }}
     >
       <div

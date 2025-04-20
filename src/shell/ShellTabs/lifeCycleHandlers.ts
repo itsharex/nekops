@@ -48,13 +48,24 @@ export const newShell = (
     });
 
     // Initialize terminal
-    const terminal = new Terminal({
-      theme: {
-        background: "#000000E6",
-        cursor: server.color,
-      },
-      allowTransparency: true,
-    });
+    const terminal = new Terminal(
+      Object.assign(
+        {
+          fontSize: server.clientOptions.settings.font_size,
+          theme: {
+            background: server.clientOptions.settings.background_color,
+            foreground: server.clientOptions.settings.foreground_color,
+            cursor: server.color,
+          },
+          allowTransparency: true,
+        },
+        server.clientOptions.settings.font_family
+          ? {
+              fontFamily: server.clientOptions.settings.font_family,
+            }
+          : undefined,
+      ),
+    );
     const fitAddon = new FitAddon();
 
     // Store in context

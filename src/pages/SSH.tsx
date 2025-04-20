@@ -32,6 +32,7 @@ const SSHPage = () => {
           settings.current_workspace.data_dir,
           "known_hosts",
         ),
+        settings: settings.customize.shell,
       },
       server,
       jumpServer,

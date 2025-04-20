@@ -12,6 +12,7 @@ const ShellPanel = ({ data, isActive }: ShellPanelProps) => (
     <ShellTerminal
       nonce={data.nonce}
       themeColor={data.color}
+      backgroundImage={data.clientOptions.settings.background_image}
       isActive={isActive}
     />
   </Tabs.Panel>

@@ -1,4 +1,4 @@
-import type { ShellClientType } from "./shell.ts";
+import type { ShellClientType, ShellSettings } from "./shell.ts";
 
 export type WorkSpace = {
   id: string;
@@ -16,6 +16,7 @@ type SettingsCommon = {
       monospace: string;
       headings: string;
     };
+    shell: ShellSettings;
   };
 };
 
@@ -43,6 +44,13 @@ export const defaultSettings: SettingsState = {
       common: "",
       monospace: "",
       headings: "",
+    },
+    shell: {
+      background_color: "#000000E6",
+      background_image: "",
+      foreground_color: "#ffffff",
+      font_family: "",
+      font_size: 15,
     },
   },
 };

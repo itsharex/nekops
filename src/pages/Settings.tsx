@@ -84,9 +84,7 @@ const SettingsPage = () => {
       current_workspace: targetWorkspace,
       default_ssh_action: newSettings.default_ssh_action,
       default_ssh_client: newSettings.default_ssh_client,
-      customize: {
-        font_family: newSettings.customize.font_family,
-      },
+      customize: newSettings.customize,
     };
     await dispatch(saveSettings(newSettingsState)).unwrap();
     if (form.isDirty("workspaces")) {

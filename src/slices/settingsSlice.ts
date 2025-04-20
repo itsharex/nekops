@@ -87,7 +87,10 @@ export const saveSettings = createAsyncThunk(
       default_ssh_client: state.default_ssh_client,
       font_family: state.font_family,
     };
-    await writeTextFile(settingsFilePath, JSON.stringify(settingsSave));
+    await writeTextFile(
+      settingsFilePath,
+      JSON.stringify(settingsSave, null, 2),
+    );
     return state;
   },
 );

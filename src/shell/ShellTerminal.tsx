@@ -59,7 +59,7 @@ const ShellTerminal = ({
       setTimeout(() => {
         instance.fitAddon?.fit();
         isPendingFit.current = false;
-      });
+      }, 100);
     }
   }, [isActive, instance.isLoading]);
 

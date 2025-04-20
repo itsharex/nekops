@@ -52,7 +52,13 @@ export const readSettings = createAsyncThunk(
           default_ssh_client:
             settingsSaved.default_ssh_client ||
             defaultSettings.default_ssh_client,
-          font_family: settingsSaved.font_family || defaultSettings.font_family,
+          customize: settingsSaved.customize
+            ? {
+                font_family:
+                  settingsSaved.customize.font_family ||
+                  defaultSettings.customize.font_family,
+              }
+            : defaultSettings.customize,
         };
       } else {
         return defaultSettings;
@@ -85,7 +91,9 @@ export const saveSettings = createAsyncThunk(
       current_workspace_id: state.current_workspace.id,
       default_ssh_action: state.default_ssh_action,
       default_ssh_client: state.default_ssh_client,
-      font_family: state.font_family,
+      customize: {
+        font_family: state.customize.font_family,
+      },
     };
     await writeTextFile(
       settingsFilePath,

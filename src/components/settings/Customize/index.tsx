@@ -16,7 +16,7 @@ const CustomizeGroup = ({ form }: CustomizeGroupProps) => (
           style={{
             flexGrow: 1,
           }}
-          {...form.getInputProps(`font_family.common`)}
+          {...form.getInputProps(`customize.font_family.common`)}
         />
 
         <TextInput
@@ -24,7 +24,7 @@ const CustomizeGroup = ({ form }: CustomizeGroupProps) => (
           style={{
             flexGrow: 1,
           }}
-          {...form.getInputProps(`font_family.monospace`)}
+          {...form.getInputProps(`customize.font_family.monospace`)}
         />
 
         <TextInput
@@ -32,7 +32,7 @@ const CustomizeGroup = ({ form }: CustomizeGroupProps) => (
           style={{
             flexGrow: 1,
           }}
-          {...form.getInputProps(`font_family.headings`)}
+          {...form.getInputProps(`customize.font_family.headings`)}
         />
       </Group>
     </Flex>

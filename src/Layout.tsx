@@ -10,27 +10,27 @@ import App from "@/App.tsx";
 import type { RootState } from "@/store.ts";
 
 const Layout = () => {
-  const { font_family } = useSelector((state: RootState) => state.settings);
+  const { customize } = useSelector((state: RootState) => state.settings);
 
   const theme = createTheme(
     Object.assign(
       {
         /** Put your mantine theme override here */
       },
-      font_family.common
+      customize.font_family.common
         ? {
-            fontFamily: font_family.common,
+            fontFamily: customize.font_family.common,
           }
         : undefined,
-      font_family.monospace
+      customize.font_family.monospace
         ? {
-            fontFamilyMonospace: font_family.monospace,
+            fontFamilyMonospace: customize.font_family.monospace,
           }
         : undefined,
-      font_family.headings
+      customize.font_family.headings
         ? {
             headings: {
-              fontFamily: font_family.headings,
+              fontFamily: customize.font_family.headings,
             },
           }
         : undefined,

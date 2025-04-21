@@ -35,9 +35,6 @@ const ShellTerminal = ({
   // Use throttle to reduce resource consumption on re-rendering
   // This also provides a wrapper for state, so it won't be stuck
   // at the initial values when listen is called.
-  // BTW, can we use the same idea for those useRefState
-  // (wrap callback in useCallback or the `use-callback-ref.ts` of `Mantine`)
-  // in the ShellTabs component?
   const throttledFit = useThrottledCallback(() => {
     if (isActive && !instance.isLoading) {
       // Fit now
@@ -53,13 +50,12 @@ const ShellTerminal = ({
     if (isActive && !instance.isLoading && isPendingFit.current) {
       // If we call fit just after mount, it will not work
       // (not sure whether this is related to the version of xterm.js).
-      // So we need to wait for the next tick.
-      // But safari doesn't support requestIdleCallback, so we have to use setTimeout here.
+      // So we need to wait for it to finish mounting (or detecting).
       // TODO: find a better way to fix this
       setTimeout(() => {
         instance.fitAddon?.fit();
         isPendingFit.current = false;
-      }, 100);
+      }, 1);
     }
   }, [isActive, instance.isLoading]);
 

@@ -88,20 +88,6 @@ const ShellTerminal = ({
       throttledFit,
     );
 
-    // Listen to multirun commands
-    // const sendCommandByNonceHandler = (
-    //   ev: Event<EventPayloadShellSendCommandByNonce>,
-    // ) => {
-    //   if (ev.payload.nonce.includes(nonce)) {
-    //     currentTerminal.input(ev.payload.command, true); // This method is implemented from 5.4.0, which is also the version that breaks open function. So we can't process this event here until we upgrade to newer versions (if they fixed the open issue).
-    //   }
-    // };
-    // const stopSendCommandByNonceListener =
-    //   listen<EventPayloadShellSendCommandByNonce>(
-    //     EventNameShellSendCommandByNonce,
-    //     sendCommandByNonceHandler,
-    //   );
-
     // Listen to select all event
     const shellSelectAllByNonceHandler = (ev: Event<string>) => {
       if (ev.payload === nonce) {
@@ -116,7 +102,6 @@ const ShellTerminal = ({
     return () => {
       (async () => {
         (await stopWindowResizeEventListener)();
-        // (await stopSendCommandByNonceListener)();
         (await stopShellSelectAllByNonceListener)();
       })();
     };

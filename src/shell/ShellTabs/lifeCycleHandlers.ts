@@ -80,6 +80,31 @@ export const newShell = (
     // Apply size fit addon
     terminal.loadAddon(fitAddon);
 
+    // Listen to multirun commands
+    // const sendCommandByNonceHandler = (
+    //   ev: Event<EventPayloadShellSendCommandByNonce>,
+    // ) => {
+    //   if (ev.payload.nonce.includes(server.nonce)) {
+    //     terminal.input(ev.payload.command, true); // This method is implemented from 5.4.0, which is also the version that breaks open function. So we can't process this event here until we upgrade to newer versions (if they fixed the open issue).
+    //   }
+    // };
+    // const stopSendCommandByNonceListener =
+    //   listen<EventPayloadShellSendCommandByNonce>(
+    //     EventNameShellSendCommandByNonce,
+    //     sendCommandByNonceHandler,
+    //   );
+
+    const shellSetTerminateFunc = (func: (() => void) | null) =>
+      setTerminateFunc(server.nonce, () => {
+        // Call generic terminate
+        // (async () => {
+        //   (await stopSendCommandByNonceListener)();
+        // })();
+
+        // Call specific terminate
+        func?.();
+      });
+
     if (
       server.access.user === "Candinya" &&
       server.access.address === "dummy" &&
@@ -91,7 +116,7 @@ export const newShell = (
         terminal,
         () => stateUpdateOnNewMessage(server.nonce),
         (state) => setShellState(server.nonce, state),
-        (func) => setTerminateFunc(server.nonce, func),
+        shellSetTerminateFunc,
       );
     } else {
       // Start normal server
@@ -102,7 +127,7 @@ export const newShell = (
             terminal,
             () => stateUpdateOnNewMessage(server.nonce),
             (state) => setShellState(server.nonce, state),
-            (func) => setTerminateFunc(server.nonce, func),
+            shellSetTerminateFunc,
             server.clientOptions,
             server.access,
             server.name,
@@ -116,7 +141,7 @@ export const newShell = (
             terminal,
             () => stateUpdateOnNewMessage(server.nonce),
             (state) => setShellState(server.nonce, state),
-            (func) => setTerminateFunc(server.nonce, func),
+            shellSetTerminateFunc,
             server.access,
             server.jumpServer,
           );

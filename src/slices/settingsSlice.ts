@@ -30,8 +30,8 @@ export const readSettings = createAsyncThunk(
     if (await exists(settingsFilePath)) {
       // Read and parse
       const settingsFile = await readTextFile(settingsFilePath);
-      const settingsSaved: SettingsSave = JSON.parse(settingsFile);
-      if (settingsSaved.workspaces.length > 0) {
+      const settingsSaved: Partial<SettingsSave> = JSON.parse(settingsFile);
+      if (settingsSaved.workspaces?.length) {
         // Find current active workspace
         let targetWorkspace: WorkSpace | undefined = undefined;
         if (settingsSaved.current_workspace_id) {
@@ -46,8 +46,22 @@ export const readSettings = createAsyncThunk(
         return {
           workspaces: settingsSaved.workspaces,
           current_workspace: targetWorkspace,
-          default_ssh_action: settingsSaved.default_ssh_action,
-          default_ssh_client: settingsSaved.default_ssh_client,
+          default_ssh_action:
+            settingsSaved.default_ssh_action ||
+            defaultSettings.default_ssh_action,
+          default_ssh_client:
+            settingsSaved.default_ssh_client ||
+            defaultSettings.default_ssh_client,
+          customize: settingsSaved.customize
+            ? {
+                font_family:
+                  settingsSaved.customize.font_family ||
+                  defaultSettings.customize.font_family,
+                shell:
+                  settingsSaved.customize.shell ||
+                  defaultSettings.customize.shell,
+              }
+            : defaultSettings.customize,
         };
       } else {
         return defaultSettings;
@@ -80,8 +94,15 @@ export const saveSettings = createAsyncThunk(
       current_workspace_id: state.current_workspace.id,
       default_ssh_action: state.default_ssh_action,
       default_ssh_client: state.default_ssh_client,
+      customize: {
+        font_family: state.customize.font_family,
+        shell: state.customize.shell,
+      },
     };
-    await writeTextFile(settingsFilePath, JSON.stringify(settingsSave));
+    await writeTextFile(
+      settingsFilePath,
+      JSON.stringify(settingsSave, null, 2),
+    );
     return state;
   },
 );

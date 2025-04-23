@@ -3,13 +3,14 @@ import type { ShellSingleServer } from "@/events/payload.ts";
 
 export const terminateConfirmModal = (
   serverName: string,
+  serverColor: string,
   onConfirm: () => void,
 ) => ({
   title: "Terminate confirmation",
   children: (
     <>
       <Text>Are you sure to terminate :</Text>
-      <Title order={3} my="md" c="red">
+      <Title order={3} my="md" c={serverColor}>
         {serverName}
       </Title>
     </>
@@ -22,13 +23,14 @@ export const terminateConfirmModal = (
 
 export const reconnectConfirmModal = (
   serverName: string,
+  serverColor: string,
   onConfirm: () => void,
 ) => ({
   title: "Reconnect confirmation",
   children: (
     <>
       <Text>Are you sure to reconnect :</Text>
-      <Title order={3} my="md" c="yellow">
+      <Title order={3} my="md" c={serverColor}>
         {serverName}
       </Title>
     </>

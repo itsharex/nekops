@@ -1,12 +1,8 @@
-import type { Event } from "@tauri-apps/api/event";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import type { UseListStateHandlers } from "@mantine/hooks";
 
-import type {
-  EventPayloadShellNew,
-  ShellSingleServer,
-} from "@/events/payload.ts";
+import type { ShellSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
 import type {
   ShellGridBase,
@@ -21,8 +17,9 @@ import type { TerminalInstance } from "@/shell/TerminalContext.tsx";
 import { fallbackActive } from "./stateHandlers.ts";
 
 export const newShell = (
-  ev: Event<EventPayloadShellNew>,
-  index: number,
+  newServers: ShellSingleServer[],
+  pos: ShellGridBase,
+  startIndex: number,
   tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
   tabsStateHandlers: UseListStateHandlers<TabState>,
   tabsNewMessageHandlers: UseListStateHandlers<boolean>,
@@ -37,19 +34,40 @@ export const newShell = (
   setShellState: (nonce: string, state: TabState) => void,
   stateUpdateOnNewMessage: (nonce: string) => void,
 ) => {
-  for (const server of ev.payload.server) {
+  for (let i = 0; i < newServers.length; i++) {
+    const server = newServers[i];
+    const index = startIndex + i;
+
     tabsDataHandlers.setItem(index, server);
     tabsStateHandlers.setItem(index, "loading");
     tabsNewMessageHandlers.setItem(index, false);
     tabsGridLocationHandlers.setItem(index, {
-      row: 0,
-      col: 0,
-      order: tabsGridLocationCurrent.filter((v) => v.row === 0 && v.col === 0)
-        .length,
+      row: pos.row,
+      col: pos.col,
+      order: tabsGridLocationCurrent.filter(
+        (v) => v.row === pos.row && v.col === pos.col,
+      ).length,
     });
 
     // Initialize terminal
-    const terminal = new Terminal();
+    const terminal = new Terminal(
+      Object.assign(
+        {
+          fontSize: server.clientOptions.settings.font_size,
+          theme: {
+            background: server.clientOptions.settings.background_color,
+            foreground: server.clientOptions.settings.foreground_color,
+            cursor: server.color,
+          },
+          allowTransparency: true,
+        },
+        server.clientOptions.settings.font_family
+          ? {
+              fontFamily: server.clientOptions.settings.font_family,
+            }
+          : undefined,
+      ),
+    );
     const fitAddon = new FitAddon();
 
     // Store in context
@@ -62,6 +80,31 @@ export const newShell = (
     // Apply size fit addon
     terminal.loadAddon(fitAddon);
 
+    // Listen to multirun commands
+    // const sendCommandByNonceHandler = (
+    //   ev: Event<EventPayloadShellSendCommandByNonce>,
+    // ) => {
+    //   if (ev.payload.nonce.includes(server.nonce)) {
+    //     terminal.input(ev.payload.command, true); // This method is implemented from 5.4.0, which is also the version that breaks open function. So we can't process this event here until we upgrade to newer versions (if they fixed the open issue).
+    //   }
+    // };
+    // const stopSendCommandByNonceListener =
+    //   listen<EventPayloadShellSendCommandByNonce>(
+    //     EventNameShellSendCommandByNonce,
+    //     sendCommandByNonceHandler,
+    //   );
+
+    const shellSetTerminateFunc = (func: (() => void) | null) =>
+      setTerminateFunc(server.nonce, () => {
+        // Call generic terminate
+        // (async () => {
+        //   (await stopSendCommandByNonceListener)();
+        // })();
+
+        // Call specific terminate
+        func?.();
+      });
+
     if (
       server.access.user === "Candinya" &&
       server.access.address === "dummy" &&
@@ -73,7 +116,7 @@ export const newShell = (
         terminal,
         () => stateUpdateOnNewMessage(server.nonce),
         (state) => setShellState(server.nonce, state),
-        (func) => setTerminateFunc(server.nonce, func),
+        shellSetTerminateFunc,
       );
     } else {
       // Start normal server
@@ -84,7 +127,7 @@ export const newShell = (
             terminal,
             () => stateUpdateOnNewMessage(server.nonce),
             (state) => setShellState(server.nonce, state),
-            (func) => setTerminateFunc(server.nonce, func),
+            shellSetTerminateFunc,
             server.clientOptions,
             server.access,
             server.name,
@@ -98,7 +141,7 @@ export const newShell = (
             terminal,
             () => stateUpdateOnNewMessage(server.nonce),
             (state) => setShellState(server.nonce, state),
-            (func) => setTerminateFunc(server.nonce, func),
+            shellSetTerminateFunc,
             server.access,
             server.jumpServer,
           );
@@ -112,53 +155,20 @@ export const newShell = (
 
   // Set active tab
   setActiveTab({
-    row: 0,
-    col: 0,
-    nonce: ev.payload.server[0].nonce,
+    row: pos.row,
+    col: pos.col,
+    nonce: newServers[0].nonce,
   });
 };
 
-export const reconnectShell = (
-  nonce: string,
-  tabsDataCurrent: ShellSingleServer[],
-  tabsDataHandlers: UseListStateHandlers<ShellSingleServer>,
-  tabsStateHandlers: UseListStateHandlers<TabState>,
-  tabsGridLocationCurrent: ShellGridTabLocation[],
-  isActiveTab: (
-    nonce: string,
-    pos: ShellGridBase,
-    current?: boolean,
-  ) => boolean,
-  setActiveTab: (payload: ShellGridTabNonce) => void,
-) => {
-  const index = tabsDataCurrent.findIndex((state) => state.nonce === nonce);
-  if (index === -1) {
-    // Invalid, it might already have been terminated
-    console.warn("invalid nonce", nonce);
-    return;
-  }
-
-  // Update with a different nonce (so it would be automatically restarted), using # split as counter
-  const serverData = tabsDataCurrent[index];
-  const splits = serverData.nonce.split("#");
+export const buildReconnectNonce = (nonce: string) => {
+  const splits = nonce.split("#");
   let counter = 2; // First reconnection is the 2nd connection
   if (splits.length > 1) {
     counter = parseInt(splits[1]) + 1;
   }
   // Set with new nonce
-  const newNonce = `${splits[0]}#${counter}`;
-  tabsDataHandlers.setItem(index, {
-    ...serverData,
-    nonce: newNonce,
-  });
-  tabsStateHandlers.setItem(index, "loading");
-  if (isActiveTab(serverData.nonce, tabsGridLocationCurrent[index], true)) {
-    setActiveTab({
-      row: tabsGridLocationCurrent[index].row,
-      col: tabsGridLocationCurrent[index].col,
-      nonce: newNonce,
-    });
-  }
+  return `${splits[0]}#${counter}`;
 };
 
 export const terminateShell = (

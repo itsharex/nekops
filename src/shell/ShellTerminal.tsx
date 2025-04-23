@@ -9,13 +9,20 @@ import {
 } from "@/events/name.ts";
 import { copyOrPaste } from "@/shell/copyOrPaste.tsx";
 import { useTerminal } from "@/shell/TerminalContext.tsx";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 interface ShellTerminalProps {
   nonce: string;
   themeColor: string;
+  backgroundImage: string;
   isActive: boolean;
 }
-const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
+const ShellTerminal = ({
+  nonce,
+  themeColor,
+  backgroundImage,
+  isActive,
+}: ShellTerminalProps) => {
   const terminalElementRef = useRef<HTMLDivElement | null>(null);
   const isPendingFit = useRef(false);
 
@@ -28,9 +35,6 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
   // Use throttle to reduce resource consumption on re-rendering
   // This also provides a wrapper for state, so it won't be stuck
   // at the initial values when listen is called.
-  // BTW, can we use the same idea for those useRefState
-  // (wrap callback in useCallback or the `use-callback-ref.ts` of `Mantine`)
-  // in the ShellTabs component?
   const throttledFit = useThrottledCallback(() => {
     if (isActive && !instance.isLoading) {
       // Fit now
@@ -46,13 +50,12 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
     if (isActive && !instance.isLoading && isPendingFit.current) {
       // If we call fit just after mount, it will not work
       // (not sure whether this is related to the version of xterm.js).
-      // So we need to wait for the next tick.
-      // But safari doesn't support requestIdleCallback, so we have to use setTimeout here.
+      // So we need to wait for it to finish mounting (or detecting).
       // TODO: find a better way to fix this
       setTimeout(() => {
         instance.fitAddon?.fit();
         isPendingFit.current = false;
-      }, 100);
+      }, 1);
     }
   }, [isActive, instance.isLoading]);
 
@@ -81,20 +84,6 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
       throttledFit,
     );
 
-    // Listen to multirun commands
-    // const sendCommandByNonceHandler = (
-    //   ev: Event<EventPayloadShellSendCommandByNonce>,
-    // ) => {
-    //   if (ev.payload.nonce.includes(nonce)) {
-    //     currentTerminal.input(ev.payload.command, true); // This method is implemented from 5.4.0, which is also the version that breaks open function. So we can't process this event here until we upgrade to newer versions (if they fixed the open issue).
-    //   }
-    // };
-    // const stopSendCommandByNonceListener =
-    //   listen<EventPayloadShellSendCommandByNonce>(
-    //     EventNameShellSendCommandByNonce,
-    //     sendCommandByNonceHandler,
-    //   );
-
     // Listen to select all event
     const shellSelectAllByNonceHandler = (ev: Event<string>) => {
       if (ev.payload === nonce) {
@@ -109,7 +98,6 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
     return () => {
       (async () => {
         (await stopWindowResizeEventListener)();
-        // (await stopSendCommandByNonceListener)();
         (await stopShellSelectAllByNonceListener)();
       })();
     };
@@ -123,6 +111,13 @@ const ShellTerminal = ({ nonce, themeColor, isActive }: ShellTerminalProps) => {
         borderLeftStyle: "solid",
         borderLeftWidth: rem(16),
         borderLeftColor: themeColor,
+        backgroundImage: backgroundImage
+          ? `url(${convertFileSrc(backgroundImage)})`
+          : undefined,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        // backgroundAttachment: "fixed",
       }}
     >
       <div

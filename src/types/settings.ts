@@ -1,4 +1,4 @@
-import type { ShellClientType } from "./shell.ts";
+import type { ShellClientType, ShellSettings } from "./shell.ts";
 
 export type WorkSpace = {
   id: string;
@@ -10,6 +10,14 @@ type SettingsCommon = {
   workspaces: WorkSpace[];
   default_ssh_action: "copy" | "start";
   default_ssh_client: ShellClientType;
+  customize: {
+    font_family: {
+      common: string;
+      monospace: string;
+      headings: string;
+    };
+    shell: ShellSettings;
+  };
 };
 
 export type SettingsSave = {
@@ -31,4 +39,18 @@ export const defaultSettings: SettingsState = {
   current_workspace: defaultWorkspace,
   default_ssh_action: "copy",
   default_ssh_client: "embedded",
+  customize: {
+    font_family: {
+      common: "",
+      monospace: "",
+      headings: "",
+    },
+    shell: {
+      background_color: "#000000E6",
+      background_image: "",
+      foreground_color: "#ffffff",
+      font_family: "",
+      font_size: 15,
+    },
+  },
 };

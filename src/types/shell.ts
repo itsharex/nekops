@@ -12,3 +12,11 @@ export type ShellGridTabLocation = ShellGridBase & {
 export type ShellGridTabNonce = ShellGridBase & {
   nonce: string | null;
 };
+
+export type ShellSettings = {
+  background_color: string;
+  background_image: string;
+  foreground_color: string;
+  font_family: string;
+  font_size: number;
+};

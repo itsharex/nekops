@@ -45,8 +45,8 @@ import { LayoutColsWeight } from "./layoutConfig.ts";
 import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 import { gridModifyHandler } from "./gridModifyHandlers.ts";
 import {
+  buildReconnectNonce,
   newShell,
-  reconnectShell,
   terminateShell,
 } from "./lifeCycleHandlers.ts";
 import { dndHandler } from "./dndHandler.ts";
@@ -152,8 +152,16 @@ const ShellTabs = () => {
 
   // Event listeners
   const shellNewHandler = (ev: Event<EventPayloadShellNew>) => {
+    doStart(ev.payload.server, {
+      row: 0,
+      col: 0,
+    });
+  };
+
+  const doStart = (servers: ShellSingleServer[], pos: ShellGridBase) => {
     newShell(
-      ev,
+      servers,
+      pos,
       tabsDataRef.current.length,
       tabsDataHandlers,
       tabsStateHandlers,
@@ -210,15 +218,24 @@ const ShellTabs = () => {
   };
 
   const doReconnect = (nonce: string) => {
-    reconnectShell(
-      nonce,
-      tabsDataRef.current,
-      tabsDataHandlers,
-      tabsStateHandlers,
-      tabsGridLocationRef.current,
-      isActiveTab,
-      setActiveTab,
+    const index = tabsDataRef.current.findIndex(
+      (state) => state.nonce === nonce,
     );
+    if (index === -1) {
+      console.warn("Invalid nonce", nonce);
+      return;
+    }
+    const data = {
+      ...tabsDataRef.current[index],
+      nonce: buildReconnectNonce(nonce),
+    };
+    const pos = {
+      ...tabsGridLocationRef.current[index],
+    };
+    doTerminate(nonce);
+    setTimeout(() => {
+      doStart([data], pos);
+    }); // Call in the next tick to avoid race condition
   };
 
   const terminateByNonce = (nonce: string) => {
@@ -228,9 +245,13 @@ const ShellTabs = () => {
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
         modals.openConfirmModal(
-          terminateConfirmModal(tabsDataRef.current[index].name, () => {
-            doTerminate(nonce);
-          }),
+          terminateConfirmModal(
+            tabsDataRef.current[index].name,
+            tabsDataRef.current[index].color,
+            () => {
+              doTerminate(nonce);
+            },
+          ),
         );
       } else {
         doTerminate(nonce);
@@ -245,9 +266,13 @@ const ShellTabs = () => {
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
         modals.openConfirmModal(
-          reconnectConfirmModal(tabsDataRef.current[index].name, () => {
-            doReconnect(nonce);
-          }),
+          reconnectConfirmModal(
+            tabsDataRef.current[index].name,
+            tabsDataRef.current[index].color,
+            () => {
+              doReconnect(nonce);
+            },
+          ),
         );
       } else {
         doReconnect(nonce);

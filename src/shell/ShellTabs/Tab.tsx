@@ -11,7 +11,6 @@ import {
 } from "@mantine/core";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { IconX } from "@tabler/icons-react";
-import Twemoji from "@/components/Twemoji";
 import { useHover } from "@mantine/hooks";
 
 interface ShellTabProps {
@@ -77,7 +76,7 @@ const ShellTab = ({
       // }}
       onContextMenu={onContextMenu}
     >
-      <Twemoji content={data.name} />
+      {data.name}
     </Tabs.Tab>
   );
 };

@@ -1,9 +1,10 @@
 import type { AccessEmergency, AccessRegular } from "@/types/server.ts";
 import type { TabState } from "@/types/tabState.ts";
-import {
+import type {
   ShellClientType,
   ShellGridBase,
   ShellGridTabLocation,
+  ShellSettings,
 } from "@/types/shell.ts";
 
 export interface ServerBase {
@@ -21,6 +22,7 @@ export interface ShellSingleServer extends ServerBase {
 export interface ShellClientOptions {
   type: ShellClientType;
   workspaceKnownHostsFile?: string;
+  settings: ShellSettings;
 }
 
 export interface EventPayloadShellNew {

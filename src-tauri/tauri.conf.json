@@ -1,6 +1,6 @@
 {
   "productName": "Nekops",
-  "version": "0.5.2",
+  "version": "0.6.1",
   "identifier": "com.candinya.nekops",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -28,7 +28,16 @@
   },
   "app": {
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self'",
+        "connect-src": "ipc: http://ipc.localhost",
+        "img-src": "'self' asset: http://asset.localhost",
+        "style-src": "'unsafe-inline' 'self'"
+      },
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
     },
     "windows": [
       {

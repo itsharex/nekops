@@ -8,7 +8,7 @@ import NavDir from "@/components/Nav/NavDir.tsx";
 
 const Nav = () => {
   const { pathname } = useLocation();
-  const { t } = useTranslation(undefined, { keyPrefix: "nav" });
+  const { t } = useTranslation("main", { keyPrefix: "nav" });
 
   return (
     <>

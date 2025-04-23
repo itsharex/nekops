@@ -1,11 +1,11 @@
 {
-  "connect": "Connect",
-  "ssh": "SSH",
-  "multirun": "Multirun",
-  "rescue": "Rescue",
-  "library": "Library",
-  "servers": "Servers",
-  "snippets": "Snippets",
-  "analysis": "Analysis",
-  "settings": "Settings"
+  "nav.connect": "Connect",
+  "nav.ssh": "SSH",
+  "nav.multirun": "Multirun",
+  "nav.rescue": "Rescue",
+  "nav.library": "Library",
+  "nav.servers": "Servers",
+  "nav.snippets": "Snippets",
+  "nav.analysis": "Analysis",
+  "nav.settings": "Settings"
 }

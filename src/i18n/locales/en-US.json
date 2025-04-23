@@ -1,0 +1,11 @@
+{
+  "connect": "Connect",
+  "ssh": "SSH",
+  "multirun": "Multirun",
+  "rescue": "Rescue",
+  "library": "Library",
+  "servers": "Servers",
+  "snippets": "Snippets",
+  "analysis": "Analysis",
+  "settings": "Settings"
+}

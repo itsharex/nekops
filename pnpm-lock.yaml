@@ -59,9 +59,6 @@ importers:
       i18next-browser-languagedetector:
         specifier: ^8.0.5
         version: 8.0.5
-      i18next-resources-to-backend:
-        specifier: ^1.2.1
-        version: 1.2.1
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -1174,9 +1171,6 @@ packages:
 
   i18next-browser-languagedetector@8.0.5:
     resolution: {integrity: sha512-OstebRKqKiQw8xEvQF5aRyUujsCatanj7Q9eo5iiH2gJpoXGZ7483ol3sVBwfqbobTQPNH1J+NAyJ1aCQoEC+w==}
-
-  i18next-resources-to-backend@1.2.1:
-    resolution: {integrity: sha512-okHbVA+HZ7n1/76MsfhPqDou0fptl2dAlhRDu2ideXloRRduzHsqDOznJBef+R3DFZnbvWoBW+KxJ7fnFjd6Yw==}
 
   i18next@25.0.1:
     resolution: {integrity: sha512-8S8PyZbrymJZn3DaN70/34JYWNhsqrU6yA4MuzcygJBv+41dgNMocEA8h+kV1P7MCc1ll03lOTOIXE7mpNCicw==}
@@ -2744,10 +2738,6 @@ snapshots:
   husky@9.1.7: {}
 
   i18next-browser-languagedetector@8.0.5:
-    dependencies:
-      '@babel/runtime': 7.27.0
-
-  i18next-resources-to-backend@1.2.1:
     dependencies:
       '@babel/runtime': 7.27.0
 

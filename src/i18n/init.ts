@@ -32,8 +32,8 @@ i18n
 
     // For debug only
     // lng: "cimode",
-    appendNamespaceToCIMode: true,
-    debug: true,
+    // appendNamespaceToCIMode: true,
+    // debug: true,
   });
 
 export default i18n;

@@ -1,4 +1,4 @@
-import { Box, ScrollArea } from "@mantine/core";
+import { ScrollArea } from "@mantine/core";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
@@ -17,23 +17,21 @@ const AnalysisPage = () => {
   const encryption = useSelector((state: RootState) => state.encryption);
 
   return (
-    <Box h="100%">
-      <ScrollArea p="md" h="100%">
-        <GeneralStatics
-          servers={servers}
-          snippets={snippets}
-          encryption={encryption}
-        />
+    <ScrollArea p="md" h="100%">
+      <GeneralStatics
+        servers={servers}
+        snippets={snippets}
+        encryption={encryption}
+      />
 
-        <GroupDivider label={t("sectionGeolocation")} />
+      <GroupDivider label={t("sectionGeolocation")} />
 
-        <Geolocation servers={servers} />
+      <Geolocation servers={servers} />
 
-        <GroupDivider label={t("sectionBilling")} />
+      <GroupDivider label={t("sectionBilling")} />
 
-        <Billing servers={servers} />
-      </ScrollArea>
-    </Box>
+      <Billing servers={servers} />
+    </ScrollArea>
   );
 };
 

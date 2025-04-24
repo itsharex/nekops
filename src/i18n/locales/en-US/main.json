@@ -65,7 +65,9 @@
     "specialCharDescription_ctrlC": "Ctrl + C, keyboard interruption",
     "specialCharDescription_ctrlD": "Ctrl + D, disconnect",
     "specialCharDescription_backspace": "Backspace",
-    "specialCharDescription_del": "Delete"
+    "specialCharDescription_del": "Delete",
+    "notificationCommandSentTitle": "Command sent!",
+    "notificationCommandSentMessage": "Feel free to view results in Shell window :D"
   },
   "rescue": {
     "pendingUnlockNotice": "Please unlock first...",
@@ -264,13 +266,13 @@
     "customizeShell_fgColor": "Foreground Color",
     "customizeShell_fontSize": "Font Size",
     "customizeShell_bgImage": "Background Image",
-    "customizeShell_bgImageActionSelect": "Select",
+    "customizeShell_bgImageActionSelect": "Select Background Image",
     "sectionWorkspaces": "Workspaces",
     "workspaceButtonAdd": "Add",
     "workspaceIDLabel": "ID",
     "workspaceNameLabel": "Name",
     "workspaceDataDirectoryLabel": "Data Directory",
-    "workspaceDataDirectoryActionSelect": "Select",
+    "workspaceDataDirectoryActionSelect": "Select Data Directory",
     "sectionCurrentWorkspace": "Current Workspace",
     "currentWorkspacePasswordLabel": "Password",
     "currentWorkspaceUnlockLabel": "Unlock",

@@ -2,17 +2,17 @@ import i18n from "i18next";
 import detector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 
-import enUS_main from "@/i18n/locales/en-US/main.json";
-import zhCN_main from "@/i18n/locales/zh-CN/main.json";
+import enUS from "@/i18n/locales/en-US/main.json";
+import zhCN from "@/i18n/locales/zh-CN/main.json";
 
 import { supportedLngs } from "../constants.ts";
 
 const resources = {
   "en-US": {
-    main: enUS_main,
+    main: enUS,
   },
   "zh-CN": {
-    main: zhCN_main,
+    main: zhCN,
   },
 };
 
@@ -25,7 +25,7 @@ i18n
     fallbackLng: "en-US",
     // load: "languageOnly",
     ns: ["main"],
-    defaultNS: false,
+    defaultNS: "main",
     interpolation: {
       escapeValue: false, // react already safes from xss
     },

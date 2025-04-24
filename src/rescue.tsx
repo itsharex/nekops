@@ -12,6 +12,8 @@ import "@/rescue/style.css";
 import RescueTabs from "@/rescue/RescueTabs";
 import WindowBackground from "@/common/WindowBackground.tsx";
 
+import "@/i18n/loaders/rescue.ts";
+
 const theme = createTheme({
   /** Put your mantine theme override here */
 });

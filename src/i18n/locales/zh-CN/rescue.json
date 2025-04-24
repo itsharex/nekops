@@ -1,0 +1,57 @@
+{
+  "common": {
+    "terminate": "终止",
+    "reconnect": "重新连接",
+    "cancel": "取消"
+  },
+  "contextMenu": {
+    "customInput": "自定义输入",
+    "sendKeys": "发送",
+    "powerCycle": "电源周期",
+    "shutdown": "关机",
+    "reset": "重置",
+    "reboot": "重启",
+    "processManage": "进程管理",
+    "terminate": "$t(common.terminate)",
+    "reconnect": "$t(common.reconnect)"
+  },
+  "modals": {
+    "terminateConfirmTitle": "$t(common.terminate)确认",
+    "terminateConfirmMessage": "您是否确认要$t(common.terminate) :",
+    "terminateConfirmActionConfirm": "$t(common.terminate)",
+    "terminateConfirmActionCancel": "$t(common.cancel)",
+    "reconnectConfirmTitle": "$t(common.reconnect)确认",
+    "reconnectConfirmMessage": "您是否确认要$t(common.reconnect) :",
+    "reconnectConfirmActionConfirm": "$t(common.reconnect)",
+    "reconnectConfirmActionCancel": "$t(common.cancel)",
+    "terminateAllConfirmTitle": "$t(common.terminate)全部",
+    "terminateAllConfirmMessage_before": "这些救援会话依然在运行…",
+    "terminateAllConfirmMessage_after": "您是否确认将它们全部$t(common.terminate)？",
+    "terminateAllConfirmActionConfirm": "$t(common.terminate)",
+    "terminateAllConfirmActionCancel": "$t(common.cancel)"
+  },
+  "proxyEvents": {
+    "exit": "进程结束，代码 {{code}} 。",
+    "invalidJson": "无效的 JSON: {{data}}"
+  },
+  "terminal": {
+    "proxy": "代理",
+    "vnc": "VNC",
+    "requiresCredential": "需要授权",
+    "status": "状态",
+    "reason": "原因",
+    "clipboardTitle": "剪贴板",
+    "clipboardConfirm": "复制",
+    "clipboardCancel": "关闭",
+    "desktopChangedTitle": "桌面改变",
+    "desktopChangedMessage": "新的桌面名字: {{name}}",
+    "capabilitiesChangedTitle": "能力改变",
+    "capabilitiesChangedMessage": "新的能力: {{capabilities}}"
+  },
+  "vncCredentials": {
+    "usernameLabel": "用户名",
+    "passwordLabel": "密码",
+    "targetLabel": "目标",
+    "submit": "提交"
+  }
+}

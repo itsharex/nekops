@@ -1,8 +1,8 @@
 import { List, Text, Title } from "@mantine/core";
 
-import type { ShellSingleServer } from "@/events/payload.ts";
+import type { RescueSingleServer } from "@/events/payload.ts";
 
-import i18next from "@/i18n/loaders/shell.ts";
+import i18next from "@/i18n/loaders/rescue.ts";
 
 export const terminateConfirmModal = (
   serverName: string,
@@ -45,13 +45,13 @@ export const reconnectConfirmModal = (
     confirm: i18next.t("modals.reconnectConfirmActionConfirm"),
     cancel: i18next.t("modals.reconnectConfirmActionCancel"),
   },
-  confirmProps: { color: "yellow" },
+  confirmProps: { color: "red" },
   centered: true,
   onConfirm,
 });
 
 export const terminateAllConfirmModal = (
-  activeServers: ShellSingleServer[],
+  activeServers: RescueSingleServer[],
   onConfirm: () => void,
 ) => ({
   title: i18next.t("modals.terminateAllConfirmTitle"),

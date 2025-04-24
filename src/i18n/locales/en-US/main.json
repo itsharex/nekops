@@ -286,5 +286,12 @@
     "successTitle": "Unlocked successfully!",
     "failTitle": "Unlock failed",
     "failMessage": "Maybe the password is not correct? No hurry, let's try again."
+  },
+  "terminateAndExitModal": {
+    "title": "Terminate and Exit",
+    "message_1": "Some other sessions might still be running...",
+    "message_2": "Are you sure to terminate them all and exit?",
+    "cancel": "Cancel",
+    "confirm": "Terminate and Exit"
   }
 }

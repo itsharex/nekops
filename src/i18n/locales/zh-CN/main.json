@@ -298,5 +298,12 @@
     "successTitle": "解锁成功！",
     "failTitle": "解锁失败",
     "failMessage": "可能密码输入得不是很正确？不用担心，让我们再试一次。"
+  },
+  "terminateAndExitModal": {
+    "title": "终止并退出",
+    "message_1": "一些其他会话可能依然在运行…",
+    "message_2": "您确认将它们全部终止并退出吗？",
+    "cancel": "取消",
+    "confirm": "终止并退出"
   }
 }

@@ -1,6 +1,8 @@
 // import type { TabState } from "@/types/tabState.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 
+import i18next from "@/i18n/loaders/rescue.ts";
+
 export const startProxy = (
   reportProxyError: (status: string, message: string) => void,
   // setRescueState: (newState: TabState) => void,
@@ -21,7 +23,12 @@ export const startProxy = (
     proxyCommand.on("close", (data) => {
       // setRescueState("terminated");
       if (!isTerminated) {
-        reportProxyError("exited", `Proxy exited with code ${data.code} .`);
+        reportProxyError(
+          "exited",
+          i18next.t("proxyEvents.exit", {
+            code: data.code,
+          }),
+        );
         isTerminated = true;
       }
 
@@ -41,7 +48,12 @@ export const startProxy = (
         const wsUrl = `ws://${host}:${port}/websockify`;
         resolve(wsUrl);
       } catch (e) {
-        reportProxyError("initialize failed", `Invalid JSON: ${data}`);
+        reportProxyError(
+          "initialize",
+          i18next.t("proxyEvents.exit", {
+            data,
+          }),
+        );
         reject(e);
       }
     });

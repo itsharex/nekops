@@ -78,6 +78,7 @@
     "modalUsernameLabel": "Username",
     "modalPasswordLabel": "Password",
     "modalCommentLabel": "Comment",
+    "modalEmpty": "No available information about Emergency Access. You might need to contact your server provider.",
     "notificationLoadingTitle": "Preparing rescue...",
     "notificationLoadingMessage": "This shouldn't take too long... Or at least it's designed to be quick.",
     "notificationSuccessTitle": "Prepare finished!",

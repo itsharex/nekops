@@ -203,6 +203,13 @@ const RescueModal = ({ isOpen, close, server, launch }: RescueModalProps) => {
             readOnly
           />
         )}
+
+        {/*Nothing available*/}
+        {!server?.access.emergency.root_password &&
+          !server?.access.emergency.address &&
+          !server?.access.emergency.username &&
+          !server?.access.emergency.password &&
+          !server?.access.emergency.comment && <Text>{t("modalEmpty")}</Text>}
       </Flex>
     </Modal>
   );

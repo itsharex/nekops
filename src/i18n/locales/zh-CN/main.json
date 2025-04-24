@@ -88,6 +88,7 @@
     "modalUsernameLabel": "用户名",
     "modalPasswordLabel": "密码",
     "modalCommentLabel": "备注",
+    "modalEmpty": "紧急访问相关的信息不可用。您可能需要与您的服务器提供商取得联系。",
     "notificationLoadingTitle": "救援准备中…",
     "notificationLoadingMessage": "这应该不会耗费很长时间，至少从设计上来说。",
     "notificationSuccessTitle": "准备完成！",

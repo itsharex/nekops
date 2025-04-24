@@ -2,7 +2,7 @@ import { Code, Select } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
 
-import { languageName } from "@/i18n/init.ts";
+import { languageName } from "@/i18n/constants.ts";
 
 const LanguageSelector = () => {
   const { i18n } = useTranslation();

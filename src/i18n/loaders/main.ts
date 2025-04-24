@@ -5,7 +5,7 @@ import { initReactI18next } from "react-i18next";
 import enUS_main from "@/i18n/locales/en-US/main.json";
 import zhCN_main from "@/i18n/locales/zh-CN/main.json";
 
-const supportedLngs = ["en-US", "zh-CN"];
+import { supportedLngs } from "../constants.ts";
 
 const resources = {
   "en-US": {
@@ -16,11 +16,6 @@ const resources = {
   },
 };
 
-export const languageName = {
-  "en-US": "English (United States)",
-  "zh-CN": "中文（简体）",
-};
-
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next
   .use(detector)
@@ -29,7 +24,7 @@ i18n
     supportedLngs,
     fallbackLng: "en-US",
     // load: "languageOnly",
-    ns: ["main", "shell", "rescue"],
+    ns: ["main"],
     defaultNS: false,
     interpolation: {
       escapeValue: false, // react already safes from xss

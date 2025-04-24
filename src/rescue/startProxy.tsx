@@ -8,6 +8,8 @@ export const startProxy = (
   vncAddress: string,
 ) =>
   new Promise<string>((resolve, reject) => {
+    let isTerminated = false;
+
     // Start proxy
 
     const proxyCommand = Command.sidecar("embedded/bin/websockify", [
@@ -18,8 +20,10 @@ export const startProxy = (
     // Mount event listeners
     proxyCommand.on("close", (data) => {
       // setRescueState("terminated");
-
-      reportProxyError("exited", `Proxy exited with code ${data.code} .`);
+      if (!isTerminated) {
+        reportProxyError("exited", `Proxy exited with code ${data.code} .`);
+        isTerminated = true;
+      }
 
       // Invalidate terminate func
       setTerminateFunc(null);
@@ -43,6 +47,9 @@ export const startProxy = (
     });
 
     proxyCommand.spawn().then((proxyProcess) => {
-      setTerminateFunc(() => proxyProcess.kill());
+      setTerminateFunc(() => {
+        isTerminated = true;
+        proxyProcess.kill();
+      });
     });
   });

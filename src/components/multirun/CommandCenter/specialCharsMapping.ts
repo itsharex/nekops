@@ -5,30 +5,30 @@ type SpecialCharsInfo = {
 };
 export const SpecialCharsMapping: SpecialCharsInfo[] = [
   {
-    key: "\n",
+    key: "\\r",
     value: "\r",
-    description: "Enter (new line)",
+    description: "specialCharDescription_newline",
   },
   {
     key: "#[Ctrl+C]",
     value: "\u0003",
-    description: "Ctrl + C, keyboard interruption",
+    description: "specialCharDescription_ctrlC",
   },
   {
     key: "#[Ctrl+D]",
     value: "\u0004",
-    description: "Ctrl + D, disconnect",
+    description: "specialCharDescription_ctrlD",
   },
   /* Not working for dummy, not sure why
   {
     key: "#[BS]",
     value: "\u0008",
-    description: "Backspace",
+    description: "specialCharDescription_backspace",
   },
   */
   {
     key: "#[DEL]",
     value: "\u007F",
-    description: "Delete",
+    description: "specialCharDescription_del",
   },
 ];

@@ -1,6 +1,8 @@
 import { ActionIcon, Box, MantineColor, Text, Tooltip } from "@mantine/core";
-import { actionIconStyle } from "@/common/actionStyles.ts";
 import { memo, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+
+import { actionIconStyle } from "@/common/actionStyles.ts";
 
 interface SwitchButtonProps {
   isEnabled: boolean;
@@ -15,29 +17,33 @@ const SwitchButton = ({
   description,
   color,
   icon: Icon,
-}: SwitchButtonProps) => (
-  <Tooltip
-    label={
-      <Box
-        style={{
-          textAlign: "center",
-        }}
-      >
-        <Text size="sm">{description}</Text>
-        <Text fw={700} fs="italic">
-          ({isEnabled ? "Enabled" : "Disabled"})
-        </Text>
-      </Box>
-    }
-  >
-    <ActionIcon
-      color={color}
-      variant={isEnabled ? "filled" : "light"}
-      onClick={() => setIsEnabled(!isEnabled)}
+}: SwitchButtonProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "common" });
+
+  return (
+    <Tooltip
+      label={
+        <Box
+          style={{
+            textAlign: "center",
+          }}
+        >
+          <Text size="sm">{description}</Text>
+          <Text fw={700} fs="italic">
+            ({isEnabled ? t("enabled") : t("disabled")})
+          </Text>
+        </Box>
+      }
     >
-      <Icon style={actionIconStyle} />
-    </ActionIcon>
-  </Tooltip>
-);
+      <ActionIcon
+        color={color}
+        variant={isEnabled ? "filled" : "light"}
+        onClick={() => setIsEnabled(!isEnabled)}
+      >
+        <Icon style={actionIconStyle} />
+      </ActionIcon>
+    </Tooltip>
+  );
+};
 
 export default memo(SwitchButton);

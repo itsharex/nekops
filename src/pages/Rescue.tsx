@@ -5,6 +5,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { open } from "@tauri-apps/plugin-shell";
 import { IconLock } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 import type { RootState } from "@/store.ts";
 import SearchBar from "@/components/SearchBar.tsx";
@@ -17,6 +18,8 @@ import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import { startVNCSession } from "@/components/rescue/startVNCSession.tsx";
 
 const RescuePage = () => {
+  const { t } = useTranslation("main", { keyPrefix: "rescue" });
+
   const servers = useSelector((state: RootState) => state.servers);
   const encryption = useSelector((state: RootState) => state.encryption);
 
@@ -45,7 +48,7 @@ const RescuePage = () => {
   const launchRescuePlatform = async () => {
     switch (activeServer?.access.emergency.method) {
       case "VNC":
-        startVNCSession(activeServer);
+        startVNCSession(t, activeServer);
         break;
       case "IPMI":
         try {
@@ -84,7 +87,7 @@ const RescuePage = () => {
       >
         <Box p="md">
           <SearchBar
-            placeholder="Search servers"
+            placeholder="searchServers"
             setSearchInput={setSearchInput}
             isAutoFocus={encryption.isUnlocked} // Only get autofocus when unlocked
           />
@@ -97,7 +100,7 @@ const RescuePage = () => {
               <Flex direction="column" align="center" gap="sm">
                 {/*<Loader type="bars" color={"orange"} />*/}
                 <IconLock size={60} />
-                <Text>Please unlock first...</Text>
+                <Text>{t("pendingUnlockNotice")}</Text>
               </Flex>
             ),
           }}
@@ -116,7 +119,7 @@ const RescuePage = () => {
       <UnlockModal
         isOpen={isUnlockModalOpen}
         close={closeUnlockModal}
-        successMessage="Time to start rescue works XD"
+        successMessage={t("unlockSuccessMessage")}
       />
 
       <RescueModal

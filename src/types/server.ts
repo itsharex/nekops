@@ -117,14 +117,14 @@ export const defaultDisk: Disk = {
   interface: "NVMe",
   size: 256,
   size_unit: "GB",
-  model: "Generic disk",
+  model: "",
 };
 
 export const defaultIP: IP = {
   address: "127.0.0.1",
   cidr_prefix: 32,
   family: "IPv4",
-  comment: "Change me",
+  comment: "",
   alias: "",
 };
 
@@ -159,7 +159,7 @@ export const defaultServer: Server = {
     cpu: {
       count: 1,
       manufacturer: "",
-      model: "Generic processor",
+      model: "",
       core_count: 1,
       thread_count: 1,
       base_frequency: 1,

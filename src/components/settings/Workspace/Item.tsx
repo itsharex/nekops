@@ -1,4 +1,3 @@
-import type { WorkSpace } from "@/types/settings.ts";
 import {
   Accordion,
   ActionIcon,
@@ -8,10 +7,12 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import DeleteItemButton from "@/components/DeleteItemButton.tsx";
 import { IconFolder } from "@tabler/icons-react";
-import { actionIconStyle } from "@/common/actionStyles.ts";
+import { useTranslation } from "react-i18next";
 
+import type { WorkSpace } from "@/types/settings.ts";
+import DeleteItemButton from "@/components/DeleteItemButton.tsx";
+import { actionIconStyle } from "@/common/actionStyles.ts";
 import { SettingsFormProps } from "@/components/settings/types.ts";
 
 interface WorkspaceItemProps extends SettingsFormProps {
@@ -24,56 +25,63 @@ const WorkspaceItem = ({
   index,
   selectDataDirectory,
   form,
-}: WorkspaceItemProps) => (
-  <Accordion.Item value={`workspace_${index}`}>
-    <Center>
-      <Accordion.Control>{w.name}</Accordion.Control>
-      <DeleteItemButton
-        size={"lg"}
-        variant={"subtle"}
-        itemName={w.name}
-        onClick={() => form.removeListItem("workspaces", index)}
-      />
-    </Center>
-    <Accordion.Panel>
-      <Grid>
-        <Grid.Col span={4}>
-          <TextInput
-            label="ID"
-            {...form.getInputProps(`workspaces.${index}.id`)}
-          />
-        </Grid.Col>
-        <Grid.Col span={8}>
-          <TextInput
-            label="Name"
-            {...form.getInputProps(`workspaces.${index}.name`)}
-          />
-        </Grid.Col>
-      </Grid>
+}: WorkspaceItemProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "settings" });
 
-      <Group>
-        <TextInput
-          label="Data Directory"
-          style={{
-            flexGrow: 1,
-          }}
-          {...form.getInputProps(`workspaces.${index}.data_dir`)}
+  return (
+    <Accordion.Item value={`workspace_${index}`}>
+      <Center>
+        <Accordion.Control>{w.name}</Accordion.Control>
+        <DeleteItemButton
+          size={"lg"}
+          variant={"subtle"}
+          itemName={w.name}
+          onClick={() => form.removeListItem("workspaces", index)}
         />
+      </Center>
+      <Accordion.Panel>
+        <Grid>
+          <Grid.Col span={4}>
+            <TextInput
+              label={t("workspaceIDLabel")}
+              {...form.getInputProps(`workspaces.${index}.id`)}
+            />
+          </Grid.Col>
+          <Grid.Col span={8}>
+            <TextInput
+              label={t("workspaceNameLabel")}
+              {...form.getInputProps(`workspaces.${index}.name`)}
+            />
+          </Grid.Col>
+        </Grid>
 
-        <Tooltip label="Select" openDelay={500}>
-          <ActionIcon
-            size="lg"
-            onClick={selectDataDirectory}
+        <Group>
+          <TextInput
+            label={t("workspaceDataDirectoryLabel")}
             style={{
-              alignSelf: "end",
+              flexGrow: 1,
             }}
+            {...form.getInputProps(`workspaces.${index}.data_dir`)}
+          />
+
+          <Tooltip
+            label={t("workspaceDataDirectoryActionSelect")}
+            openDelay={500}
           >
-            <IconFolder style={actionIconStyle} />
-          </ActionIcon>
-        </Tooltip>
-      </Group>
-    </Accordion.Panel>
-  </Accordion.Item>
-);
+            <ActionIcon
+              size="lg"
+              onClick={selectDataDirectory}
+              style={{
+                alignSelf: "end",
+              }}
+            >
+              <IconFolder style={actionIconStyle} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      </Accordion.Panel>
+    </Accordion.Item>
+  );
+};
 
 export default WorkspaceItem;

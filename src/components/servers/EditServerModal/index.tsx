@@ -2,13 +2,14 @@ import {
   ActionIcon,
   Button,
   Center,
+  Code,
   Flex,
   Group,
   Modal,
   Stepper,
   Title,
 } from "@mantine/core";
-import { defaultServer, type Server } from "@/types/server.ts";
+import type { Server } from "@/types/server.ts";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import {
@@ -22,14 +23,16 @@ import {
   IconNetwork,
   IconServerBolt,
 } from "@tabler/icons-react";
-import stepperClasses from "./stepper.module.css";
+import { useTranslation } from "react-i18next";
 
+import stepperClasses from "./stepper.module.css";
 import BasicInfoForm from "./forms/BasicInfo.tsx";
 import ProductForm from "./forms/Product.tsx";
 import HardwareForm from "./forms/Hardware.tsx";
 import NetworksForm from "./forms/Networks.tsx";
 import AccessForm from "./forms/Access.tsx";
 import ServerCard from "@/components/ServerCard";
+import { i18nDefaultServer } from "@/components/servers/EditServerModal/helpers.ts";
 
 const serverIDRegexp = /^\w+([-.]\w+)*$/;
 
@@ -53,6 +56,8 @@ const EditServerModal = ({
   knownRegions,
   knownSSHUsers,
 }: EditServerModalProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+
   const StepsCount = 5;
 
   const [activeStep, setActiveStep] = useState(0);
@@ -60,6 +65,8 @@ const EditServerModal = ({
     setActiveStep((current) => (current < StepsCount ? current + 1 : current));
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
+
+  const defaultServer = i18nDefaultServer(t);
 
   const form = useForm<Server>({
     // mode: "uncontrolled",
@@ -109,7 +116,14 @@ const EditServerModal = ({
       >
         <Modal.Header>
           <Title order={1} size="h3">
-            {serverInfo ? `Edit server ${serverInfo.id}` : "Add new server"}
+            {serverInfo ? (
+              <>
+                {t("modalTitleEdit")}
+                <Code ml="xs">{serverInfo.name}</Code>
+              </>
+            ) : (
+              t("modalTitleCreate")
+            )}
           </Title>
           <Modal.CloseButton />
         </Modal.Header>
@@ -135,23 +149,29 @@ const EditServerModal = ({
                 content: stepperClasses.content,
               }}
             >
-              <Stepper.Step label="Basic Info" icon={<IconServerBolt />}>
+              <Stepper.Step
+                label={t("sectionBasicInfo")}
+                icon={<IconServerBolt />}
+              >
                 <BasicInfoForm form={form} knownTags={knownTags} />
               </Stepper.Step>
-              <Stepper.Step label="Product" icon={<IconBuildingStore />}>
+              <Stepper.Step
+                label={t("sectionProduct")}
+                icon={<IconBuildingStore />}
+              >
                 <ProductForm
                   form={form}
                   knownProviders={knownProviders}
                   knownRegions={knownRegions}
                 />
               </Stepper.Step>
-              <Stepper.Step label="Hardware" icon={<IconCpu />}>
+              <Stepper.Step label={t("sectionHardware")} icon={<IconCpu />}>
                 <HardwareForm form={form} />
               </Stepper.Step>
-              <Stepper.Step label="Networks" icon={<IconNetwork />}>
+              <Stepper.Step label={t("sectionNetworks")} icon={<IconNetwork />}>
                 <NetworksForm form={form} />
               </Stepper.Step>
-              <Stepper.Step label="Access" icon={<IconKey />}>
+              <Stepper.Step label={t("sectionAccess")} icon={<IconKey />}>
                 <AccessForm
                   form={form}
                   knownSSHUsers={knownSSHUsers}
@@ -162,7 +182,7 @@ const EditServerModal = ({
                 <Flex direction="column" gap="md">
                   <ServerCard server={form.values} />
                   <Center>
-                    <Button type="submit">Save</Button>
+                    <Button type="submit">{t("buttonSave")}</Button>
                   </Center>
                 </Flex>
               </Stepper.Completed>
@@ -173,7 +193,7 @@ const EditServerModal = ({
                 <ActionIcon
                   size="lg"
                   radius="lg"
-                  aria-label="Back"
+                  aria-label={t("buttonBack")}
                   onClick={prevStep}
                   disabled={activeStep === 0}
                 >
@@ -182,7 +202,7 @@ const EditServerModal = ({
                 <ActionIcon
                   size="lg"
                   radius="lg"
-                  aria-label="Next"
+                  aria-label={t("buttonNext")}
                   onClick={nextStep}
                   disabled={activeStep >= StepsCount}
                 >
@@ -192,7 +212,7 @@ const EditServerModal = ({
               <ActionIcon
                 size="lg"
                 radius="lg"
-                aria-label="Next"
+                aria-label={t("buttonFinish")}
                 onClick={() => setActiveStep(StepsCount)}
                 loading={activeStep >= StepsCount}
               >

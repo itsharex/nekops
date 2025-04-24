@@ -5,11 +5,11 @@ import { notifications } from "@mantine/notifications";
 import { languageName } from "@/i18n/constants.ts";
 
 const LanguageSelector = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation("main", { keyPrefix: "settings" });
 
   return (
     <Select
-      label={"Language"}
+      label={t("globalLanguage")}
       data={Object.entries(languageName).map(([id, name]) => ({
         value: id,
         label: name,
@@ -22,10 +22,11 @@ const LanguageSelector = () => {
             .then(() => {
               notifications.show({
                 color: "green",
-                title: "Language changed successfully",
+                title: t("languageChangeSuccess"),
                 message: (
                   <>
-                    Current language is <Code>{option.label}</Code>
+                    {t("languageChangeSuccess_messageBefore")}{" "}
+                    <Code>{option.label}</Code>
                   </>
                 ),
               });
@@ -33,7 +34,7 @@ const LanguageSelector = () => {
             .catch((e) => {
               notifications.show({
                 color: "red",
-                title: "Failed to change language",
+                title: t("languageChangeFail"),
                 message: e,
               });
             });

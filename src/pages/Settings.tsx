@@ -2,6 +2,7 @@ import { useForm } from "@mantine/form";
 import { Box, Button, ButtonGroup, Flex } from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
 import { useDisclosure } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
 
 import type { SettingsState } from "@/types/settings.ts";
 import { defaultWorkspace } from "@/types/settings.ts";
@@ -30,6 +31,8 @@ import CustomizeGroup from "@/components/settings/Customize";
 const passwordUnchanged = "keep-unchanged";
 
 const SettingsPage = () => {
+  const { t } = useTranslation("main", { keyPrefix: "settings" });
+
   // Redux related
   const settings = useSelector((state: RootState) => state.settings);
   const encryption = useSelector((state: RootState) => state.encryption);
@@ -125,7 +128,7 @@ const SettingsPage = () => {
 
           <ButtonGroup mt="lg">
             <Button type="submit" disabled={!form.isDirty()}>
-              Save
+              {t("buttonSave")}
             </Button>
           </ButtonGroup>
         </form>
@@ -134,7 +137,7 @@ const SettingsPage = () => {
       <UnlockModal
         isOpen={isUnlockModalOpen}
         close={closeUnlockModal}
-        successMessage="Feel free to change password"
+        successMessage={t("unlockSuccessMessage")}
       />
     </>
   );

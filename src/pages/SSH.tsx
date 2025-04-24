@@ -1,18 +1,22 @@
 import { Box, Flex } from "@mantine/core";
 import { useSelector } from "react-redux";
-import type { RootState } from "@/store.ts";
-import SearchBar from "@/components/SearchBar.tsx";
 import type { MouseEvent } from "react";
 import { useMemo, useRef, useState } from "react";
-import { searchServers } from "@/search/servers.ts";
-import type { Server } from "@/types/server.ts";
+import { path } from "@tauri-apps/api";
+import { useTranslation } from "react-i18next";
+
+import type { RootState } from "@/store.ts";
+import SearchBar from "@/components/SearchBar.tsx";
 import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import SSHContextMenu from "@/components/shell/SSHContextMenu.tsx";
 import { startSSHSession } from "@/components/shell/startSSHSession.ts";
 import { copySSHCommand } from "@/components/shell/copySSHCommand.ts";
-import { path } from "@tauri-apps/api";
+import { searchServers } from "@/search/servers.ts";
+import type { Server } from "@/types/server.ts";
 
 const SSHPage = () => {
+  const { t } = useTranslation("main", { keyPrefix: "ssh" });
+
   const servers = useSelector((state: RootState) => state.servers);
   const serversWithRegularAccess = useMemo(
     () => servers.filter((server) => Boolean(server.access.regular.address)),
@@ -26,6 +30,7 @@ const SSHPage = () => {
 
   const startSSH = async (server: Server, jumpServer?: Server) => {
     startSSHSession(
+      t,
       {
         type: settings.default_ssh_client,
         workspaceKnownHostsFile: await path.join(
@@ -88,7 +93,7 @@ const SSHPage = () => {
       >
         <Box p="md">
           <SearchBar
-            placeholder="Search servers"
+            placeholder="searchServers"
             setSearchInput={setSearchInput}
           />
         </Box>

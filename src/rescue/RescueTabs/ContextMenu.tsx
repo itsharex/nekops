@@ -1,4 +1,4 @@
-import { Code, Menu } from "@mantine/core";
+import { Kbd, Menu } from "@mantine/core";
 import {
   IconCommand,
   IconLinkOff,
@@ -52,7 +52,7 @@ const RescueTabContextMenu = ({
         leftSection={<IconCommand style={menuIconStyle} />}
         onClick={onClickSendCtrlAltDel}
       >
-        Send <Code>Ctrl</Code>+<Code>Alt</Code>+<Code>Del</Code>
+        Send <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>Del</Kbd>
       </Menu.Item>
 
       <Menu.Divider />

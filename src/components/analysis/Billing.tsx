@@ -20,6 +20,8 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import type { Server } from "@/types/server.ts";
 
 interface SectionData {
@@ -87,17 +89,19 @@ interface BillingCardProps {
   servers: Server[];
 }
 const BillingCard = ({ servers }: BillingCardProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "analysis" });
+
   const theme = useMantineTheme();
   const [billingSum, setBillingSum] = useState(0);
   const [billingCountByType, setBillingCountByType] = useState<SectionData[]>([
     {
-      label: "Dedicated Server",
+      label: t("billingDS"),
       text: "0",
       part: 50,
       color: theme.colors.indigo[6], // indigo
     },
     {
-      label: "Virtual Private Server",
+      label: t("billingVPS"),
       text: "0",
       part: 50,
       color: theme.colors.lime[6], // lime
@@ -135,13 +139,13 @@ const BillingCard = ({ servers }: BillingCardProps) => {
       // Count by type
       setBillingCountByType([
         {
-          label: "Dedicated Server",
+          label: t("billingDS"),
           text: sumDS.toFixed(2),
           part: (sumDS / sum) * 100,
           color: "#3b5bdb", // indigo
         },
         {
-          label: "Virtual Private Server",
+          label: t("billingVPS"),
           text: sumVPS.toFixed(2),
           part: (sumVPS / sum) * 100,
           color: "#66a811", // lime
@@ -217,7 +221,7 @@ const BillingCard = ({ servers }: BillingCardProps) => {
         <Group justify="space-between">
           <Box>
             <Title c="dimmed" order={3} size="h5" fw={700}>
-              Monthly bill
+              {t("billingMonthlyBill")}
             </Title>
 
             <Group>
@@ -234,9 +238,12 @@ const BillingCard = ({ servers }: BillingCardProps) => {
           </Box>
         </Group>
 
-        <BillingSection title="By Server Types" data={billingCountByType} />
         <BillingSection
-          title="By Server Providers"
+          title={t("billingByServerTypes")}
+          data={billingCountByType}
+        />
+        <BillingSection
+          title={t("billingByServerProviders")}
           data={billingCountByProvider}
         />
       </Flex>
@@ -249,6 +256,8 @@ interface MostValuableServersProps {
   limit: number;
 }
 const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "analysis" });
+
   const [MVS, setMVS] = useState<Server[]>([]);
   const [MVSPriceSum, setMVSPriceSum] = useState(0);
 
@@ -278,17 +287,19 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
     <Card withBorder p="md" radius="md">
       <Title c="dimmed" order={3} size="h5" fw={700}>
         {isExpand || servers.length <= limit
-          ? "All servers"
-          : `Top ${limit} valuable servers`}
+          ? t("billingMVSAll")
+          : t("billingMVSTop", {
+              limit,
+            })}
       </Title>
 
       <Table mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Server Name</Table.Th>
-            <Table.Th>Provider</Table.Th>
-            <Table.Th>Type</Table.Th>
-            <Table.Th>Price</Table.Th>
+            <Table.Th>{t("billingMVSServerName")}</Table.Th>
+            <Table.Th>{t("billingMVSProvider")}</Table.Th>
+            <Table.Th>{t("billingMVSType")}</Table.Th>
+            <Table.Th>{t("billingMVSPrice")}</Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>
@@ -321,7 +332,7 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
                   onClick={() => setIsExpand(true)}
                   leftSection={<IconPlus size={15} />}
                 >
-                  Expand
+                  {t("billingButtonExpand")}
                 </Button>
               }
             />

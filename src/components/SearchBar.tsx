@@ -3,6 +3,7 @@ import { CloseButton, FocusTrap, Loader, TextInput } from "@mantine/core";
 import { useState } from "react";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { useField } from "@mantine/form";
+import { useTranslation } from "react-i18next";
 
 interface SearchBarProps {
   placeholder: string;
@@ -14,6 +15,8 @@ const SearchBar = ({
   setSearchInput,
   isAutoFocus = true,
 }: SearchBarProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "searchBar" });
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const debouncedSetSearchInput = useDebouncedCallback((state: string) => {
     setSearchInput(state);
@@ -42,7 +45,7 @@ const SearchBar = ({
             <CloseButton onClick={inputField.reset} />
           ))
         }
-        placeholder={placeholder}
+        placeholder={t(placeholder)}
         style={{
           flexGrow: 1,
         }}

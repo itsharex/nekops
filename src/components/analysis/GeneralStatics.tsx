@@ -17,6 +17,8 @@ import {
 } from "@mantine/core";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import type { Server } from "@/types/server.ts";
 import type { Snippet } from "@/types/snippet.ts";
 import type { EncryptionState } from "@/types/encryption.ts";
@@ -70,6 +72,8 @@ const GeneralStatics = ({
   snippets,
   encryption,
 }: GeneralStaticsProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "analysis" });
+
   const [serversCountDS, setServersCountDS] = useState(0);
   const [serversCountVPS, setServersCountVPS] = useState(0);
   const [serversCount, setServersCount] = useState(0);
@@ -95,19 +99,27 @@ const GeneralStatics = ({
     <SimpleGrid cols={{ base: 1, md: 3 }}>
       <StatCard
         Icon={IconServer}
-        label="Servers"
+        label={t("generalServers")}
         sections={[
           {
             color: "indigo.6",
             value:
               (serversCount === 0 ? 0.5 : serversCountDS / serversCount) * 100,
-            tooltip: <Text>Dedicated Server : {serversCountDS}</Text>,
+            tooltip: (
+              <Text>
+                {t("billingDS")} : {serversCountDS}
+              </Text>
+            ),
           },
           {
             color: "lime.6",
             value:
               (serversCount === 0 ? 0.5 : serversCountVPS / serversCount) * 100,
-            tooltip: <Text>Virtual Private Servers : {serversCountVPS}</Text>,
+            tooltip: (
+              <Text>
+                {t("billingVPS")} : {serversCountVPS}
+              </Text>
+            ),
           },
         ]}
         stats={serversCount}
@@ -120,7 +132,7 @@ const GeneralStatics = ({
             value: 100,
           },
         ]}
-        label="Snippets"
+        label={t("generalSnippets")}
         stats={snippetsCount}
       />
       <StatCard
@@ -138,25 +150,25 @@ const GeneralStatics = ({
               ? encryption.isUnlocked
                 ? {
                     color: "yellow",
-                    tooltip: "Keep unlocked before program restarts",
+                    tooltip: t("generalEncryptionMessage_unlocked"),
                   }
                 : {
                     color: "green",
-                    tooltip: "Your data has been locked safely",
+                    tooltip: t("generalEncryptionMessage_enabled"),
                   }
               : {
                   color: "red",
-                  tooltip: "Your data might in danger",
+                  tooltip: t("generalEncryptionMessage_disabled"),
                 }),
           },
         ]}
-        label="Encryption"
+        label={t("generalEncryption")}
         stats={
           encryption.isEncryptionEnabled
             ? encryption.isUnlocked
-              ? "Unlocked"
-              : "Enabled"
-            : "Disabled"
+              ? t("generalEncryptionState_unlocked")
+              : t("generalEncryptionState_enabled")
+            : t("generalEncryptionState_disabled")
         }
       />
     </SimpleGrid>

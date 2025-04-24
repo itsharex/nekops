@@ -5,6 +5,7 @@ import {
   IconMessageCircle,
   IconRocket,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 import type { SettingsFormProps } from "@/components/settings/types.ts";
 import { transformSegmentedControlOptions } from "@/components/settings/utils.tsx";
@@ -13,58 +14,62 @@ import ColorSchemeSelector from "./ColorSchemeSelector.tsx";
 import LanguageSelector from "./LanguageSelector.tsx";
 
 interface GlobalGroupProps extends SettingsFormProps {}
-const GlobalGroup = ({ form }: GlobalGroupProps) => (
-  <Fieldset legend="Global">
-    <Flex direction="column" gap="md">
-      <LanguageSelector />
+const GlobalGroup = ({ form }: GlobalGroupProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "settings" });
 
-      <ColorSchemeSelector />
+  return (
+    <Fieldset legend={t("sectionGlobal")}>
+      <Flex direction="column" gap="md">
+        <LanguageSelector />
 
-      {/*Default SSH Action*/}
-      <Flex direction="column">
-        <Text size="sm" fw={500} mb={2}>
-          Default SSH Action
-        </Text>
-        <SegmentedControl
-          data={transformSegmentedControlOptions([
-            {
-              icon: IconCode,
-              text: "Copy Command",
-              value: "copy",
-            },
-            {
-              icon: IconRocket,
-              text: "Start Session",
-              value: "start",
-            },
-          ])}
-          {...form.getInputProps("default_ssh_action")}
-        />
+        <ColorSchemeSelector />
+
+        {/*Default SSH Action*/}
+        <Flex direction="column">
+          <Text size="sm" fw={500} mb={2}>
+            {t("globalDefaultSSHAction")}
+          </Text>
+          <SegmentedControl
+            data={transformSegmentedControlOptions([
+              {
+                icon: IconCode,
+                text: t("globalDefaultSSHAction_copy"),
+                value: "copy",
+              },
+              {
+                icon: IconRocket,
+                text: t("globalDefaultSSHAction_start"),
+                value: "start",
+              },
+            ])}
+            {...form.getInputProps("default_ssh_action")}
+          />
+        </Flex>
+
+        {/*Default SSH Client*/}
+        <Flex direction="column">
+          <Text size="sm" fw={500} mb={2}>
+            {t("globalDefaultSSHClient")}
+          </Text>
+          <SegmentedControl
+            data={transformSegmentedControlOptions([
+              {
+                icon: IconFlare,
+                text: t("globalDefaultSSHClient_embedded"),
+                value: "embedded",
+              },
+              {
+                icon: IconMessageCircle,
+                text: t("globalDefaultSSHClient_system"),
+                value: "system",
+              },
+            ])}
+            {...form.getInputProps("default_ssh_client")}
+          />
+        </Flex>
       </Flex>
-
-      {/*Default SSH Client*/}
-      <Flex direction="column">
-        <Text size="sm" fw={500} mb={2}>
-          Default SSH Client
-        </Text>
-        <SegmentedControl
-          data={transformSegmentedControlOptions([
-            {
-              icon: IconFlare,
-              text: "Embedded",
-              value: "embedded",
-            },
-            {
-              icon: IconMessageCircle,
-              text: "System",
-              value: "system",
-            },
-          ])}
-          {...form.getInputProps("default_ssh_client")}
-        />
-      </Flex>
-    </Flex>
-  </Fieldset>
-);
+    </Fieldset>
+  );
+};
 
 export default GlobalGroup;

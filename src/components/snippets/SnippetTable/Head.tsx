@@ -1,13 +1,19 @@
 import { rem, Table } from "@mantine/core";
+import { useTranslation } from "react-i18next";
+
 import { actionRowStyle } from "@/common/actionStyles.ts";
 
-const SnippetTableHead = () => (
-  <Table.Tr>
-    <Table.Th style={{ width: rem(40) }} />
-    <Table.Th>Snippet Name</Table.Th>
-    <Table.Th>Tags</Table.Th>
-    <Table.Th style={actionRowStyle()}>Actions</Table.Th>
-  </Table.Tr>
-);
+const SnippetTableHead = () => {
+  const { t } = useTranslation("main", { keyPrefix: "library" });
+
+  return (
+    <Table.Tr>
+      <Table.Th style={{ width: rem(40) }} />
+      <Table.Th>{t("snippetName")}</Table.Th>
+      <Table.Th>{t("tags")}</Table.Th>
+      <Table.Th style={actionRowStyle()}>{t("actions")}</Table.Th>
+    </Table.Tr>
+  );
+};
 
 export default SnippetTableHead;

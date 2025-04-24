@@ -1,11 +1,16 @@
 import { Table } from "@mantine/core";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
-const SnippetsTableHead = () => (
-  <Table.Tr>
-    <Table.Th>Snippet Name</Table.Th>
-    <Table.Th>Tags</Table.Th>
-  </Table.Tr>
-);
+const SnippetsTableHead = () => {
+  const { t } = useTranslation("main", { keyPrefix: "multirun" });
+
+  return (
+    <Table.Tr>
+      <Table.Th>{t("snippetName")}</Table.Th>
+      <Table.Th>{t("tags")}</Table.Th>
+    </Table.Tr>
+  );
+};
 
 export default memo(SnippetsTableHead);

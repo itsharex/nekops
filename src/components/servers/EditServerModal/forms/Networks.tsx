@@ -1,4 +1,3 @@
-import type { InputFormProps } from "../inputFormProps.ts";
 import {
   Accordion,
   Button,
@@ -12,6 +11,9 @@ import {
   TextInput,
 } from "@mantine/core";
 import { IconPlus, IconSitemap } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
+import type { InputFormProps } from "../inputFormProps.ts";
 import { defaultIP, IP } from "@/types/server.ts";
 import DeleteItemButton from "@/components/DeleteItemButton.tsx";
 import { spaceRegexp } from "@/utils/spaceRegexp.ts";
@@ -22,6 +24,8 @@ interface IPItemProps extends InputFormProps {
   index: number;
 }
 const IPItem = ({ ip, formListItem, index, form }: IPItemProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+
   const ipCIDR = `${ip.address}/${ip.cidr_prefix}`;
   const itemName =
     `IP ${index + 1}: ` +
@@ -69,7 +73,7 @@ const IPItem = ({ ip, formListItem, index, form }: IPItemProps) => {
       <Accordion.Panel>
         <Group>
           <TextInput
-            label="IP Address"
+            label={t("networkIPAddressLabel")}
             style={{
               flexGrow: 1,
             }}
@@ -77,7 +81,7 @@ const IPItem = ({ ip, formListItem, index, form }: IPItemProps) => {
             onBlur={(ev) => checkIP(ev.target.value, index)}
           />
           <NumberInput
-            label="CIDR Prefix"
+            label={t("networkCIDRPrefixLabel")}
             leftSection="/"
             allowNegative={false}
             allowDecimal={false}
@@ -86,7 +90,7 @@ const IPItem = ({ ip, formListItem, index, form }: IPItemProps) => {
           />
           <Flex direction="column">
             <Text size="sm" fw={500} mb={2}>
-              Family
+              {t("networkFamilyLabel")}
             </Text>
             <SegmentedControl
               data={["IPv4", "IPv6"]}
@@ -95,12 +99,12 @@ const IPItem = ({ ip, formListItem, index, form }: IPItemProps) => {
           </Flex>
         </Group>
         <TextInput
-          label="Alias (rDNS)"
+          label={t("networkAliasLabel")}
           mt="md"
           {...form.getInputProps(`${formListItem}.${index}.alias`)}
         />
         <TextInput
-          label="Comment"
+          label={t("networkCommentLabel")}
           mt="md"
           {...form.getInputProps(`${formListItem}.${index}.comment`)}
         />
@@ -113,38 +117,45 @@ interface NetworkIPGroupProps extends InputFormProps {
   isPrivate: boolean;
   mt?: string;
 }
-const NetworkIPGroup = ({ isPrivate, mt, form }: NetworkIPGroupProps) => (
-  <Fieldset mt={mt} legend={`${isPrivate ? "Private" : "Public"} Network`}>
-    <Accordion>
-      {form.values.network[isPrivate ? "private" : "public"].map(
-        (ip: IP, index: number) => (
-          <IPItem
-            key={index}
-            ip={ip}
-            formListItem={`network.${isPrivate ? "private" : "public"}`}
-            index={index}
-            form={form}
-          />
-        ),
-      )}
-    </Accordion>
-    <Center mt="md">
-      <Button
-        leftSection={<IconPlus size={16} />}
-        onClick={() =>
-          form.insertListItem(`network.${isPrivate ? "private" : "public"}`, {
-            ...defaultIP,
-            alias: `${
-              form.values.network[isPrivate ? "private" : "public"].length + 1
-            }.${isPrivate ? "private" : "public"}`, // prevent duplicate alias
-          })
-        }
-      >
-        Add
-      </Button>
-    </Center>
-  </Fieldset>
-);
+const NetworkIPGroup = ({ isPrivate, mt, form }: NetworkIPGroupProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+
+  return (
+    <Fieldset
+      mt={mt}
+      legend={isPrivate ? t("networkPrivate") : t("networkPublic")}
+    >
+      <Accordion>
+        {form.values.network[isPrivate ? "private" : "public"].map(
+          (ip: IP, index: number) => (
+            <IPItem
+              key={index}
+              ip={ip}
+              formListItem={`network.${isPrivate ? "private" : "public"}`}
+              index={index}
+              form={form}
+            />
+          ),
+        )}
+      </Accordion>
+      <Center mt="md">
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() =>
+            form.insertListItem(`network.${isPrivate ? "private" : "public"}`, {
+              ...defaultIP,
+              alias: `${
+                form.values.network[isPrivate ? "private" : "public"].length + 1
+              }.${isPrivate ? "private" : "public"}`, // prevent duplicate alias
+            })
+          }
+        >
+          {t("buttonAdd")}
+        </Button>
+      </Center>
+    </Fieldset>
+  );
+};
 
 const NetworksForm = ({ form }: InputFormProps) => (
   <>

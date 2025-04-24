@@ -1,5 +1,5 @@
 import { useForm } from "@mantine/form";
-import { Box, Button, ButtonGroup, Flex } from "@mantine/core";
+import { Button, ButtonGroup, Flex, ScrollArea } from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
@@ -110,7 +110,7 @@ const SettingsPage = () => {
 
   return (
     <>
-      <Box p="md">
+      <ScrollArea p="md" h="100%">
         <form onSubmit={form.onSubmit(save)}>
           <Flex direction="column" gap="md">
             <GlobalGroup form={form} />
@@ -132,7 +132,7 @@ const SettingsPage = () => {
             </Button>
           </ButtonGroup>
         </form>
-      </Box>
+      </ScrollArea>
 
       <UnlockModal
         isOpen={isUnlockModalOpen}

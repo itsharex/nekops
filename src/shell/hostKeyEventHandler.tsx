@@ -22,6 +22,24 @@ type HostKeyEventPayload = {
   o?: string; // OldFingerprint
 };
 
+interface FingerprintProps {
+  label: string;
+  fingerprint: string;
+  error?: string;
+}
+const Fingerprint = ({ label, fingerprint, error }: FingerprintProps) => (
+  <TextInput
+    leftSection={
+      <Tooltip label={label}>
+        <IconKey size={16} />
+      </Tooltip>
+    }
+    value={fingerprint.replace("SHA256:", "")}
+    error={error}
+    readOnly
+  />
+);
+
 export const hostKeyEventHandler = (
   serverName: string,
   themeColor: string,
@@ -43,14 +61,9 @@ export const hostKeyEventHandler = (
               {serverName}
             </Title>
           </Flex>
-          <TextInput
-            leftSection={
-              <Tooltip label="Key fingerprint (SHA256)">
-                <IconKey size={16} />
-              </Tooltip>
-            }
-            value={payload.fp.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={"Key fingerprint (SHA256)"}
+            fingerprint={payload.fp}
           />
           <Text>Shares the same key with these servers:</Text>
           <Code block>{payload.s.join("\n")}</Code>
@@ -77,18 +90,14 @@ export const hostKeyEventHandler = (
               {serverName}
             </Title>
           </Flex>
-          <TextInput
-            label="Key fingerprint (SHA256)"
-            leftSection={<IconKey size={16} />}
-            value={payload.fp.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={"Key fingerprint (SHA256)"}
+            fingerprint={payload.fp}
             error="Key changed"
           />
-          <TextInput
-            label="Old key fingerprint (SHA256)"
-            leftSection={<IconKey size={16} />}
-            value={payload.o.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={"Old key fingerprint (SHA256)"}
+            fingerprint={payload.o}
           />
           <Text c="red">
             IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY! <br />
@@ -119,14 +128,9 @@ export const hostKeyEventHandler = (
               {serverName}
             </Title>
           </Flex>
-          <TextInput
-            leftSection={
-              <Tooltip label="Key fingerprint (SHA256)">
-                <IconKey size={16} />
-              </Tooltip>
-            }
-            value={payload.fp.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={"Key fingerprint (SHA256)"}
+            fingerprint={payload.fp}
           />
         </>
       ),

@@ -145,19 +145,29 @@ const RescueModal = ({ isOpen, close, server, launch }: RescueModalProps) => {
               <Text size="sm" fw={500} mb={2}>
                 {t("modalTypeLabel")}
               </Text>
-              <Tooltip
-                label={`${t("modalTypeActionLaunch")} ${server.access.emergency.method}`}
-                openDelay={500}
-              >
+              {server.access.emergency.method === "Other" ? (
                 <Button
-                  onClick={launch}
                   style={{
                     alignSelf: "end",
                   }}
                 >
-                  {server.access.emergency.method}
+                  {t("accessType_Other")}
                 </Button>
-              </Tooltip>
+              ) : (
+                <Tooltip
+                  label={`${t("modalTypeActionLaunch")} ${server.access.emergency.method}`}
+                  openDelay={500}
+                >
+                  <Button
+                    onClick={launch}
+                    style={{
+                      alignSelf: "end",
+                    }}
+                  >
+                    {server.access.emergency.method}
+                  </Button>
+                </Tooltip>
+              )}
             </Flex>
             <TextInput
               label={t("modalAddressLabel")}

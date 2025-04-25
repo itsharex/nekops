@@ -75,7 +75,7 @@ const SSHTempLaunchModal = ({
     <Modal
       opened={isOpen}
       onClose={close}
-      title={<>{t("tempLaunch")}</>}
+      title={t("tempLaunch")}
       size="lg"
       centered
     >

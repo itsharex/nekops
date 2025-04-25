@@ -1,10 +1,17 @@
-import { Box, Flex, LoadingOverlay, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Box,
+  Flex,
+  LoadingOverlay,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { open } from "@tauri-apps/plugin-shell";
-import { IconLock } from "@tabler/icons-react";
+import { IconLock, IconRocket } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import type { RootState } from "@/store.ts";
@@ -16,6 +23,8 @@ import UnlockModal from "@/components/UnlockModal.tsx";
 import RescueModal from "@/components/rescue/RescueModal.tsx";
 import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import { startVNCSession } from "@/components/rescue/startVNCSession.tsx";
+import { actionIconStyle } from "@/common/actionStyles.ts";
+import RescueTempLaunchModal from "@/components/rescue/RescueTempLaunchModal.tsx";
 
 const RescuePage = () => {
   const { t } = useTranslation("main", { keyPrefix: "rescue" });
@@ -33,6 +42,11 @@ const RescuePage = () => {
     { open: openRescueModal, close: closeRescueModal },
   ] = useDisclosure(false);
 
+  const [
+    isTempLaunchModalOpen,
+    { open: openTempLaunchModal, close: closeTempLaunchModal },
+  ] = useDisclosure(false);
+
   const [activeServer, setActiveServer] = useState<Server | null>(null);
 
   const startRescue = (server: Server) => {
@@ -45,18 +59,18 @@ const RescuePage = () => {
     openRescueModal();
   };
 
-  const launchRescuePlatform = async () => {
-    switch (activeServer?.access.emergency.method) {
+  const launchRescuePlatform = async (server: Server) => {
+    switch (server.access.emergency.method) {
       case "VNC":
-        startVNCSession(activeServer);
+        startVNCSession(server);
         break;
       case "IPMI":
         try {
-          await open(activeServer?.access.emergency.address);
+          await open(server.access.emergency.address);
         } catch (e: any) {
           notifications.show({
             color: "red",
-            title: "Launch failed",
+            title: t("notificationLaunchIPMIFailed"),
             message: e.message,
           });
         }
@@ -64,11 +78,16 @@ const RescuePage = () => {
       default:
         notifications.show({
           color: "blue",
-          title: "Launch rescue",
-          message:
-            "You may have to copy Address and handle it with correct tool.",
+          title: t("notificationLaunchOtherTitle"),
+          message: t("notificationLaunchOtherMessage"),
         });
         break;
+    }
+  };
+
+  const launchActiveServer = async () => {
+    if (activeServer) {
+      launchRescuePlatform(activeServer);
     }
   };
 
@@ -86,34 +105,55 @@ const RescuePage = () => {
         }}
       >
         <Box p="md">
-          <SearchBar
-            placeholder="searchServers"
-            setSearchInput={setSearchInput}
-            isAutoFocus={encryption.isUnlocked} // Only get autofocus when unlocked
+          <Flex direction="row" justify="space-between" gap="lg">
+            <SearchBar
+              placeholder="searchServers"
+              setSearchInput={setSearchInput}
+              isAutoFocus={encryption.isUnlocked} // Only get autofocus when unlocked
+            />
+
+            <Tooltip label={t("tempLaunch")} openDelay={500}>
+              <ActionIcon
+                size="lg"
+                color="orange"
+                onClick={openTempLaunchModal}
+              >
+                <IconRocket style={actionIconStyle} />
+              </ActionIcon>
+            </Tooltip>
+          </Flex>
+        </Box>
+
+        <Box
+          pos="relative"
+          h={0}
+          style={{
+            flexGrow: 1,
+          }}
+        >
+          <LoadingOverlay
+            visible={!encryption.isUnlocked}
+            overlayProps={{ blur: 2 }}
+            loaderProps={{
+              children: (
+                <Flex direction="column" align="center" gap="sm">
+                  {/*<Loader type="bars" color={"orange"} />*/}
+                  <IconLock size={60} />
+                  <Text>{t("pendingUnlockNotice")}</Text>
+                </Flex>
+              ),
+            }}
+            zIndex={1}
+            style={{
+              cursor: "pointer",
+            }}
+            onClick={openUnlockModal}
+          />
+          <ServerCardsVirtualScroll
+            servers={searchServers(searchInput, servers)}
+            onClick={startRescue}
           />
         </Box>
-        <LoadingOverlay
-          visible={!encryption.isUnlocked}
-          overlayProps={{ radius: "sm", blur: 2 }}
-          loaderProps={{
-            children: (
-              <Flex direction="column" align="center" gap="sm">
-                {/*<Loader type="bars" color={"orange"} />*/}
-                <IconLock size={60} />
-                <Text>{t("pendingUnlockNotice")}</Text>
-              </Flex>
-            ),
-          }}
-          zIndex={1}
-          style={{
-            cursor: "pointer",
-          }}
-          onClick={openUnlockModal}
-        />
-        <ServerCardsVirtualScroll
-          servers={searchServers(searchInput, servers)}
-          onClick={startRescue}
-        />
       </Flex>
 
       <UnlockModal
@@ -126,6 +166,12 @@ const RescuePage = () => {
         isOpen={isRescueModalOpen}
         close={closeRescueModal}
         server={activeServer}
+        launch={launchActiveServer}
+      />
+
+      <RescueTempLaunchModal
+        isOpen={isTempLaunchModalOpen}
+        close={closeTempLaunchModal}
         launch={launchRescuePlatform}
       />
     </>

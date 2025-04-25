@@ -5,11 +5,14 @@ import SnippetsTableHead from "./Head.tsx";
 import SnippetsTableRow from "./Row.tsx";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store.ts";
+import { useTranslation } from "react-i18next";
 
 interface SnippetsTableProps {
   setCommand: (code: string) => void;
 }
 const SnippetsTable = ({ setCommand }: SnippetsTableProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "multirun" });
+
   const snippets = useSelector((state: RootState) => state.snippets);
 
   return (
@@ -37,8 +40,10 @@ const SnippetsTable = ({ setCommand }: SnippetsTableProps) => {
       </Table.Tbody>
       <Table.Caption>
         {snippets.length > 0
-          ? `Total ${snippets.length} snippets.`
-          : "Let's create a new snippet!"}
+          ? t("snippetTableCount", {
+              count: snippets.length,
+            })
+          : t("snippetTableEmpty")}
       </Table.Caption>
     </Table>
   );

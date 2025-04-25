@@ -1,10 +1,12 @@
 import { useDispatch } from "react-redux";
-import type { AppDispatch } from "@/store.ts";
 import { useForm } from "@mantine/form";
-import { unlock } from "@/slices/encryptionSlice.ts";
 import { notifications } from "@mantine/notifications";
 import { Button, Center, Modal, PasswordInput } from "@mantine/core";
 import { IconLock } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
+import type { AppDispatch } from "@/store.ts";
+import { unlock } from "@/slices/encryptionSlice.ts";
 
 interface UnlockModalProps {
   isOpen: boolean;
@@ -12,6 +14,8 @@ interface UnlockModalProps {
   successMessage: string;
 }
 const UnlockModal = ({ isOpen, close, successMessage }: UnlockModalProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "unlockModal" });
+
   const dispatch = useDispatch<AppDispatch>();
 
   interface UnlockForm {
@@ -30,16 +34,15 @@ const UnlockModal = ({ isOpen, close, successMessage }: UnlockModalProps) => {
       await dispatch(unlock(values.password)).unwrap();
       notifications.show({
         color: "green",
-        title: "Unlocked successfully!",
+        title: t("successTitle"),
         message: successMessage,
       });
       close();
     } catch (e) {
       notifications.show({
         color: "red",
-        title: "Unlock failed",
-        message:
-          "Maybe the password is not correct? No hurry, let's try again.",
+        title: t("failTitle"),
+        message: t("failMessage"),
       });
     }
   };
@@ -48,21 +51,21 @@ const UnlockModal = ({ isOpen, close, successMessage }: UnlockModalProps) => {
     <Modal
       opened={isOpen}
       onClose={close}
-      title="Unlock"
+      title={t("title")}
       size="lg"
       radius="md"
       centered
     >
       <form onSubmit={form.onSubmit(unlockFromSubmit)}>
         <PasswordInput
-          label="Password"
+          label={t("password")}
           data-autofocus
           {...form.getInputProps("password")}
         />
 
         <Center mt="lg">
           <Button type="submit" leftSection={<IconLock />}>
-            Unlock
+            {t("title")}
           </Button>
         </Center>
       </form>

@@ -1,7 +1,9 @@
-import { Button, Modal, TagsInput, TextInput } from "@mantine/core";
-import { defaultSnippet, type Snippet } from "@/types/snippet.ts";
+import { Button, Code, Modal, TagsInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+
+import { defaultSnippet, type Snippet } from "@/types/snippet.ts";
 import CodeHighlightEditor from "@/components/CodeHighlightEditor";
 
 interface EditSnippetModalProps {
@@ -16,6 +18,8 @@ const EditSnippetModal = ({
   snippetInfo,
   save,
 }: EditSnippetModalProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editSnippet" });
+
   const form = useForm<Snippet>({
     initialValues: defaultSnippet,
   });
@@ -39,7 +43,14 @@ const EditSnippetModal = ({
   return (
     <Modal
       title={
-        snippetInfo ? `Edit snippet ${snippetInfo.name}` : "Add new snippet"
+        snippetInfo ? (
+          <>
+            {t("modalTitleEdit")}
+            <Code>{snippetInfo.name}</Code>
+          </>
+        ) : (
+          t("modalTitleCreate")
+        )
       }
       opened={isOpen}
       onClose={close}
@@ -47,14 +58,18 @@ const EditSnippetModal = ({
     >
       <form onSubmit={form.onSubmit(saveSnippet)}>
         <TextInput
-          label="Name"
+          label={t("nameLabel")}
           required
           withAsterisk
           data-autofocus
           {...form.getInputProps("name")}
         />
 
-        <TagsInput label="Tags" clearable {...form.getInputProps("tags")} />
+        <TagsInput
+          label={t("tagsLabel")}
+          clearable
+          {...form.getInputProps("tags")}
+        />
 
         <CodeHighlightEditor
           value={form.getInputProps("code").value}
@@ -62,7 +77,7 @@ const EditSnippetModal = ({
         />
 
         <Button mt="lg" type="submit">
-          Save
+          {t("buttonSave")}
         </Button>
       </form>
     </Modal>

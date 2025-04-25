@@ -1,6 +1,7 @@
 import type { NoVncCredentials } from "@novnc/novnc/lib/rfb";
 import { useForm } from "@mantine/form";
 import { Button, PasswordInput, TextInput } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 interface VNCCredentialsFormProps {
   requiredProps: (keyof NoVncCredentials)[];
@@ -12,6 +13,8 @@ const VNCCredentialsForm = ({
   initialValues,
   submitAction,
 }: VNCCredentialsFormProps) => {
+  const { t } = useTranslation("rescue", { keyPrefix: "vncCredentials" });
+
   const form = useForm<Partial<NoVncCredentials>>({
     mode: "uncontrolled",
     initialValues,
@@ -22,26 +25,26 @@ const VNCCredentialsForm = ({
       {requiredProps.includes("username") && (
         <TextInput
           name="username"
-          label="Username"
+          label={t("usernameLabel")}
           {...form.getInputProps("username")}
         />
       )}
       {requiredProps.includes("password") && (
         <PasswordInput
           name="password"
-          label="Password"
+          label={t("passwordLabel")}
           {...form.getInputProps("password")}
         />
       )}
       {requiredProps.includes("target") && (
         <TextInput
           name="target"
-          label="Target"
+          label={t("targetLabel")}
           {...form.getInputProps("target")}
         />
       )}
       <Button fullWidth type="submit">
-        Submit
+        {t("submit")}
       </Button>
     </form>
   );

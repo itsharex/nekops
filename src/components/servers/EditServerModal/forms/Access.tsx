@@ -11,6 +11,7 @@ import {
   Text,
   Textarea,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 interface AccessFormProps extends InputFormProps {
   knownSSHUsers: string[];
@@ -21,6 +22,8 @@ const AccessForm = ({
   knownSSHUsers,
   isCreatingNew,
 }: AccessFormProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+
   const publicAccessEndpoints = [
     ...new Set(form.values.network.public.map((ip) => ip.alias || ip.address)),
   ];
@@ -31,18 +34,18 @@ const AccessForm = ({
 
   return (
     <>
-      <Fieldset legend="Regular Access (SSH)">
+      <Fieldset legend={t("accessRegular")}>
         <Group>
           <Autocomplete
-            label="Address"
-            placeholder="Pick one or enter new"
+            label={t("accessAddressLabel")}
+            placeholder={t("accessAddressPlaceholder")}
             data={[
               {
-                group: "Public",
+                group: t("networkPublic"),
                 items: publicAccessEndpoints,
               },
               {
-                group: "Private",
+                group: t("networkPrivate"),
                 items: privateAccessEndpoints,
               },
             ]}
@@ -53,7 +56,7 @@ const AccessForm = ({
           />
           <Flex direction="column" justify="end">
             <Text size="sm" fw={500} mb={1}>
-              Jump Server
+              {t("accessJumpServerLabel")}
             </Text>
             <Checkbox
               size="xl"
@@ -65,7 +68,7 @@ const AccessForm = ({
         </Group>
         <Group mt="md">
           <NumberInput
-            label="Port"
+            label={t("accessPortLabel")}
             allowNegative={false}
             allowDecimal={false}
             allowLeadingZeros={false}
@@ -74,7 +77,7 @@ const AccessForm = ({
             {...form.getInputProps("access.regular.port")}
           />
           <Autocomplete
-            label="User"
+            label={t("accessUserLabel")}
             placeholder="root"
             data={knownSSHUsers}
             style={{
@@ -84,24 +87,37 @@ const AccessForm = ({
           />
         </Group>
       </Fieldset>
-      <Fieldset mt="md" legend="Emergency Access">
+      <Fieldset mt="md" legend={t("accessEmergency")}>
         <PasswordInput
-          label="Root Password"
+          label={t("accessRootPasswordLabel")}
           defaultVisible={isCreatingNew}
           {...form.getInputProps("access.emergency.root_password")}
         />
         <Group mt="md">
           <Flex direction="column">
             <Text size="sm" fw={500} mb={2}>
-              Type
+              {t("accessTypeLabel")}
             </Text>
             <SegmentedControl
-              data={["VNC", "IPMI", "Other"]}
+              data={[
+                {
+                  label: t("accessType_VNC"),
+                  value: "VNC",
+                },
+                {
+                  label: t("accessType_IPMI"),
+                  value: "IPMI",
+                },
+                {
+                  label: t("accessType_Other"),
+                  value: "Other",
+                },
+              ]}
               {...form.getInputProps("access.emergency.method")}
             />
           </Flex>
           <PasswordInput
-            label="Address"
+            label={t("accessAddressLabel")}
             style={{
               flexGrow: 1,
             }}
@@ -111,22 +127,22 @@ const AccessForm = ({
         </Group>
         <Group mt="md" grow>
           <PasswordInput
-            label="Username"
+            label={t("accessUsernameLabel")}
             defaultVisible={isCreatingNew}
             {...form.getInputProps("access.emergency.username")}
           />
           <PasswordInput
-            label="Password"
+            label={t("accessPasswordLabel")}
             defaultVisible={isCreatingNew}
             {...form.getInputProps("access.emergency.password")}
           />
         </Group>
         <Textarea
           mt="md"
-          label="Comment"
+          label={t("accessCommentLabel")}
           autosize
           minRows={4}
-          placeholder="Don't forget to backup before reboot!"
+          placeholder={t("accessCommentPlaceholder")}
           {...form.getInputProps("access.emergency.comment")}
         />
       </Fieldset>

@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { CSSProperties } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmDeleteModalProps {
   open: boolean;
@@ -25,22 +26,27 @@ const ConfirmDeleteModal = ({
   itemName,
   confirm,
 }: ConfirmDeleteModalProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "deleteButton" });
+
   return (
-    <Modal title="Delete confirmation" opened={open} onClose={onClose} centered>
-      <Text>Are you sure to delete :</Text>
+    <Modal
+      title={t("deleteConfirmation")}
+      opened={open}
+      onClose={onClose}
+      centered
+    >
+      <Text>{t("messageBefore")}</Text>
       <Title order={3} my="md" c="red">
         {itemName}
       </Title>
-      <Text>
-        This action might be irreversible (depends on your data backup policy) ?
-      </Text>
+      <Text>{t("messageAfter")}</Text>
       <Center mt="lg">
         <Group gap="sm">
           <Button variant="default" color="gray" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button color="red" onClick={confirm}>
-            Confirm
+            {t("confirm")}
           </Button>
         </Group>
       </Center>
@@ -62,6 +68,8 @@ const DeleteItemButton = ({
   iconStyle,
   onClick,
 }: AccordionDeleteItemButtonProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "deleteButton" });
+
   const [
     isConfirmModalOpen,
     { open: openConfirmModal, close: closeConfirmModal },
@@ -69,7 +77,7 @@ const DeleteItemButton = ({
 
   return (
     <>
-      <Tooltip label={"Delete"} openDelay={500}>
+      <Tooltip label={t("action_delete")} openDelay={500}>
         <ActionIcon
           size={size}
           variant={variant}

@@ -14,6 +14,8 @@ import ShellTabs from "@/shell/ShellTabs";
 import WindowBackground from "@/common/WindowBackground.tsx";
 import TerminalProvider from "@/shell/TerminalContext.tsx";
 
+import "@/i18n/loaders/shell.ts";
+
 const theme = createTheme({
   /** Put your mantine theme override here */
 });

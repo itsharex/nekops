@@ -1,13 +1,16 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { Accordion, Button, Center, Fieldset } from "@mantine/core";
-import { defaultWorkspace, WorkSpace } from "@/types/settings.ts";
 import { IconPlus } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
+import { defaultWorkspace, WorkSpace } from "@/types/settings.ts";
 import type { SettingsFormProps } from "@/components/settings/types.ts";
 import WorkspaceItem from "./Item.tsx";
 
 interface WorkspaceGroupProps extends SettingsFormProps {}
 const WorkspaceGroup = ({ form }: WorkspaceGroupProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "settings" });
+
   const selectDataDirectory = async (index: number) => {
     const dataDir = await open({
       multiple: false,
@@ -19,7 +22,7 @@ const WorkspaceGroup = ({ form }: WorkspaceGroupProps) => {
   };
 
   return (
-    <Fieldset legend="Workspaces">
+    <Fieldset legend={t("sectionWorkspaces")}>
       <Accordion>
         {form.values.workspaces.map((w: WorkSpace, index: number) => (
           <WorkspaceItem
@@ -40,7 +43,7 @@ const WorkspaceGroup = ({ form }: WorkspaceGroupProps) => {
             form.insertListItem("workspaces", structuredClone(defaultWorkspace))
           }
         >
-          Add
+          {t("workspaceButtonAdd")}
         </Button>
       </Center>
     </Fieldset>

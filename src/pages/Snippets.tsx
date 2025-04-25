@@ -3,6 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 import type { Snippet } from "@/types/snippet.ts";
 import EditSnippetModal from "@/components/EditSnippetModal.tsx";
@@ -21,6 +22,8 @@ import SnippetTable from "@/components/snippets/SnippetTable";
 import { notifications } from "@mantine/notifications";
 
 const SnippetsPage = () => {
+  const { t } = useTranslation("main", { keyPrefix: "library" });
+
   const snippets = useSelector((state: RootState) => state.snippets);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -103,11 +106,11 @@ const SnippetsPage = () => {
           {/*Search and Create*/}
           <Flex direction="row" justify="space-between" gap="lg">
             <SearchBar
-              placeholder="Search snippets"
+              placeholder="searchSnippets"
               setSearchInput={setSearchInput}
             />
 
-            <Tooltip label="New snippet" openDelay={500}>
+            <Tooltip label={t("newSnippet")} openDelay={500}>
               <ActionIcon
                 size="lg"
                 color="green"

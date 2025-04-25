@@ -1,5 +1,3 @@
-import type { InputFormProps } from "../inputFormProps.ts";
-import { defaultDisk, Disk } from "@/types/server.ts";
 import {
   Accordion,
   Autocomplete,
@@ -16,17 +14,24 @@ import {
   TextInput,
 } from "@mantine/core";
 import { IconPlus, IconX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
+import type { InputFormProps } from "../inputFormProps.ts";
+import { Disk } from "@/types/server.ts";
 import HDDIcon from "@/assets/icons/hdd.svg";
 import SSDIcon from "@/assets/icons/ssd.svg";
 import DeleteItemButton from "@/components/DeleteItemButton.tsx";
+import { i18nDefaultDisk } from "@/components/servers/EditServerModal/helpers.ts";
 
 interface DiskItemProps extends InputFormProps {
   disk: Disk;
   index: number;
 }
 const DiskItem = ({ disk, index, form }: DiskItemProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+
   const itemName =
-    `Disk ${index + 1}: ` +
+    `${t("hardwareDisk")} ${index + 1}: ` +
     (disk.count > 1 ? `${disk.count} × ` : "") +
     `${disk.size} ${disk.size_unit} ${disk.type} (${disk.interface})`;
   return (
@@ -61,7 +66,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
         <Grid grow>
           <Grid.Col span={2}>
             <NumberInput
-              label="Count"
+              label={t("hardwareDiskCountLabel")}
               allowNegative={false}
               allowDecimal={false}
               allowLeadingZeros={false}
@@ -74,7 +79,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
             <Group grow gap="md">
               <Flex direction="column">
                 <Text size="sm" fw={500} mb={2}>
-                  Type
+                  {t("hardwareDiskTypeLabel")}
                 </Text>
                 <SegmentedControl
                   data={["HDD", "SSD"]}
@@ -83,7 +88,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
               </Flex>
               <Flex direction="column">
                 <Text size="sm" fw={500} mb={2}>
-                  Interface
+                  {t("hardwareDiskInterfaceLabel")}
                 </Text>
                 <SegmentedControl
                   data={["SATA", "SAS", "NVMe"]}
@@ -95,7 +100,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
           <Grid.Col span={3}>
             <Flex gap="sm">
               <NumberInput
-                label="Size"
+                label={t("hardwareDiskSizeLabel")}
                 allowNegative={false}
                 decimalScale={2}
                 allowLeadingZeros={false}
@@ -103,7 +108,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
               />
               <Flex direction="column">
                 <Text size="sm" fw={500} mb={2}>
-                  Unit
+                  {t("hardwareDiskSizeUnitLabel")}
                 </Text>
                 <SegmentedControl
                   data={["GB", "TB"]}
@@ -115,7 +120,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
         </Grid>
         <TextInput
           mt="md"
-          label="Model"
+          label={t("hardwareDiskModelLabel")}
           {...form.getInputProps(`hardware.disk.${index}.model`)}
         />
       </Accordion.Panel>
@@ -123,136 +128,141 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
   );
 };
 
-const HardwareForm = ({ form }: InputFormProps) => (
-  <>
-    <Fieldset legend="CPU">
-      <Grid grow>
-        <Grid.Col span={1}>
-          <NumberInput
-            label="Count"
-            allowNegative={false}
-            allowDecimal={false}
-            allowLeadingZeros={false}
-            min={1}
-            rightSection={<IconX size={16} />}
-            {...form.getInputProps("hardware.cpu.count")}
-          />
-        </Grid.Col>
-        <Grid.Col span={2}>
-          <Autocomplete
-            label="Manufacturer"
-            data={["Intel", "AMD"]}
-            {...form.getInputProps("hardware.cpu.manufacturer")}
-          />
-        </Grid.Col>
-        <Grid.Col span={9}>
-          <TextInput
-            label="Model"
-            {...form.getInputProps("hardware.cpu.model")}
-          />
-        </Grid.Col>
-      </Grid>
-      <Grid mt="md" grow>
-        <Grid.Col span={4}>
-          <NumberInput
-            label="Cores"
-            allowNegative={false}
-            allowDecimal={false}
-            allowLeadingZeros={false}
-            min={1}
-            {...form.getInputProps("hardware.cpu.core_count")}
-          />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <NumberInput
-            label="Threads"
-            allowNegative={false}
-            allowDecimal={false}
-            allowLeadingZeros={false}
-            min={1}
-            {...form.getInputProps("hardware.cpu.thread_count")}
-          />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <NumberInput
-            label="Base Frequency"
-            allowNegative={false}
-            decimalScale={1}
-            allowLeadingZeros={false}
-            suffix="GHz"
-            {...form.getInputProps("hardware.cpu.base_frequency")}
-          />
-        </Grid.Col>
-      </Grid>
-    </Fieldset>
-    <Fieldset mt="md" legend="Memory">
-      <Grid grow>
-        <Grid.Col span={4}>
-          <Flex direction="row" gap="xs">
+const HardwareForm = ({ form }: InputFormProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const defaultDisk = i18nDefaultDisk(t);
+
+  return (
+    <>
+      <Fieldset legend={t("hardwareCPU")}>
+        <Grid grow>
+          <Grid.Col span={1}>
             <NumberInput
-              label="Generation"
+              label={t("hardwareCPUCountLabel")}
               allowNegative={false}
               allowDecimal={false}
               allowLeadingZeros={false}
-              prefix="DDR"
-              style={{
-                flexGrow: 1,
-              }}
-              {...form.getInputProps("hardware.memory.generation")}
+              min={1}
+              rightSection={<IconX size={16} />}
+              {...form.getInputProps("hardware.cpu.count")}
             />
-            <Flex direction="column" justify="end">
-              <Text size="sm" fw={500} mb={1}>
-                ECC
-              </Text>
-              <Checkbox
-                size="xl"
-                {...form.getInputProps("hardware.memory.ecc", {
-                  type: "checkbox",
-                })}
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Autocomplete
+              label={t("hardwareCPUManufacturerLabel")}
+              data={["Intel", "AMD"]}
+              {...form.getInputProps("hardware.cpu.manufacturer")}
+            />
+          </Grid.Col>
+          <Grid.Col span={9}>
+            <TextInput
+              label={t("hardwareCPUModelLabel")}
+              {...form.getInputProps("hardware.cpu.model")}
+            />
+          </Grid.Col>
+        </Grid>
+        <Grid mt="md" grow>
+          <Grid.Col span={4}>
+            <NumberInput
+              label={t("hardwareCPUCoresLabel")}
+              allowNegative={false}
+              allowDecimal={false}
+              allowLeadingZeros={false}
+              min={1}
+              {...form.getInputProps("hardware.cpu.core_count")}
+            />
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <NumberInput
+              label={t("hardwareCPUThreadsLabel")}
+              allowNegative={false}
+              allowDecimal={false}
+              allowLeadingZeros={false}
+              min={1}
+              {...form.getInputProps("hardware.cpu.thread_count")}
+            />
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <NumberInput
+              label={t("hardwareCPUBaseFrequencyLabel")}
+              allowNegative={false}
+              decimalScale={1}
+              allowLeadingZeros={false}
+              suffix="GHz"
+              {...form.getInputProps("hardware.cpu.base_frequency")}
+            />
+          </Grid.Col>
+        </Grid>
+      </Fieldset>
+      <Fieldset mt="md" legend={t("hardwareMemory")}>
+        <Grid grow>
+          <Grid.Col span={4}>
+            <Flex direction="row" gap="xs">
+              <NumberInput
+                label={t("hardwareMemoryGenerationLabel")}
+                allowNegative={false}
+                allowDecimal={false}
+                allowLeadingZeros={false}
+                prefix="DDR"
+                style={{
+                  flexGrow: 1,
+                }}
+                {...form.getInputProps("hardware.memory.generation")}
               />
+              <Flex direction="column" justify="end">
+                <Text size="sm" fw={500} mb={1}>
+                  {t("hardwareMemoryECCLabel")}
+                </Text>
+                <Checkbox
+                  size="xl"
+                  {...form.getInputProps("hardware.memory.ecc", {
+                    type: "checkbox",
+                  })}
+                />
+              </Flex>
             </Flex>
-          </Flex>
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <NumberInput
-            label="Size"
-            allowNegative={false}
-            decimalScale={2}
-            allowLeadingZeros={false}
-            suffix="GB"
-            step={0.5}
-            {...form.getInputProps("hardware.memory.size")}
-          />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <NumberInput
-            label="Frequency"
-            allowNegative={false}
-            allowDecimal={false}
-            allowLeadingZeros={false}
-            suffix="MHz"
-            step={100}
-            {...form.getInputProps("hardware.memory.frequency")}
-          />
-        </Grid.Col>
-      </Grid>
-    </Fieldset>
-    <Fieldset mt="md" legend="Disk">
-      <Accordion>
-        {form.values.hardware.disk.map((disk: Disk, index: number) => (
-          <DiskItem key={index} disk={disk} index={index} form={form} />
-        ))}
-      </Accordion>
-      <Center mt="md">
-        <Button
-          leftSection={<IconPlus size={16} />}
-          onClick={() => form.insertListItem("hardware.disk", defaultDisk)}
-        >
-          Add
-        </Button>
-      </Center>
-    </Fieldset>
-  </>
-);
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <NumberInput
+              label={t("hardwareMemorySizeLabel")}
+              allowNegative={false}
+              decimalScale={2}
+              allowLeadingZeros={false}
+              suffix="GB"
+              step={0.5}
+              {...form.getInputProps("hardware.memory.size")}
+            />
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <NumberInput
+              label={t("hardwareMemoryFrequencyLabel")}
+              allowNegative={false}
+              allowDecimal={false}
+              allowLeadingZeros={false}
+              suffix="MHz"
+              step={100}
+              {...form.getInputProps("hardware.memory.frequency")}
+            />
+          </Grid.Col>
+        </Grid>
+      </Fieldset>
+      <Fieldset mt="md" legend={t("hardwareDisk")}>
+        <Accordion>
+          {form.values.hardware.disk.map((disk: Disk, index: number) => (
+            <DiskItem key={index} disk={disk} index={index} form={form} />
+          ))}
+        </Accordion>
+        <Center mt="md">
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={() => form.insertListItem("hardware.disk", defaultDisk)}
+          >
+            {t("buttonAdd")}
+          </Button>
+        </Center>
+      </Fieldset>
+    </>
+  );
+};
 
 export default HardwareForm;

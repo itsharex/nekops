@@ -1,9 +1,11 @@
 import { Flex, ScrollArea } from "@mantine/core";
+import { getHotkeyHandler } from "@mantine/hooks";
+import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import SnippetsTable from "./SnippetsTable";
 import CodeHighlightEditor from "@/components/CodeHighlightEditor";
-import { getHotkeyHandler } from "@mantine/hooks";
 import ActionsBar from "./ActionsBar";
-import { memo, useState } from "react";
 import { SpecialCharsMapping } from "./specialCharsMapping.ts";
 
 interface CommandCenterProps {
@@ -11,6 +13,8 @@ interface CommandCenterProps {
   sendCommand: (command: string) => void;
 }
 const CommandCenter = ({ isSendDisabled, sendCommand }: CommandCenterProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "multirun" });
+
   const [command, setCommand] = useState("");
 
   const appendCode = (input: string) => {
@@ -54,7 +58,7 @@ const CommandCenter = ({ isSendDisabled, sendCommand }: CommandCenterProps) => {
 
       {/*Code Input*/}
       <CodeHighlightEditor
-        label="Command"
+        label={t("command")}
         value={command}
         onChange={setCommand}
         placeholder={"echo 'Hello Nekops!'"}

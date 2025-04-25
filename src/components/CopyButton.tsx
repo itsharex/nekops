@@ -1,33 +1,24 @@
-// Fork from https://github.com/mantinedev/mantine/blob/master/packages/@mantine/core/src/components/CopyButton/CopyButton.tsx
-// Use tauri clipboard API here
-
-import type { ReactNode } from "react";
 import { useState } from "react";
-import { useProps } from "@mantine/core";
+import { ActionIcon, Tooltip } from "@mantine/core";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { notifications } from "@mantine/notifications";
+import { useTranslation } from "react-i18next";
+import { IconClipboardCheck, IconClipboardCopy } from "@tabler/icons-react";
+import { actionIconStyle } from "@/common/actionStyles.ts";
 
 interface CopyButtonProps {
-  /** Children callback, provides current status and copy function as an argument */
-  children: (payload: { copied: boolean; copy: () => void }) => ReactNode;
-
-  /** Value that will be copied to the clipboard when the button is clicked */
   value: string;
-
-  /** Copied status timeout in ms, `1000` by default */
   timeout?: number;
+  small?: boolean;
 }
 
-const defaultProps: Partial<CopyButtonProps> = {
-  timeout: 1000,
-};
+const CopyButton = ({
+  value,
+  timeout = 1000,
+  small = false,
+}: CopyButtonProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "copyButton" });
 
-const CopyButton = (props: CopyButtonProps) => {
-  const { children, timeout, value, ...others } = useProps(
-    "CopyButton",
-    defaultProps,
-    props,
-  );
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -38,16 +29,31 @@ const CopyButton = (props: CopyButtonProps) => {
       }, timeout);
       notifications.show({
         color: "green",
-        message: "Copied successfully",
+        message: t("messageSuccess"),
       });
     } catch (e) {
       notifications.show({
         color: "red",
-        message: "Copy failed...",
+        message: t("messageFail"),
       });
     }
   };
-  return <>{children({ copy, copied, ...others })}</>;
+
+  return (
+    <Tooltip label={copied ? t("stateCopied") : t("stateCopy")} openDelay={500}>
+      <ActionIcon
+        size={small ? undefined : "lg"}
+        color={copied ? "cyan" : "green"}
+        onClick={copy}
+      >
+        {copied ? (
+          <IconClipboardCheck style={small ? actionIconStyle : undefined} />
+        ) : (
+          <IconClipboardCopy style={small ? actionIconStyle : undefined} />
+        )}
+      </ActionIcon>
+    </Tooltip>
+  );
 };
 
 export default CopyButton;

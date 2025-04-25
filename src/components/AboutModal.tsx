@@ -13,12 +13,15 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 import { IconHeartFilled } from "@tabler/icons-react";
 import { open } from "@tauri-apps/plugin-shell";
+import { useTranslation } from "react-i18next";
 
 interface AboutModalProps {
   isOpen: boolean;
   close: () => void;
 }
 const AboutModal = ({ isOpen, close }: AboutModalProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "about" });
+
   const [version, setVersion] = useState("Loading...");
 
   const clickVersion = () => {
@@ -33,7 +36,7 @@ const AboutModal = ({ isOpen, close }: AboutModalProps) => {
   }, []);
 
   return (
-    <Modal opened={isOpen} onClose={close} title="About Nekops" centered>
+    <Modal opened={isOpen} onClose={close} title={t("aboutNekops")} centered>
       <Flex py="sm" direction="column">
         <Flex direction="row" justify="space-around" align="center">
           <Image
@@ -47,7 +50,7 @@ const AboutModal = ({ isOpen, close }: AboutModalProps) => {
               outlineOffset: "4px",
             }}
           />
-          <Flex direction="column" mb="md" align="center">
+          <Flex direction="column" align="center">
             <Title order={1}>Nekops</Title>
             <Text>Ops' now nyaing</Text>
             <Badge
@@ -61,19 +64,17 @@ const AboutModal = ({ isOpen, close }: AboutModalProps) => {
             </Badge>
           </Flex>
         </Flex>
-        <Divider my="lg" variant="dotted" label="About" />
+        <Divider my="lg" variant="dotted" label={t("about")} />
         <Center>
           <Flex gap={rem(4)}>
-            <Text>Crafted by @Candinya with</Text>
+            <Text>{t("author_before")}</Text>
             <IconHeartFilled
               style={{
                 color: "red",
               }}
             />
+            <Text>{t("author_after")}</Text>
           </Flex>
-        </Center>
-        <Center>
-          <Text>Commands all Nyawork servers</Text>
         </Center>
       </Flex>
     </Modal>

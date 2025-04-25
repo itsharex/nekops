@@ -1,4 +1,5 @@
 import { Button, Center, Group, Modal, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 interface TerminateAndExitModalProps {
   isOpen: boolean;
@@ -10,22 +11,19 @@ const TerminateAndExitModal = ({
   onClose,
   onConfirm,
 }: TerminateAndExitModalProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "terminateAndExitModal" });
+
   return (
-    <Modal
-      opened={isOpen}
-      onClose={onClose}
-      title="Terminate and Exit"
-      centered
-    >
-      <Text>Some other sessions might still be running...</Text>
-      <Text>Are you sure to terminate them all and exit?</Text>
+    <Modal opened={isOpen} onClose={onClose} title={t("title")} centered>
+      <Text>{t("message_1")}</Text>
+      <Text>{t("message_2")}</Text>
       <Center mt="lg">
         <Group gap="sm">
           <Button variant="default" color="gray" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button color="red" onClick={onConfirm}>
-            Terminate and Exit
+            {t("confirm")}
           </Button>
         </Group>
       </Center>

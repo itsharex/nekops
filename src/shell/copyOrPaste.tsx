@@ -5,6 +5,8 @@ import { IconCheck } from "@tabler/icons-react";
 import { Code, rem, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 
+import i18next from "@/i18n/loaders/shell.ts";
+
 export const copyOrPaste = async (instance: Terminal) => {
   if (instance.hasSelection()) {
     // Selected, set to clipboard
@@ -13,8 +15,8 @@ export const copyOrPaste = async (instance: Terminal) => {
     instance.clearSelection();
     // Send notification
     notifications.show({
-      title: "Copied!",
-      message: "Text copied to clipboard. Feel free to paste it anywhere.",
+      title: i18next.t("copyOrPaste.copySuccessTitle"),
+      message: i18next.t("copyOrPaste.copySuccessMessage"),
       color: "green",
       icon: <IconCheck style={{ width: rem(18), height: rem(18) }} />,
       autoClose: 2_000,
@@ -26,16 +28,19 @@ export const copyOrPaste = async (instance: Terminal) => {
       if (clipboardText.includes("\n")) {
         // Multiline
         modals.openConfirmModal({
-          title: "Paste confirmation",
+          title: i18next.t("copyOrPaste.pasteConfirmTitle"),
           children: (
             <>
               <Text size="sm" mb="sm">
-                Clipboard has multiple lines. Sure to paste them all?
+                {i18next.t("copyOrPaste.pasteConfirmMessage")}
               </Text>
               <Code block>{clipboardText}</Code>
             </>
           ),
-          labels: { confirm: "Confirm", cancel: "Cancel" },
+          labels: {
+            confirm: i18next.t("copyOrPaste.actionConfirm"),
+            cancel: i18next.t("copyOrPaste.actionCancel"),
+          },
           centered: true,
           onConfirm: () => {
             instance.paste(clipboardText);

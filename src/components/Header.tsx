@@ -6,6 +6,8 @@ import {
   IconStack2,
 } from "@tabler/icons-react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+
 import type { AppDispatch, RootState } from "@/store.ts";
 import { actionIconStyle, menuIconStyle } from "@/common/actionStyles.ts";
 import {
@@ -17,6 +19,8 @@ import { readSnippets } from "@/slices/snippetsSlice.ts";
 import { readEncryption } from "@/slices/encryptionSlice.ts";
 
 const WorkspaceSelector = () => {
+  const { t } = useTranslation("main", { keyPrefix: "common" });
+
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -39,7 +43,7 @@ const WorkspaceSelector = () => {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Menu.Label>Workspaces</Menu.Label>
+        <Menu.Label>{t("workspaces")}</Menu.Label>
         {settings.workspaces.map((w) => (
           <Menu.Item
             key={w.id}

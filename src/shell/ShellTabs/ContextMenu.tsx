@@ -1,5 +1,7 @@
 import { Menu } from "@mantine/core";
 import { IconCopyPlus, IconLinkOff, IconRotate } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
 import { menuIconStyle } from "@/common/actionStyles.ts";
 
 interface ShellTabContextMenuProps {
@@ -22,45 +24,49 @@ const ShellTabContextMenu = ({
   onClickSelectAll,
   onClickTerminate,
   onClickReconnect,
-}: ShellTabContextMenuProps) => (
-  <Menu opened={isOpen} onChange={setIsOpen} position="bottom-start">
-    <Menu.Target>
-      <div
-        style={{
-          left: pos.x,
-          top: pos.y,
-          position: "absolute",
-        }}
-      />
-    </Menu.Target>
-    <Menu.Dropdown>
-      <Menu.Label>Shell Action</Menu.Label>
-      <Menu.Item
-        leftSection={<IconCopyPlus style={menuIconStyle} />}
-        onClick={onClickSelectAll}
-      >
-        Select All
-      </Menu.Item>
+}: ShellTabContextMenuProps) => {
+  const { t } = useTranslation("shell", { keyPrefix: "contextMenu" });
 
-      <Menu.Divider />
+  return (
+    <Menu opened={isOpen} onChange={setIsOpen} position="bottom-start">
+      <Menu.Target>
+        <div
+          style={{
+            left: pos.x,
+            top: pos.y,
+            position: "absolute",
+          }}
+        />
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Label>{t("shellAction")}</Menu.Label>
+        <Menu.Item
+          leftSection={<IconCopyPlus style={menuIconStyle} />}
+          onClick={onClickSelectAll}
+        >
+          {t("selectAll")}
+        </Menu.Item>
 
-      <Menu.Label>Process Manage</Menu.Label>
-      <Menu.Item
-        leftSection={<IconLinkOff style={menuIconStyle} />}
-        onClick={onClickTerminate}
-        color="red"
-      >
-        Terminate
-      </Menu.Item>
-      <Menu.Item
-        leftSection={<IconRotate style={menuIconStyle} />}
-        onClick={onClickReconnect}
-        color="yellow"
-      >
-        Reconnect
-      </Menu.Item>
-    </Menu.Dropdown>
-  </Menu>
-);
+        <Menu.Divider />
+
+        <Menu.Label>{t("processManage")}</Menu.Label>
+        <Menu.Item
+          leftSection={<IconLinkOff style={menuIconStyle} />}
+          onClick={onClickTerminate}
+          color="red"
+        >
+          {t("terminate")}
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<IconRotate style={menuIconStyle} />}
+          onClick={onClickReconnect}
+          color="yellow"
+        >
+          {t("reconnect")}
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
+  );
+};
 
 export default ShellTabContextMenu;

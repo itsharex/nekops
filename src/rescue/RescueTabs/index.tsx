@@ -1,4 +1,4 @@
-import { Box, Flex, List, ScrollArea, Tabs, Text, Title } from "@mantine/core";
+import { Box, Flex, ScrollArea, Tabs } from "@mantine/core";
 import type { Event } from "@tauri-apps/api/event";
 import { emit, listen } from "@tauri-apps/api/event";
 import type { MouseEvent, WheelEvent } from "react";
@@ -27,6 +27,11 @@ import { useRefState } from "@/common/useRefState.ts";
 import RescueTabContextMenu from "./ContextMenu.tsx";
 import RescueTab from "./Tab.tsx";
 import RescuePanel from "./Panel.tsx";
+import {
+  reconnectConfirmModal,
+  terminateAllConfirmModal,
+  terminateConfirmModal,
+} from "./modalConfig.tsx";
 
 const RescueTabs = () => {
   // For components render & listen bindings
@@ -41,7 +46,7 @@ const RescueTabs = () => {
     useRefState<string | null>(null);
 
   // Event listeners
-  const newSSHEventHandler = (ev: Event<EventPayloadRescueNew>) => {
+  const newRescueEventHandler = (ev: Event<EventPayloadRescueNew>) => {
     for (const server of ev.payload.server) {
       tabsDataHandlers.append(server);
       tabsStateHandlers.append("loading");
@@ -81,23 +86,15 @@ const RescueTabs = () => {
     );
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
-        modals.openConfirmModal({
-          title: "Terminate confirmation",
-          children: (
-            <>
-              <Text>Are you sure to terminate :</Text>
-              <Title order={3} my="md" c="red">
-                {tabsData[index].name}
-              </Title>
-            </>
+        modals.openConfirmModal(
+          terminateConfirmModal(
+            tabsData[index].name,
+            tabsData[index].color,
+            () => {
+              doTerminate(index);
+            },
           ),
-          labels: { confirm: "Terminate", cancel: "Cancel" },
-          confirmProps: { color: "red" },
-          centered: true,
-          onConfirm: () => {
-            doTerminate(index);
-          },
-        });
+        );
       } else {
         doTerminate(index);
       }
@@ -112,23 +109,15 @@ const RescueTabs = () => {
     // Check current state
     if (index != -1) {
       if (tabsStateRef.current[index] === "active") {
-        modals.openConfirmModal({
-          title: "Reconnect confirmation",
-          children: (
-            <>
-              <Text>Are you sure to reconnect :</Text>
-              <Title order={3} my="md" c="red">
-                {tabsData[index].name}
-              </Title>
-            </>
+        modals.openConfirmModal(
+          reconnectConfirmModal(
+            tabsData[index].name,
+            tabsData[index].color,
+            () => {
+              doReconnect(index);
+            },
           ),
-          labels: { confirm: "Reconnect", cancel: "Cancel" },
-          confirmProps: { color: "red" },
-          centered: true,
-          onConfirm: () => {
-            doReconnect(index);
-          },
-        });
+        );
       } else {
         doReconnect(index);
       }
@@ -168,28 +157,14 @@ const RescueTabs = () => {
       terminateAllAndExit();
     } else {
       // Open close confirmation modal
-      modals.openConfirmModal({
-        title: "Terminate All",
-        children: (
-          <>
-            <Text>These rescue sessions are still running...</Text>
-            <List my="md" ml="md">
-              {tabsDataRef.current
-                .filter((_, i) => tabsStateRef.current[i] === "active")
-                .map((server) => (
-                  <List.Item key={server.nonce} c={server.color}>
-                    {server.name}
-                  </List.Item>
-                ))}
-            </List>
-            <Text>Are you sure to terminate them all?</Text>
-          </>
+      modals.openConfirmModal(
+        terminateAllConfirmModal(
+          tabsDataRef.current.filter(
+            (_, i) => tabsStateRef.current[i] === "active",
+          ),
+          terminateAllAndExit,
         ),
-        labels: { confirm: "Terminate", cancel: "Cancel" },
-        confirmProps: { color: "red" },
-        centered: true,
-        onConfirm: terminateAllAndExit,
-      });
+      );
     }
   };
 
@@ -234,7 +209,7 @@ const RescueTabs = () => {
     );
     const stopRescueNewListener = listen<EventPayloadRescueNew>(
       EventNameRescueNew,
-      newSSHEventHandler,
+      newRescueEventHandler,
     );
 
     const stopWindowCloseRescueListener = listen(

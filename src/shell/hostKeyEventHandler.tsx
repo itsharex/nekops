@@ -15,12 +15,32 @@ import {
   IconRosetteDiscountCheck,
 } from "@tabler/icons-react";
 
+import i18next from "@/i18n/loaders/shell.ts";
+
 type HostKeyEventPayload = {
   // h: string; // Host
   fp: string; // Fingerprint
   s?: string[]; // HostWithSameKey
   o?: string; // OldFingerprint
 };
+
+interface FingerprintProps {
+  label: string;
+  fingerprint: string;
+  error?: string;
+}
+const Fingerprint = ({ label, fingerprint, error }: FingerprintProps) => (
+  <TextInput
+    leftSection={
+      <Tooltip label={label}>
+        <IconKey size={16} />
+      </Tooltip>
+    }
+    value={fingerprint.replace("SHA256:", "")}
+    error={error}
+    readOnly
+  />
+);
 
 export const hostKeyEventHandler = (
   serverName: string,
@@ -32,7 +52,7 @@ export const hostKeyEventHandler = (
   if (payload.s?.length) {
     // Same host with new name
     modals.openConfirmModal({
-      title: "Server has a new name",
+      title: i18next.t("serverKeyEvents.aliasTitle"),
       children: (
         <>
           <Flex direction="column" align="center">
@@ -43,21 +63,19 @@ export const hostKeyEventHandler = (
               {serverName}
             </Title>
           </Flex>
-          <TextInput
-            leftSection={
-              <Tooltip label="Key fingerprint (SHA256)">
-                <IconKey size={16} />
-              </Tooltip>
-            }
-            value={payload.fp.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={i18next.t("serverKeyEvents.fingerprintLabel")}
+            fingerprint={payload.fp}
           />
-          <Text>Shares the same key with these servers:</Text>
+          <Text>{i18next.t("serverKeyEvents.aliasMessage")}</Text>
           <Code block>{payload.s.join("\n")}</Code>
-          <Text>OK to proceed?</Text>
+          <Text>{i18next.t("serverKeyEvents.aliasProceedMessage")}</Text>
         </>
       ),
-      labels: { confirm: "Accept", cancel: "Reject" },
+      labels: {
+        confirm: i18next.t("serverKeyEvents.actionConfirm"),
+        cancel: i18next.t("serverKeyEvents.actionCancel"),
+      },
       confirmProps: { color: "blue" },
       centered: true,
       onConfirm: acceptAction,
@@ -66,7 +84,7 @@ export const hostKeyEventHandler = (
   } else if (payload.o) {
     // Host changes its key
     modals.openConfirmModal({
-      title: "Server changes its key",
+      title: i18next.t("serverKeyEvents.changeTitle"),
       children: (
         <>
           <Flex direction="column" align="center">
@@ -77,29 +95,27 @@ export const hostKeyEventHandler = (
               {serverName}
             </Title>
           </Flex>
-          <TextInput
-            label="Key fingerprint (SHA256)"
-            leftSection={<IconKey size={16} />}
-            value={payload.fp.replace("SHA256:", "")}
-            contentEditable={false}
-            error="Key changed"
+          <Fingerprint
+            label={i18next.t("serverKeyEvents.fingerprintLabel")}
+            fingerprint={payload.fp}
+            error={i18next.t("serverKeyEvents.changeFingerprintError")}
           />
-          <TextInput
-            label="Old key fingerprint (SHA256)"
-            leftSection={<IconKey size={16} />}
-            value={payload.o.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={i18next.t("serverKeyEvents.changeOldFingerprintLabel")}
+            fingerprint={payload.o}
           />
-          <Text c="red">
-            IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY! <br />
-            Someone could be eavesdropping on you right now (man-in-the-middle
-            attack)! <br />
-            It is also possible that a host key has just been changed.
+          <Text c="red" fw={"bold"}>
+            {i18next.t("serverKeyEvents.changeMessage_1")}
           </Text>
-          <Text>Accept the risk and proceed?</Text>
+          <Text c="red">{i18next.t("serverKeyEvents.changeMessage_2")}</Text>
+          <Text c="gray">{i18next.t("serverKeyEvents.changeMessage_3")}</Text>
+          <Text>{i18next.t("serverKeyEvents.changeProceedMessage")}</Text>
         </>
       ),
-      labels: { confirm: "Accept", cancel: "Reject" },
+      labels: {
+        confirm: i18next.t("serverKeyEvents.actionConfirm"),
+        cancel: i18next.t("serverKeyEvents.actionCancel"),
+      },
       confirmProps: { color: "red" },
       centered: true,
       onConfirm: acceptAction,
@@ -108,7 +124,7 @@ export const hostKeyEventHandler = (
   } else {
     // Brand-new host
     modals.openConfirmModal({
-      title: "Brand-new Server",
+      title: i18next.t("serverKeyEvents.newTitle"),
       children: (
         <>
           <Flex direction="column" align="center">
@@ -119,18 +135,16 @@ export const hostKeyEventHandler = (
               {serverName}
             </Title>
           </Flex>
-          <TextInput
-            leftSection={
-              <Tooltip label="Key fingerprint (SHA256)">
-                <IconKey size={16} />
-              </Tooltip>
-            }
-            value={payload.fp.replace("SHA256:", "")}
-            contentEditable={false}
+          <Fingerprint
+            label={i18next.t("serverKeyEvents.fingerprintLabel")}
+            fingerprint={payload.fp}
           />
         </>
       ),
-      labels: { confirm: "Accept", cancel: "Reject" },
+      labels: {
+        confirm: i18next.t("serverKeyEvents.actionConfirm"),
+        cancel: i18next.t("serverKeyEvents.actionCancel"),
+      },
       confirmProps: { color: "green" },
       centered: true,
       onConfirm: acceptAction,

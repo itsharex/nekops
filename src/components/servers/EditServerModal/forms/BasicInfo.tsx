@@ -8,29 +8,33 @@ import {
   TextInput,
   useMantineTheme,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 interface BasicInfoFormProps extends InputFormProps {
   knownTags: string[];
 }
 const BasicInfoForm = ({ form, knownTags }: BasicInfoFormProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+
   const theme = useMantineTheme();
+
   return (
-    <Fieldset legend="Basic Information">
+    <Fieldset legend={t("sectionBasicInfo")}>
       <Grid>
         <Grid.Col span={4}>
           <TextInput
             required
             withAsterisk
-            label="ID"
-            placeholder="my.new.server"
+            label={t("basicIDLabel")}
+            placeholder={t("basicIDPlaceholder")}
             data-autofocus
             {...form.getInputProps("id")}
           />
         </Grid.Col>
         <Grid.Col span={8}>
           <TextInput
-            label="Name"
-            placeholder="My new server"
+            label={t("basicNameLabel")}
+            placeholder={t("basicNamePlaceholder")}
             {...form.getInputProps("name")}
           />
         </Grid.Col>
@@ -38,7 +42,7 @@ const BasicInfoForm = ({ form, knownTags }: BasicInfoFormProps) => {
       <Grid mt="md">
         <Grid.Col span={4}>
           <ColorInput
-            label="Color"
+            label={t("basicColorLabel")}
             swatches={[
               theme.colors.dark[6],
               theme.colors.gray[6],
@@ -60,7 +64,7 @@ const BasicInfoForm = ({ form, knownTags }: BasicInfoFormProps) => {
         </Grid.Col>
         <Grid.Col span={8}>
           <TagsInput
-            label="Tags"
+            label={t("basicTagsLabel")}
             clearable
             data={knownTags}
             {...form.getInputProps("tags")}
@@ -69,10 +73,10 @@ const BasicInfoForm = ({ form, knownTags }: BasicInfoFormProps) => {
       </Grid>
       <Textarea
         mt="md"
-        label="Comment"
+        label={t("basicCommentLabel")}
         autosize
         minRows={6}
-        placeholder="It's blazing fast! Love it."
+        placeholder={t("basicCommentPlaceholder")}
         {...form.getInputProps("comment")}
       />
     </Fieldset>

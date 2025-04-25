@@ -15,7 +15,10 @@ import {
   SuccessNotification,
 } from "@/notifications/rescue.tsx";
 
-export const startVNCSession = async (server: Server) => {
+export const startVNCSession = async (
+  t: (key: string) => string,
+  server: Server,
+) => {
   // Create or open Rescue window
   await openRescueWindow();
 
@@ -23,7 +26,7 @@ export const startVNCSession = async (server: Server) => {
   let isReadyChecker: ReturnType<typeof setInterval> | null = null;
 
   // Set notification
-  let loadingNotify: string | null = notifications.show(LoadingNotification);
+  let loadingNotify: string | null = notifications.show(LoadingNotification(t));
 
   // Generate random nonce to prevent possible conflict, for both server and event
   const nonce = randomString(8);
@@ -45,7 +48,7 @@ export const startVNCSession = async (server: Server) => {
       // Update notification
       if (loadingNotify) {
         notifications.update({
-          ...SuccessNotification,
+          ...SuccessNotification(t),
           id: loadingNotify,
         });
         loadingNotify = null;
@@ -79,7 +82,7 @@ export const startVNCSession = async (server: Server) => {
     if (loadingNotify) {
       // Still loading
       notifications.update({
-        ...FailNotification,
+        ...FailNotification(t),
         id: loadingNotify,
       });
     }

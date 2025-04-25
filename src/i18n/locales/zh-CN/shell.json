@@ -1,0 +1,53 @@
+{
+  "common": {
+    "terminate": "终止",
+    "reconnect": "重新连接",
+    "cancel": "取消"
+  },
+  "contextMenu": {
+    "shellAction": "命令行操作",
+    "selectAll": "全选",
+    "processManage": "进程管理",
+    "terminate": "$t(common.terminate)",
+    "reconnect": "$t(common.reconnect)"
+  },
+  "copyOrPaste": {
+    "copySuccessTitle": "已复制！",
+    "copySuccessMessage": "文本已复制到剪贴板，可以自由粘贴至其他地方了。",
+    "pasteConfirmTitle": "粘贴确认",
+    "pasteConfirmMessage": "剪贴板里包含多行文本，把它们全部粘贴上去吗？",
+    "actionConfirm": "确认",
+    "actionCancel": "$t(common.cancel)"
+  },
+  "modals": {
+    "terminateConfirmTitle": "$t(common.terminate)确认",
+    "terminateConfirmMessage": "您是否确认要$t(common.terminate) :",
+    "terminateConfirmActionConfirm": "$t(common.terminate)",
+    "terminateConfirmActionCancel": "$t(common.cancel)",
+    "reconnectConfirmTitle": "$t(common.reconnect)确认",
+    "reconnectConfirmMessage": "您是否确认要$t(common.reconnect) :",
+    "reconnectConfirmActionConfirm": "$t(common.reconnect)",
+    "reconnectConfirmActionCancel": "$t(common.cancel)",
+    "terminateAllConfirmTitle": "$t(common.terminate)全部",
+    "terminateAllConfirmMessage_before": "这些命令行依然在运行…",
+    "terminateAllConfirmMessage_after": "您是否确认将它们全部$t(common.terminate)？",
+    "terminateAllConfirmActionConfirm": "$t(common.terminate)",
+    "terminateAllConfirmActionCancel": "$t(common.cancel)"
+  },
+  "serverKeyEvents": {
+    "fingerprintLabel": "公钥指纹 (SHA256)",
+    "aliasTitle": "服务器密钥已存在",
+    "aliasMessage": "和这些服务器的密钥相同：",
+    "aliasProceedMessage": "确认继续？",
+    "changeTitle": "服务器密钥改变",
+    "changeFingerprintError": "密钥不匹配",
+    "changeOldFingerprintLabel": "旧的公钥指纹 (SHA256)",
+    "changeMessage_1": "极有可能是有坏东西在做肮脏的事！",
+    "changeMessage_2": "一些人可能正在窃听您（中间人攻击）！",
+    "changeMessage_3": "也有可能只是服务器更换了它的密钥。",
+    "changeProceedMessage": "接受风险并继续？",
+    "newTitle": "全新的服务器",
+    "actionConfirm": "接受",
+    "actionCancel": "拒绝"
+  }
+}

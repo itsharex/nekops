@@ -1,6 +1,8 @@
 import { Button, Flex } from "@mantine/core";
 import { memo } from "react";
 import { IconSend } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
 import SpecialChars from "./SpecialChars.tsx";
 import AdditionalOptions from "./AdditionalOptions.tsx";
 
@@ -21,29 +23,33 @@ const ActionsBar = ({
   setIsClearCommandInputEnabled,
   sendCommand,
   isSendDisabled,
-}: ActionBarProps) => (
-  <Flex direction="row" w="100%" gap="md" align="center">
-    {/*Special chars*/}
-    <SpecialChars appendCode={appendCode} />
+}: ActionBarProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "multirun" });
 
-    {/*Additional options*/}
-    <AdditionalOptions
-      isAddAdditionalEnterEnabled={isAddAdditionalEnterEnabled}
-      setIsAddAdditionalEnterEnabled={setIsAddAdditionalEnterEnabled}
-      isClearCommandInputEnabled={isClearCommandInputEnabled}
-      setIsClearCommandInputEnabled={setIsClearCommandInputEnabled}
-    />
+  return (
+    <Flex direction="row" w="100%" gap="md" align="center">
+      {/*Special chars*/}
+      <SpecialChars appendCode={appendCode} />
 
-    {/*Send*/}
-    <Button
-      fullWidth
-      leftSection={<IconSend size={16} />}
-      onClick={sendCommand}
-      disabled={isSendDisabled}
-    >
-      Send
-    </Button>
-  </Flex>
-);
+      {/*Additional options*/}
+      <AdditionalOptions
+        isAddAdditionalEnterEnabled={isAddAdditionalEnterEnabled}
+        setIsAddAdditionalEnterEnabled={setIsAddAdditionalEnterEnabled}
+        isClearCommandInputEnabled={isClearCommandInputEnabled}
+        setIsClearCommandInputEnabled={setIsClearCommandInputEnabled}
+      />
+
+      {/*Send*/}
+      <Button
+        fullWidth
+        leftSection={<IconSend size={16} />}
+        onClick={sendCommand}
+        disabled={isSendDisabled}
+      >
+        {t("send")}
+      </Button>
+    </Flex>
+  );
+};
 
 export default memo(ActionsBar);

@@ -17,6 +17,7 @@ import {
 
 import { startProxy } from "../startProxy.tsx";
 import VNCCredentialsForm from "./VNCCredentialsForm.tsx";
+import { useTranslation } from "react-i18next";
 
 interface RescueTerminalProps {
   nonce: string;
@@ -32,6 +33,8 @@ const RescueTerminal = ({
   setRescueState,
   setNewMessage,
 }: RescueTerminalProps) => {
+  const { t } = useTranslation("rescue", { keyPrefix: "terminal" });
+
   const vncContainerEl = useRef<HTMLDivElement | null>(null);
 
   const vncInstanceRef = useRef<RFB | null>(null);
@@ -58,7 +61,9 @@ const RescueTerminal = ({
       title: (
         <>
           <Code>{serverName}</Code>
-          <Text>Proxy {status}</Text>
+          <Text>
+            {t("proxy")} {status}
+          </Text>
         </>
       ),
       message,
@@ -71,7 +76,9 @@ const RescueTerminal = ({
       title: (
         <>
           <Code>{serverName}</Code>
-          <Text>VNC {status}</Text>
+          <Text>
+            {t("vnc")} {status}
+          </Text>
         </>
       ),
       message,
@@ -118,7 +125,7 @@ const RescueTerminal = ({
             title: (
               <>
                 <Code>{serverName}</Code>
-                <Text>Requires credential</Text>
+                <Text>{t("requiresCredential")}</Text>
               </>
             ),
             children: (
@@ -134,7 +141,7 @@ const RescueTerminal = ({
         novnc.addEventListener("securityfailure", (ev) => {
           reportVNCError(
             "security failure",
-            `Status: ${ev.detail.status}, reason: ${ev.detail.reason}`,
+            `${t("status")}: ${ev.detail.status}. ${t("reason")}: ${ev.detail.reason}`,
           );
         });
         novnc.addEventListener("clipboard", (ev) => {
@@ -143,12 +150,15 @@ const RescueTerminal = ({
             title: (
               <>
                 <Code>{serverName}</Code>
-                <Text>Clipboard</Text>
+                <Text>{t("clipboardTitle")}</Text>
               </>
             ),
             children: <Code block>{ev.detail.text}</Code>,
             centered: true,
-            labels: { confirm: "Copy", cancel: "Close" },
+            labels: {
+              confirm: t("clipboardConfirm"),
+              cancel: t("clipboardCancel"),
+            },
             onConfirm: () => {
               writeText(ev.detail.text);
             },
@@ -163,10 +173,12 @@ const RescueTerminal = ({
             title: (
               <>
                 <Code>{serverName}</Code>
-                <Text>Desktop Changed</Text>
+                <Text>{t("desktopChangedTitle")}</Text>
               </>
             ),
-            message: `New desktop name: ${ev.detail.name}`,
+            message: t("desktopChangedMessage", {
+              name: ev.detail.name,
+            }),
           });
         });
         novnc.addEventListener("capabilities", (ev) => {
@@ -175,10 +187,12 @@ const RescueTerminal = ({
             title: (
               <>
                 <Code>{serverName}</Code>
-                <Text>Capabilities Changed</Text>
+                <Text>{t("capabilitiesChangedTitle")}</Text>
               </>
             ),
-            message: `New capabilities: ${JSON.stringify(ev.detail.capabilities)}`,
+            message: t("desktopChangedMessage", {
+              capabilities: JSON.stringify(ev.detail.capabilities),
+            }),
           });
         });
       });

@@ -1,21 +1,27 @@
 import { List, Text, Title } from "@mantine/core";
+
 import type { ShellSingleServer } from "@/events/payload.ts";
+
+import i18next from "@/i18n/loaders/shell.ts";
 
 export const terminateConfirmModal = (
   serverName: string,
   serverColor: string,
   onConfirm: () => void,
 ) => ({
-  title: "Terminate confirmation",
+  title: i18next.t("modals.terminateConfirmTitle"),
   children: (
     <>
-      <Text>Are you sure to terminate :</Text>
+      <Text>{i18next.t("modals.terminateConfirmMessage")}</Text>
       <Title order={3} my="md" c={serverColor}>
         {serverName}
       </Title>
     </>
   ),
-  labels: { confirm: "Terminate", cancel: "Cancel" },
+  labels: {
+    confirm: i18next.t("modals.terminateConfirmActionConfirm"),
+    cancel: i18next.t("modals.terminateConfirmActionCancel"),
+  },
   confirmProps: { color: "red" },
   centered: true,
   onConfirm,
@@ -26,16 +32,19 @@ export const reconnectConfirmModal = (
   serverColor: string,
   onConfirm: () => void,
 ) => ({
-  title: "Reconnect confirmation",
+  title: i18next.t("modals.reconnectConfirmTitle"),
   children: (
     <>
-      <Text>Are you sure to reconnect :</Text>
+      <Text>{i18next.t("modals.reconnectConfirmMessage")}</Text>
       <Title order={3} my="md" c={serverColor}>
         {serverName}
       </Title>
     </>
   ),
-  labels: { confirm: "Reconnect", cancel: "Cancel" },
+  labels: {
+    confirm: i18next.t("modals.reconnectConfirmActionConfirm"),
+    cancel: i18next.t("modals.reconnectConfirmActionCancel"),
+  },
   confirmProps: { color: "yellow" },
   centered: true,
   onConfirm,
@@ -45,10 +54,10 @@ export const terminateAllConfirmModal = (
   activeServers: ShellSingleServer[],
   onConfirm: () => void,
 ) => ({
-  title: "Terminate All",
+  title: i18next.t("modals.terminateAllConfirmTitle"),
   children: (
     <>
-      <Text>These shells are still running...</Text>
+      <Text>{i18next.t("modals.terminateAllConfirmMessage_before")}</Text>
       <List my="md" ml="md">
         {activeServers.map((server) => (
           <List.Item key={server.nonce} c={server.color}>
@@ -56,10 +65,13 @@ export const terminateAllConfirmModal = (
           </List.Item>
         ))}
       </List>
-      <Text>Are you sure to terminate them all?</Text>
+      <Text>{i18next.t("modals.terminateAllConfirmMessage_after")}</Text>
     </>
   ),
-  labels: { confirm: "Terminate", cancel: "Cancel" },
+  labels: {
+    confirm: i18next.t("modals.terminateAllConfirmActionConfirm"),
+    cancel: i18next.t("modals.terminateAllConfirmActionCancel"),
+  },
   confirmProps: { color: "red" },
   centered: true,
   onConfirm,

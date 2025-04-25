@@ -1,4 +1,4 @@
-import { Code, Menu } from "@mantine/core";
+import { Kbd, Menu } from "@mantine/core";
 import {
   IconCommand,
   IconLinkOff,
@@ -7,6 +7,8 @@ import {
   IconRotate,
   IconRotateDot,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
 import { menuIconStyle } from "@/common/actionStyles.ts";
 
 interface RescueTabContextMenuProps {
@@ -35,67 +37,71 @@ const RescueTabContextMenu = ({
   onClickPowerCycleReboot,
   onClickTerminate,
   onClickReconnect,
-}: RescueTabContextMenuProps) => (
-  <Menu opened={isOpen} onChange={setIsOpen} position="bottom-start">
-    <Menu.Target>
-      <div
-        style={{
-          left: pos.x,
-          top: pos.y,
-          position: "absolute",
-        }}
-      />
-    </Menu.Target>
-    <Menu.Dropdown>
-      <Menu.Label>Custom Input</Menu.Label>
-      <Menu.Item
-        leftSection={<IconCommand style={menuIconStyle} />}
-        onClick={onClickSendCtrlAltDel}
-      >
-        Send <Code>Ctrl</Code>+<Code>Alt</Code>+<Code>Del</Code>
-      </Menu.Item>
+}: RescueTabContextMenuProps) => {
+  const { t } = useTranslation("rescue", { keyPrefix: "contextMenu" });
 
-      <Menu.Divider />
+  return (
+    <Menu opened={isOpen} onChange={setIsOpen} position="bottom-start">
+      <Menu.Target>
+        <div
+          style={{
+            left: pos.x,
+            top: pos.y,
+            position: "absolute",
+          }}
+        />
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Label>{t("customInput")}</Menu.Label>
+        <Menu.Item
+          leftSection={<IconCommand style={menuIconStyle} />}
+          onClick={onClickSendCtrlAltDel}
+        >
+          {t("sendKeys")} <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>Del</Kbd>
+        </Menu.Item>
 
-      <Menu.Label>Power Cycle</Menu.Label>
-      <Menu.Item
-        leftSection={<IconPower style={menuIconStyle} />}
-        onClick={onClickPowerCycleShutdown}
-      >
-        Shutdown
-      </Menu.Item>
-      <Menu.Item
-        leftSection={<IconProgressBolt style={menuIconStyle} />}
-        onClick={onClickPowerCycleReset}
-      >
-        Reset
-      </Menu.Item>
-      <Menu.Item
-        leftSection={<IconRotateDot style={menuIconStyle} />}
-        onClick={onClickPowerCycleReboot}
-      >
-        Reboot
-      </Menu.Item>
+        <Menu.Divider />
 
-      <Menu.Divider />
+        <Menu.Label>{t("powerCycle")}</Menu.Label>
+        <Menu.Item
+          leftSection={<IconPower style={menuIconStyle} />}
+          onClick={onClickPowerCycleShutdown}
+        >
+          {t("shutdown")}
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<IconProgressBolt style={menuIconStyle} />}
+          onClick={onClickPowerCycleReset}
+        >
+          {t("reset")}
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<IconRotateDot style={menuIconStyle} />}
+          onClick={onClickPowerCycleReboot}
+        >
+          {t("reboot")}
+        </Menu.Item>
 
-      <Menu.Label>Process Manage</Menu.Label>
-      <Menu.Item
-        leftSection={<IconLinkOff style={menuIconStyle} />}
-        onClick={onClickTerminate}
-        color="red"
-      >
-        Terminate
-      </Menu.Item>
-      <Menu.Item
-        leftSection={<IconRotate style={menuIconStyle} />}
-        onClick={onClickReconnect}
-        color="yellow"
-      >
-        Reconnect
-      </Menu.Item>
-    </Menu.Dropdown>
-  </Menu>
-);
+        <Menu.Divider />
+
+        <Menu.Label>{t("processManage")}</Menu.Label>
+        <Menu.Item
+          leftSection={<IconLinkOff style={menuIconStyle} />}
+          onClick={onClickTerminate}
+          color="red"
+        >
+          {t("terminate")}
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<IconRotate style={menuIconStyle} />}
+          onClick={onClickReconnect}
+          color="yellow"
+        >
+          {t("reconnect")}
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
+  );
+};
 
 export default RescueTabContextMenu;

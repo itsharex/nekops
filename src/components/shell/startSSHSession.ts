@@ -19,6 +19,7 @@ import {
 } from "@/notifications/shell.tsx";
 
 export const startSSHSession = async (
+  t: (key: string) => string,
   clientOptions: ShellClientOptions,
   server: Server,
   jumpServer?: Server,
@@ -30,7 +31,7 @@ export const startSSHSession = async (
   let isReadyChecker: ReturnType<typeof setInterval> | null = null;
 
   // Set notification
-  let loadingNotify: string | null = notifications.show(LoadingNotification);
+  let loadingNotify: string | null = notifications.show(LoadingNotification(t));
 
   // Generate random nonce to prevent possible conflict, for both server and event
   const nonce = randomString(8);
@@ -52,7 +53,7 @@ export const startSSHSession = async (
       // Update notification
       if (loadingNotify) {
         notifications.update({
-          ...SuccessNotification,
+          ...SuccessNotification(t),
           id: loadingNotify,
         });
         loadingNotify = null;
@@ -88,7 +89,7 @@ export const startSSHSession = async (
     if (loadingNotify) {
       // Still loading
       notifications.update({
-        ...FailNotification,
+        ...FailNotification(t),
         id: loadingNotify,
       });
     }

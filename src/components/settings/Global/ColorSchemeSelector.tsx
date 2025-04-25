@@ -6,37 +6,39 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { IconBolt, IconMoon, IconSun } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
 import { transformSegmentedControlOptions } from "@/components/settings/utils.tsx";
 
-const colorSchemeData = [
-  {
-    icon: IconSun,
-    text: "Light",
-    value: "light",
-  },
-  {
-    icon: IconBolt,
-    text: "Auto",
-    value: "auto",
-  },
-  {
-    icon: IconMoon,
-    text: "Dark",
-    value: "dark",
-  },
-];
-
 const ColorSchemeSelector = () => {
+  const { t } = useTranslation("main", { keyPrefix: "settings" });
+
   const { colorScheme, setColorScheme, clearColorScheme } =
     useMantineColorScheme();
 
   return (
     <Flex direction="column">
       <Text size="sm" fw={500} mb={2}>
-        Color Scheme
+        {t("globalColorScheme")}
       </Text>
       <SegmentedControl
-        data={transformSegmentedControlOptions(colorSchemeData)}
+        data={transformSegmentedControlOptions([
+          {
+            icon: IconSun,
+            text: t("globalColorScheme_light"),
+            value: "light",
+          },
+          {
+            icon: IconBolt,
+            text: t("globalColorScheme_auto"),
+            value: "auto",
+          },
+          {
+            icon: IconMoon,
+            text: t("globalColorScheme_dark"),
+            value: "dark",
+          },
+        ])}
         value={colorScheme}
         onChange={(newScheme) => {
           if (["light", "dark", "auto"].includes(newScheme)) {

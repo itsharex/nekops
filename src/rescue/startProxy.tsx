@@ -1,6 +1,8 @@
 // import type { TabState } from "@/types/tabState.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 
+import i18next from "@/i18n/loaders/rescue.ts";
+
 export const startProxy = (
   reportProxyError: (status: string, message: string) => void,
   // setRescueState: (newState: TabState) => void,
@@ -8,6 +10,8 @@ export const startProxy = (
   vncAddress: string,
 ) =>
   new Promise<string>((resolve, reject) => {
+    let isTerminated = false;
+
     // Start proxy
 
     const proxyCommand = Command.sidecar("embedded/bin/websockify", [
@@ -18,8 +22,15 @@ export const startProxy = (
     // Mount event listeners
     proxyCommand.on("close", (data) => {
       // setRescueState("terminated");
-
-      reportProxyError("exited", `Proxy exited with code ${data.code} .`);
+      if (!isTerminated) {
+        reportProxyError(
+          "exited",
+          i18next.t("proxyEvents.exit", {
+            code: data.code,
+          }),
+        );
+        isTerminated = true;
+      }
 
       // Invalidate terminate func
       setTerminateFunc(null);
@@ -37,12 +48,20 @@ export const startProxy = (
         const wsUrl = `ws://${host}:${port}/websockify`;
         resolve(wsUrl);
       } catch (e) {
-        reportProxyError("initialize failed", `Invalid JSON: ${data}`);
+        reportProxyError(
+          "initialize",
+          i18next.t("proxyEvents.exit", {
+            data,
+          }),
+        );
         reject(e);
       }
     });
 
     proxyCommand.spawn().then((proxyProcess) => {
-      setTerminateFunc(() => proxyProcess.kill());
+      setTerminateFunc(() => {
+        isTerminated = true;
+        proxyProcess.kill();
+      });
     });
   });

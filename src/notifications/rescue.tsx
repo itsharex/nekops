@@ -2,27 +2,31 @@ import type { NotificationData } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { rem } from "@mantine/core";
 
-export const LoadingNotification: NotificationData = {
+export const LoadingNotification = (
+  t: (key: string) => string,
+): NotificationData => ({
   color: "blue",
   loading: true,
-  title: "Preparing rescue...",
-  message:
-    "This shouldn't take too long... Or at least it's designed to be quick.",
+  title: t("notificationLoadingTitle"),
+  message: t("notificationLoadingMessage"),
   autoClose: false,
   withCloseButton: false,
-};
+});
 
-export const SuccessNotification: NotificationData = {
+export const SuccessNotification = (
+  t: (key: string) => string,
+): NotificationData => ({
   color: "teal",
-  title: "Prepare finished!",
-  message: "Wish everything goes well.",
+  title: t("notificationSuccessTitle"),
+  message: t("notificationSuccessMessage"),
   icon: <IconCheck style={{ width: rem(18), height: rem(18) }} />,
   loading: false,
   autoClose: 4_000,
-};
+});
 
-export const FailNotification: NotificationData = {
+export const FailNotification = (
+  t: (key: string) => string,
+): NotificationData => ({
   color: "red",
-  message:
-    "It shouldn't take so long. If it's still not responding, you may need to restart the rescue window, or even the whole program.",
-};
+  message: t("notificationFailMessage"),
+});

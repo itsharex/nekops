@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { IconBuilding, IconMapPin } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 type LocationAndCount = {
   region: string;
@@ -24,6 +25,8 @@ interface CountByRegionProps {
   servers: Server[];
 }
 const RegionCard = ({ servers }: CountByRegionProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "analysis" });
+
   const theme = useMantineTheme();
 
   const [locationCount, setLocationCount] = useState<LocationAndCount[]>([]);
@@ -32,7 +35,7 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
     const locntsMap = new Map<string, number>();
     for (const server of servers) {
       locntsMap.set(
-        server.location.region || "World",
+        server.location.region || t("geolocationWorld"),
         (locntsMap.get(server.location.region) || 0) + 1,
       );
     }
@@ -93,7 +96,7 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
         <Group justify="space-between">
           <Box>
             <Title c="dimmed" order={3} size="h5" fw={700}>
-              DataCenter Regions
+              {t("geolocationDataCenterRegions")}
             </Title>
 
             <Group>
@@ -112,7 +115,7 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
 
         <Box>
           <Title c="dimmed" order={3} size="h6">
-            Server count by Region
+            {t("geolocationServerCountByRegion")}
           </Title>
 
           <Progress.Root size={34} mt={16}>

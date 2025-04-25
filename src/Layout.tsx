@@ -2,7 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 
 import { createTheme, MantineProvider } from "@mantine/core";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import { Notifications } from "@mantine/notifications";
 import { useSelector } from "react-redux";
 
@@ -39,10 +39,10 @@ const Layout = () => {
 
   return (
     <MantineProvider theme={theme}>
-      <BrowserRouter>
+      <HashRouter>
         <Notifications />
         <App />
-      </BrowserRouter>
+      </HashRouter>
     </MantineProvider>
   );
 };

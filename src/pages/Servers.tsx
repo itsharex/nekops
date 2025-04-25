@@ -10,6 +10,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 import type { Server } from "@/types/server.ts";
 import EditServerModal from "@/components/servers/EditServerModal";
@@ -33,6 +34,8 @@ import ServerTable from "@/components/servers/ServerTable";
 // const passwordUnchanged = "keep-unchanged";
 
 const ServersPage = () => {
+  const { t } = useTranslation("main", { keyPrefix: "library" });
+
   const servers = useSelector((state: RootState) => state.servers);
   const encryption = useSelector((state: RootState) => state.encryption);
   const dispatch = useDispatch<AppDispatch>();
@@ -52,7 +55,7 @@ const ServersPage = () => {
   const notifyDupID = (dupServerName: string) => {
     notifications.show({
       color: "yellow",
-      title: "Duplicate ID found",
+      title: t("duplicateID"),
       message: (
         <>
           Specified ID is conflict with server <Code>{dupServerName}</Code>.
@@ -154,11 +157,11 @@ const ServersPage = () => {
           {/*Search and Create*/}
           <Flex direction="row" justify="space-between" gap="lg">
             <SearchBar
-              placeholder="Search servers"
+              placeholder="searchServers"
               setSearchInput={setSearchInput}
             />
 
-            <Tooltip label="New server" openDelay={500}>
+            <Tooltip label={t("newServer")} openDelay={500}>
               <ActionIcon
                 size="lg"
                 color="green"

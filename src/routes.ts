@@ -51,51 +51,51 @@ export const routes = [
 
 export const navs = [
   {
-    label: "Connect",
+    label: "connect",
     icon: IconCirclesRelation,
     path: "#/connect",
     subs: [
       {
-        label: "SSH",
+        label: "ssh",
         icon: IconTerminal2,
         path: "/",
       },
       {
-        label: "Multirun",
+        label: "multirun",
         icon: IconStars,
         path: "/multirun",
       },
       {
-        label: "Rescue",
+        label: "rescue",
         icon: IconHeartbeat,
         path: "/rescue",
       },
     ],
   },
   {
-    label: "Library",
+    label: "library",
     icon: IconLibrary,
     path: "#/library",
     subs: [
       {
-        label: "Servers",
+        label: "servers",
         icon: IconServerCog,
         path: "/servers",
       },
       {
-        label: "Snippets",
+        label: "snippets",
         icon: IconCodeAsterix,
         path: "/snippets",
       },
     ],
   },
   {
-    label: "Analysis",
+    label: "analysis",
     icon: IconChartBar,
     path: "/analysis",
   },
   {
-    label: "Settings",
+    label: "settings",
     icon: IconSettings,
     path: "/settings",
   },

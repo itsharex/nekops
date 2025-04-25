@@ -130,7 +130,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
 
 const HardwareForm = ({ form }: InputFormProps) => {
   const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
-  const defaultDisk = i18nDefaultDisk(t);
+  const defaultDisk = i18nDefaultDisk();
 
   return (
     <>

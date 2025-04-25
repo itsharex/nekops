@@ -9,12 +9,12 @@ import {
   TextInput,
   useMantineTheme,
 } from "@mantine/core";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 import type { Server } from "@/types/server.ts";
 import { defaultServer } from "@/types/server.ts";
-import { useSelector } from "react-redux";
 import type { RootState } from "@/store.ts";
-import { useEffect } from "react";
 
 type TempLaunchForm = {
   address: string;

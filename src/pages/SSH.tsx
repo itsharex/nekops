@@ -39,7 +39,6 @@ const SSHPage = () => {
 
   const startSSH = async (server: Server, jumpServer?: Server) => {
     startSSHSession(
-      t,
       {
         type: settings.default_ssh_client,
         workspaceKnownHostsFile: await path.join(
@@ -124,6 +123,7 @@ const SSHPage = () => {
           onContextMenu={rightClickServerCard}
         />
       </Flex>
+
       <SSHContextMenu
         isOpen={isSSHContextMenuOpen}
         setIsOpen={setIsSSHContextMenuOpen}
@@ -145,6 +145,7 @@ const SSHPage = () => {
           }
         }}
       />
+
       <SSHTempLaunchModal
         isOpen={isTempLaunchModalOpen}
         close={closeTempLaunchModal}

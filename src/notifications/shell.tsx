@@ -2,31 +2,27 @@ import type { NotificationData } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { rem } from "@mantine/core";
 
-export const LoadingNotification = (
-  t: (key: string) => string,
-): NotificationData => ({
+import i18next from "@/i18n/loaders/main.ts";
+
+export const LoadingNotification: NotificationData = {
   color: "blue",
   loading: true,
-  title: t("notificationLoadingTitle"),
-  message: t("notificationLoadingMessage"),
+  title: i18next.t("ssh.notificationLoadingTitle"),
+  message: i18next.t("ssh.notificationLoadingMessage"),
   autoClose: false,
   withCloseButton: false,
-});
+};
 
-export const SuccessNotification = (
-  t: (key: string) => string,
-): NotificationData => ({
+export const SuccessNotification: NotificationData = {
   color: "teal",
-  title: t("notificationSuccessTitle"),
-  message: t("notificationSuccessMessage"),
+  title: i18next.t("ssh.notificationSuccessTitle"),
+  message: i18next.t("ssh.notificationSuccessMessage"),
   icon: <IconCheck style={{ width: rem(18), height: rem(18) }} />,
   loading: false,
   autoClose: 4_000,
-});
+};
 
-export const FailNotification = (
-  t: (key: string) => string,
-): NotificationData => ({
+export const FailNotification: NotificationData = {
   color: "red",
-  message: t("notificationFailMessage"),
-});
+  message: i18next.t("ssh.notificationFailMessage"),
+};

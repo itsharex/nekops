@@ -66,7 +66,7 @@ const EditServerModal = ({
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
 
-  const defaultServer = i18nDefaultServer(t);
+  const defaultServer = i18nDefaultServer();
 
   const form = useForm<Server>({
     // mode: "uncontrolled",

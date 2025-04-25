@@ -48,7 +48,7 @@ const RescuePage = () => {
   const launchRescuePlatform = async () => {
     switch (activeServer?.access.emergency.method) {
       case "VNC":
-        startVNCSession(t, activeServer);
+        startVNCSession(activeServer);
         break;
       case "IPMI":
         try {

@@ -80,6 +80,8 @@ export const hostKeyEventHandler = (
       centered: true,
       onConfirm: acceptAction,
       onCancel: rejectAction,
+      withCloseButton: false,
+      closeOnClickOutside: false,
     });
   } else if (payload.o) {
     // Host changes its key
@@ -120,6 +122,8 @@ export const hostKeyEventHandler = (
       centered: true,
       onConfirm: acceptAction,
       onCancel: rejectAction,
+      withCloseButton: false,
+      closeOnClickOutside: false,
     });
   } else {
     // Brand-new host
@@ -149,6 +153,8 @@ export const hostKeyEventHandler = (
       centered: true,
       onConfirm: acceptAction,
       onCancel: rejectAction,
+      withCloseButton: false,
+      closeOnClickOutside: false,
     });
   }
 };

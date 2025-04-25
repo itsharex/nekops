@@ -1,0 +1,13 @@
+.wrapper {
+  transition: all 0.2s;
+  box-shadow: var(--mantine-shadow-sm);
+  min-height: calc(12rem * var(--mantine-scale));
+
+  &.clickable {
+    cursor: pointer;
+    @mixin hover {
+      border-color: var(--mantine-color-blue-outline);
+      box-shadow: var(--mantine-shadow-lg);
+    }
+  }
+}

@@ -34,11 +34,12 @@ const TabsTableRow = ({
       />
     </Table.Td>
     <Table.Td>{tab.server.name}</Table.Td>
-    <Table.Td>
-      {isShowingGrid &&
-        `${tab.gridLocation.row + 1}-${tab.gridLocation.col + 1} `}
-      #{tab.gridLocation.order + 1}
-    </Table.Td>
+    {isShowingGrid && (
+      <Table.Td>
+        {tab.gridLocation.row + 1} - {tab.gridLocation.col + 1}
+      </Table.Td>
+    )}
+    <Table.Td>#{tab.gridLocation.order + 1}</Table.Td>
     <Table.Td ta="center">
       <TabStateIcon state={tab.state} isNewMessage={tab.isNewMessage} />
     </Table.Td>

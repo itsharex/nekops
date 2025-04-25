@@ -25,7 +25,8 @@ const TabsTableHead = ({
         />
       </Table.Th>
       <Table.Th>{t("serverName")}</Table.Th>
-      <Table.Th>{isShowingGrid ? t("gridLocation") : t("order")}</Table.Th>
+      {isShowingGrid && <Table.Th>{t("gridLocation")}</Table.Th>}
+      <Table.Th>{t("order")}</Table.Th>
       <Table.Th style={actionRowStyle(1)}>{t("state")}</Table.Th>
     </Table.Tr>
   );

@@ -24,3 +24,20 @@
   flex-grow: 1;
   box-shadow: 0 0 0 3px var(--mantine-color-gray-light);
 }
+
+.dropzoneWrapper {
+  flex-grow: 1;
+  overflow: clip;
+  height: 0;
+}
+
+.dropzonePlaceholder {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-color: var(--mantine-color-cyan-6);
+}

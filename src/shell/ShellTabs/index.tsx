@@ -40,7 +40,7 @@ import { useRefState } from "@/common/useRefState.ts";
 import ShellTabContextMenu from "./ContextMenu.tsx";
 import ShellTab from "./Tab.tsx";
 import ShellPanel from "./Panel.tsx";
-import style from "./style.module.css";
+import classes from "./styles.module.css";
 import { LayoutColsWeight } from "./layoutConfig.ts";
 import { DndZonePanel, DndZoneTabs } from "./dndConfig.ts";
 import { gridModifyHandler } from "./gridModifyHandlers.ts";
@@ -484,9 +484,9 @@ const ShellTabs = () => {
     <>
       <Grid
         classNames={{
-          root: style.gridRoot,
-          inner: style.gridInner,
-          col: style.gridCol,
+          root: classes.gridRoot,
+          inner: classes.gridInner,
+          col: classes.gridCol,
         }}
         columns={LayoutColsWeight}
         gutter={0}
@@ -512,7 +512,7 @@ const ShellTabs = () => {
                   >
                     <Tabs
                       variant="none"
-                      className={style.tabs}
+                      className={classes.tabs}
                       value={
                         activeTab.find(
                           (p) => p.row === rowIndex && p.col === colIndex,
@@ -603,27 +603,14 @@ const ShellTabs = () => {
                       >
                         {(provided, snapshot) => (
                           <Box
-                            style={{
-                              flexGrow: 1,
-                              overflow: "clip",
-                              height: 0,
-                            }}
+                            className={classes.dropzoneWrapper}
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                           >
                             {/*DnD Dropzone*/}
                             <Box
-                              pos="absolute"
-                              w="100%"
-                              h="100%"
-                              top={0}
-                              left={0}
-                              bg="cyan"
+                              className={classes.dropzonePlaceholder}
                               opacity={snapshot.isDraggingOver ? 0.2 : 0}
-                              style={{
-                                pointerEvents: "none",
-                                zIndex: 1,
-                              }}
                             >
                               {provided.placeholder}
                             </Box>

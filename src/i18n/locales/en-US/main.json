@@ -39,7 +39,12 @@
     "contextMenuConnectDirectly": "Connect Directly",
     "contextMenuCopyCommand": "Copy Command",
     "contextMenuStartSession": "Start Session",
-    "contextMenuConnectWithJumpServer": "Connect w/ Jump Server"
+    "contextMenuConnectWithJumpServer": "Connect w/ Jump Server",
+    "tempLaunch": "Temp Launch",
+    "tempLaunchAddressLabel": "Address",
+    "tempLaunchPortLabel": "Port",
+    "tempLaunchUserLabel": "User",
+    "tempLaunchButton": "Launch"
   },
   "multirun": {
     "serverName": "Server Name",

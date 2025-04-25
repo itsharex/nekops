@@ -1,9 +1,10 @@
-import { Box, Flex } from "@mantine/core";
+import { ActionIcon, Box, Flex, Tooltip } from "@mantine/core";
 import { useSelector } from "react-redux";
 import type { MouseEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 import { path } from "@tauri-apps/api";
 import { useTranslation } from "react-i18next";
+import { useDisclosure } from "@mantine/hooks";
 
 import type { RootState } from "@/store.ts";
 import SearchBar from "@/components/SearchBar.tsx";
@@ -13,6 +14,9 @@ import { startSSHSession } from "@/components/shell/startSSHSession.ts";
 import { copySSHCommand } from "@/components/shell/copySSHCommand.ts";
 import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
+import { actionIconStyle } from "@/common/actionStyles.ts";
+import { IconRocket } from "@tabler/icons-react";
+import SSHTempLaunchModal from "@/components/shell/SSHTempLaunchModal.tsx";
 
 const SSHPage = () => {
   const { t } = useTranslation("main", { keyPrefix: "ssh" });
@@ -27,6 +31,11 @@ const SSHPage = () => {
     [servers],
   );
   const settings = useSelector((state: RootState) => state.settings);
+
+  const [
+    isTempLaunchModalOpen,
+    { open: openTempLaunchModal, close: closeTempLaunchModal },
+  ] = useDisclosure(false);
 
   const startSSH = async (server: Server, jumpServer?: Server) => {
     startSSHSession(
@@ -92,10 +101,22 @@ const SSHPage = () => {
         }}
       >
         <Box p="md">
-          <SearchBar
-            placeholder="searchServers"
-            setSearchInput={setSearchInput}
-          />
+          <Flex direction="row" justify="space-between" gap="lg">
+            <SearchBar
+              placeholder="searchServers"
+              setSearchInput={setSearchInput}
+            />
+
+            <Tooltip label={t("tempLaunch")} openDelay={500}>
+              <ActionIcon
+                size="lg"
+                color="orange"
+                onClick={openTempLaunchModal}
+              >
+                <IconRocket style={actionIconStyle} />
+              </ActionIcon>
+            </Tooltip>
+          </Flex>
         </Box>
         <ServerCardsVirtualScroll
           servers={searchServers(searchInput, serversWithRegularAccess)}
@@ -123,6 +144,11 @@ const SSHPage = () => {
             clickServerCard(currentSelectedServer.current, jumpServer);
           }
         }}
+      />
+      <SSHTempLaunchModal
+        isOpen={isTempLaunchModalOpen}
+        close={closeTempLaunchModal}
+        launch={startSSH}
       />
     </>
   );

@@ -51,7 +51,12 @@
     "contextMenuConnectDirectly": "直接连接",
     "contextMenuCopyCommand": "$t(settings.globalDefaultSSHAction_copy)",
     "contextMenuStartSession": "$t(settings.globalDefaultSSHAction_start)",
-    "contextMenuConnectWithJumpServer": "通过跳板机连接"
+    "contextMenuConnectWithJumpServer": "通过跳板机连接",
+    "tempLaunch": "临时启动",
+    "tempLaunchAddressLabel": "地址",
+    "tempLaunchPortLabel": "端口",
+    "tempLaunchUserLabel": "用户",
+    "tempLaunchButton": "启动"
   },
   "multirun": {
     "serverName": "$t(table.serverName)",

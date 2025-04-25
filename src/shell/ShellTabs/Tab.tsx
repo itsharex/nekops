@@ -1,17 +1,12 @@
 import type { ShellSingleServer } from "@/events/payload.ts";
 import type { TabState } from "@/types/tabState.ts";
 import type { MouseEvent } from "react";
-import { useEffect } from "react";
-import {
-  ActionIcon,
-  rem,
-  Tabs,
-  useComputedColorScheme,
-  useMantineTheme,
-} from "@mantine/core";
+import { useEffect, useRef } from "react";
+import { ActionIcon, Tabs, useComputedColorScheme } from "@mantine/core";
 import TabStateIcon from "@/components/TabStateIcon.tsx";
 import { IconX } from "@tabler/icons-react";
-import { useHover } from "@mantine/hooks";
+
+import classes from "./ShellTab.module.css";
 
 interface ShellTabProps {
   data: ShellSingleServer;
@@ -29,14 +24,13 @@ const ShellTab = ({
   onContextMenu,
   isActive,
 }: ShellTabProps) => {
-  const { hovered, ref: tabElementRef } = useHover();
+  const tabElementRef = useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
     if (isActive) {
       tabElementRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [isActive]);
-
-  const theme = useMantineTheme();
   const colorScheme = useComputedColorScheme();
 
   return (
@@ -44,17 +38,9 @@ const ShellTab = ({
       ref={tabElementRef}
       value={data.nonce}
       color={data.color}
+      className={`${classes.tab} ${colorScheme}`}
       style={{
-        borderBottomWidth: rem(4),
         borderBottomColor: isActive ? data.color : "transparent",
-        borderBottomStyle: "solid",
-        backgroundColor: hovered
-          ? colorScheme === "light"
-            ? theme.colors.gray[0]
-            : theme.colors.dark[6]
-          : colorScheme === "light"
-            ? theme.white
-            : theme.colors.dark[7],
       }}
       leftSection={<TabStateIcon state={state} isNewMessage={isNewMessage} />}
       rightSection={

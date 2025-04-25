@@ -28,7 +28,7 @@ interface DiskItemProps extends InputFormProps {
   index: number;
 }
 const DiskItem = ({ disk, index, form }: DiskItemProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   const itemName =
     `${t("hardwareDisk")} ${index + 1}: ` +
@@ -129,7 +129,7 @@ const DiskItem = ({ disk, index, form }: DiskItemProps) => {
 };
 
 const HardwareForm = ({ form }: InputFormProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
   const defaultDisk = i18nDefaultDisk(t);
 
   return (

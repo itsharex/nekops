@@ -22,7 +22,7 @@ const ProductForm = ({
   knownProviders,
   knownRegions,
 }: ProductFormProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   return (
     <>

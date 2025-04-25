@@ -14,7 +14,7 @@ interface BasicInfoFormProps extends InputFormProps {
   knownTags: string[];
 }
 const BasicInfoForm = ({ form, knownTags }: BasicInfoFormProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   const theme = useMantineTheme();
 

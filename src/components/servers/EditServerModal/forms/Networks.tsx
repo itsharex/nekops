@@ -24,7 +24,7 @@ interface IPItemProps extends InputFormProps {
   index: number;
 }
 const IPItem = ({ ip, formListItem, index, form }: IPItemProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   const ipCIDR = `${ip.address}/${ip.cidr_prefix}`;
   const itemName =
@@ -118,7 +118,7 @@ interface NetworkIPGroupProps extends InputFormProps {
   mt?: string;
 }
 const NetworkIPGroup = ({ isPrivate, mt, form }: NetworkIPGroupProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   return (
     <Fieldset

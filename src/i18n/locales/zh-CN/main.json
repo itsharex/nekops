@@ -134,9 +134,9 @@
     "confirm": "删除",
     "cancel": "取消"
   },
-  "editServer": {
-    "modalTitleCreate": "$t(common.add)新的$t(common.server)",
-    "modalTitleEdit": "编辑$t(common.server)",
+  "editServerModal": {
+    "titleCreate": "$t(common.add)新的$t(common.server)",
+    "titleEdit": "编辑$t(common.server)",
     "sectionBasicInfo": "基础信息",
     "sectionProduct": "产品详情",
     "sectionHardware": "硬件设施",
@@ -217,9 +217,9 @@
     "accessCommentLabel": "备注",
     "accessCommentPlaceholder": "重启前记得备份！"
   },
-  "editSnippet": {
-    "modalTitleCreate": "$t(common.add)新的$t(common.snippet)",
-    "modalTitleEdit": "编辑$t(common.snippet)",
+  "editSnippetModal": {
+    "titleCreate": "$t(common.add)新的$t(common.snippet)",
+    "titleEdit": "编辑$t(common.snippet)",
     "nameLabel": "$t(common.name)",
     "tagsLabel": "$t(common.tag)",
     "buttonSave": "$t(common.save)"

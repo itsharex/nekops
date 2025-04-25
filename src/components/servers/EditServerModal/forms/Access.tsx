@@ -22,7 +22,7 @@ const AccessForm = ({
   knownSSHUsers,
   isCreatingNew,
 }: AccessFormProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   const publicAccessEndpoints = [
     ...new Set(form.values.network.public.map((ip) => ip.alias || ip.address)),

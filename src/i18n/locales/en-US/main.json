@@ -122,9 +122,9 @@
     "confirm": "Delete",
     "cancel": "Cancel"
   },
-  "editServer": {
-    "modalTitleCreate": "Add new server",
-    "modalTitleEdit": "Edit server",
+  "editServerModal": {
+    "titleCreate": "Add new server",
+    "titleEdit": "Edit server",
     "sectionBasicInfo": "Basic Info",
     "sectionProduct": "Product",
     "sectionHardware": "Hardware",
@@ -205,9 +205,9 @@
     "accessCommentLabel": "Comment",
     "accessCommentPlaceholder": "Don't forget to backup before reboot!"
   },
-  "editSnippet": {
-    "modalTitleCreate": "Add new snippet",
-    "modalTitleEdit": "Edit snippet",
+  "editSnippetModal": {
+    "titleCreate": "Add new snippet",
+    "titleEdit": "Edit snippet",
     "nameLabel": "Name",
     "tagsLabel": "Tags",
     "buttonSave": "Save"

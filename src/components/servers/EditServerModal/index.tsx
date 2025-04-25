@@ -56,7 +56,7 @@ const EditServerModal = ({
   knownRegions,
   knownSSHUsers,
 }: EditServerModalProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServer" });
+  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   const StepsCount = 5;
 
@@ -118,11 +118,11 @@ const EditServerModal = ({
           <Title order={1} size="h3">
             {serverInfo ? (
               <>
-                {t("modalTitleEdit")}
+                {t("titleEdit")}
                 <Code ml="xs">{serverInfo.name}</Code>
               </>
             ) : (
-              t("modalTitleCreate")
+              t("titleCreate")
             )}
           </Title>
           <Modal.CloseButton />

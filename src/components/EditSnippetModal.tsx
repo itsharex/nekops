@@ -18,7 +18,7 @@ const EditSnippetModal = ({
   snippetInfo,
   save,
 }: EditSnippetModalProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editSnippet" });
+  const { t } = useTranslation("main", { keyPrefix: "editSnippetModal" });
 
   const form = useForm<Snippet>({
     initialValues: defaultSnippet,
@@ -45,11 +45,11 @@ const EditSnippetModal = ({
       title={
         snippetInfo ? (
           <>
-            {t("modalTitleEdit")}
-            <Code>{snippetInfo.name}</Code>
+            {t("titleEdit")}
+            <Code ml="xs">{snippetInfo.name}</Code>
           </>
         ) : (
-          t("modalTitleCreate")
+          t("titleCreate")
         )
       }
       opened={isOpen}

@@ -97,7 +97,8 @@
     "notificationLoadingMessage": "这应该不会耗费很长时间，至少从设计上来说。",
     "notificationSuccessTitle": "准备完成！",
     "notificationSuccessMessage": "希望一切顺利。",
-    "notificationFailMessage": "它不应该耗费如此长的时间。如果它还是没有响应，您可能需要重启$t(common.rescue)窗口，或者甚至是整个程序。"
+    "notificationFailMessage": "它不应该耗费如此长的时间。如果它还是没有响应，您可能需要重启$t(common.rescue)窗口，或者甚至是整个程序。",
+    "actionKeyboardText": "输入"
   },
   "library": {
     "tags": "$t(common.tag)",

@@ -37,6 +37,8 @@ interface KeyboardProps {
   text: string;
 }
 const Keyboard = ({ text }: KeyboardProps) => {
+  const { t } = useTranslation("main", { keyPrefix: "rescue" });
+
   const [inputCountdown, setInputCountdown] = useState(0);
 
   const increaseIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
@@ -85,7 +87,7 @@ const Keyboard = ({ text }: KeyboardProps) => {
   };
 
   return (
-    <Tooltip label="Input" openDelay={500}>
+    <Tooltip label={t("actionKeyboardText")} openDelay={500}>
       <ActionIcon
         size="lg"
         color="green"

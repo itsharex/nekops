@@ -10,7 +10,7 @@ import type {
   ShellGridTabNonce,
 } from "@/types/shell.ts";
 import { startDummy } from "@/shell/startDummy.ts";
-import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.ts";
+import { startEmbeddedSSH } from "@/shell/startEmbeddedSSH.tsx";
 import { startSystemSSH } from "@/shell/startSystemSSH.ts";
 import type { TerminalInstance } from "@/shell/TerminalContext.tsx";
 

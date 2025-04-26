@@ -44,5 +44,11 @@
     "newTitle": "Brand-new Server",
     "actionConfirm": "Accept",
     "actionCancel": "Reject"
+  },
+  "sshEvents": {
+    "source_process": "Process Control",
+    "source_stderr": "Standard Error Output",
+    "processClose_success": "Process ended successfully.",
+    "processClose_error": "Process ended with code {{code}}."
   }
 }

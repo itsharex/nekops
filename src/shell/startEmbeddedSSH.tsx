@@ -1,5 +1,7 @@
 import { Child, Command } from "@tauri-apps/plugin-shell";
 import type { Terminal } from "xterm";
+import { listen } from "@tauri-apps/api/event";
+import { notifications } from "@mantine/notifications";
 
 import type { AccessRegular } from "@/types/server.ts";
 import type { TabState } from "@/types/tabState.ts";
@@ -8,8 +10,9 @@ import type {
   ShellClientOptions,
 } from "@/events/payload.ts";
 import { hostKeyEventHandler } from "./hostKeyEventHandler.tsx";
-import { listen } from "@tauri-apps/api/event";
 import { EventNameShellSendCommandByNonce } from "@/events/name.ts";
+import i18next from "@/i18n/loaders/shell.ts";
+import { Code } from "@mantine/core";
 
 export const startEmbeddedSSH = (
   nonce: string,
@@ -61,21 +64,54 @@ export const startEmbeddedSSH = (
   sshCommand.on("close", (data) => {
     setShellState("terminated");
 
-    // Print message
+    // Print to terminal
     terminal.writeln(
-      `Process ended ${
+      `Process exited ${
         data.code === 0
           ? "\x1B[32msuccessfully\x1B[0m"
           : `with code \x1B[1;31m${data.code}\x1B[0m`
       }.`,
     );
 
+    // Send notification
+    if (data.code === 0) {
+      notifications.show({
+        color: "green",
+        title: (
+          <>
+            {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
+          </>
+        ),
+        message: i18next.t("sshEvents.processClose_success"),
+      });
+    } else {
+      notifications.show({
+        color: "red",
+        title: (
+          <>
+            {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
+          </>
+        ),
+        message: i18next.t("sshEvents.processClose_error", {
+          code: data.code,
+        }),
+      });
+    }
+
     // Invalidate terminate func
     setTerminateSSHFunc(null);
   });
   sshCommand.on("error", (data) => {
-    // Print error
-    terminal.writeln(`Process error: \x1B[1;31m${data}\x1B[0m`);
+    // Send notification
+    notifications.show({
+      color: "red",
+      title: (
+        <>
+          {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
+        </>
+      ),
+      message: data,
+    });
   });
   sshCommand.stdout.on("data", (data) => {
     if (!isSSHStart) {
@@ -156,12 +192,26 @@ export const startEmbeddedSSH = (
     // console.log("stdout", data);
   });
   sshCommand.stderr.on("data", (data) => {
-    stateUpdateOnNewMessage();
+    if (!isSSHStart) {
+      // From client, use notification to show error
+      notifications.show({
+        color: "red",
+        title: (
+          <>
+            {serverName} <Code>{i18next.t("sshEvents.source_stderr")}</Code>
+          </>
+        ),
+        message: eventDecoder.decode(new Uint8Array(data).buffer),
+      });
+    } else {
+      // From server, should print to terminal
+      stateUpdateOnNewMessage();
 
-    terminal.write("\x1B[1;31m"); // Write color control bytes to change output color to red
-    terminal.write(data); // Write Uint8Array data in raw mode
-    terminal.write("\x1B[0m"); // Write color reset bytes to recover color to default (white)
-    // console.log("stderr", data);
+      terminal.write("\x1B[1;31m"); // Write color control bytes to change output color to red
+      terminal.write(data); // Write Uint8Array data in raw mode
+      terminal.write("\x1B[0m"); // Write color reset bytes to recover color to default (white)
+      // console.log("stderr", data);
+    }
   });
 
   // Start SSH process

@@ -49,5 +49,11 @@
     "newTitle": "全新的服务器",
     "actionConfirm": "接受",
     "actionCancel": "拒绝"
+  },
+  "sshEvents": {
+    "source_process": "进程控制",
+    "source_stderr": "标准错误输出",
+    "processClose_success": "进程成功结束。",
+    "processClose_error": "进程意外结束，退出代码为 {{code}} 。"
   }
 }

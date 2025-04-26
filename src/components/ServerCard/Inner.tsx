@@ -169,8 +169,8 @@ const Inner = ({ server }: ServerCardInnerProps) => (
                 }}
               />
               <Text>
-                {server.traffic.bandwidth > 1000
-                  ? `${server.traffic.bandwidth / 1000} Gbps`
+                {server.traffic.bandwidth >= 1000
+                  ? `${(server.traffic.bandwidth / 1000).toFixed(1)} Gbps`
                   : `${server.traffic.bandwidth} Mbps`}
               </Text>
             </Flex>

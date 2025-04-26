@@ -1,14 +1,16 @@
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { SessionShellBackgroundImageKey } from "@/events/storage.ts";
 
 const ShellWindowLabel = "nekopshell"; // Nekops Shell
 
 /**
  * Open (or create if non-current) Shell Window
  */
-export const openShellWindow = async () => {
+export const openShellWindow = async (backgroundImage: string) => {
   let shellWindow = await WebviewWindow.getByLabel(ShellWindowLabel);
   if (shellWindow === null) {
     // Open new
+    localStorage.setItem(SessionShellBackgroundImageKey, backgroundImage);
     shellWindow = new WebviewWindow(ShellWindowLabel, {
       title: "Nekops Shell",
       url: "shell.html",

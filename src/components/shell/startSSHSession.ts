@@ -24,7 +24,7 @@ export const startSSHSession = async (
   jumpServer?: Server,
 ) => {
   // Create or open Shell window
-  await openShellWindow();
+  await openShellWindow(clientOptions.settings.background_image);
 
   // Prepare checker
   let isReadyChecker: ReturnType<typeof setInterval> | null = null;

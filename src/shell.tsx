@@ -13,6 +13,7 @@ import "@/shell/style.css";
 import ShellTabs from "@/shell/ShellTabs";
 import WindowBackground from "@/common/WindowBackground.tsx";
 import TerminalProvider from "@/shell/TerminalContext.tsx";
+import { SessionShellBackgroundImageKey } from "@/events/storage.ts";
 
 import "@/i18n/loaders/shell.ts";
 
@@ -25,7 +26,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <MantineProvider theme={theme}>
       <Notifications />
       <ModalsProvider>
-        <WindowBackground />
+        <WindowBackground storageKey={SessionShellBackgroundImageKey} />
 
         <TerminalProvider>
           <ShellTabs />

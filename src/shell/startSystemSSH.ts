@@ -3,7 +3,10 @@ import type { AccessRegular } from "@/types/server.ts";
 import { Command } from "@tauri-apps/plugin-shell";
 import type { TabState } from "@/types/tabState.ts";
 import { listen } from "@tauri-apps/api/event";
-import type { EventPayloadShellSendCommandByNonce } from "@/events/payload.ts";
+import type {
+  EventPayloadShellSendCommandByNonce,
+  ShellClientOptions,
+} from "@/events/payload.ts";
 import { EventNameShellSendCommandByNonce } from "@/events/name.ts";
 
 export const startSystemSSH = (
@@ -12,6 +15,7 @@ export const startSystemSSH = (
   stateUpdateOnNewMessage: () => void,
   setShellState: (newState: TabState) => void,
   setTerminateSSHFunc: (func: (() => void) | null) => void,
+  client: ShellClientOptions,
   server: AccessRegular,
   jumpServer?: AccessRegular,
 ) => {
@@ -23,6 +27,9 @@ export const startSystemSSH = (
   const sshArgs = [
     "-tt", // force Pseudo-terminal
   ];
+  if (client.sshPrivateKey) {
+    sshArgs.push("-i", client.sshPrivateKey);
+  }
   if (jumpServer) {
     sshArgs.push(
       "-J",

@@ -290,6 +290,8 @@
     "workspaceNameLabel": "Name",
     "workspaceDataDirectoryLabel": "Data Directory",
     "workspaceDataDirectoryActionSelect": "Select Data Directory",
+    "workspaceSSHPrivateKeyLabel": "SSH Private Key",
+    "workspaceSSHPrivateKeySelect": "Select SSH Private Key",
     "sectionCurrentWorkspace": "Current Workspace",
     "currentWorkspacePasswordLabel": "Password",
     "currentWorkspaceUnlockLabel": "Unlock",

@@ -7,7 +7,7 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { IconFolder } from "@tabler/icons-react";
+import { IconFolder, IconKey } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import type { WorkSpace } from "@/types/settings.ts";
@@ -19,11 +19,13 @@ interface WorkspaceItemProps extends SettingsFormProps {
   w: WorkSpace;
   index: number;
   selectDataDirectory: () => void;
+  selectSSHPrivateKey: () => void;
 }
 const WorkspaceItem = ({
   w,
   index,
   selectDataDirectory,
+  selectSSHPrivateKey,
   form,
 }: WorkspaceItemProps) => {
   const { t } = useTranslation("main", { keyPrefix: "settings" });
@@ -76,6 +78,28 @@ const WorkspaceItem = ({
               }}
             >
               <IconFolder style={actionIconStyle} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+
+        <Group>
+          <TextInput
+            label={t("workspaceSSHPrivateKeyLabel")}
+            style={{
+              flexGrow: 1,
+            }}
+            {...form.getInputProps(`workspaces.${index}.ssh_private_key`)}
+          />
+
+          <Tooltip label={t("workspaceSSHPrivateKeySelect")} openDelay={500}>
+            <ActionIcon
+              size="lg"
+              onClick={selectSSHPrivateKey}
+              style={{
+                alignSelf: "end",
+              }}
+            >
+              <IconKey style={actionIconStyle} />
             </ActionIcon>
           </Tooltip>
         </Group>

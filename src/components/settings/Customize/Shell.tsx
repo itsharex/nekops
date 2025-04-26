@@ -21,7 +21,6 @@ const Shell = ({ form }: ShellProps) => {
 
   const selectBackgroundImage = async () => {
     const dataFile = await open({
-      multiple: false,
       filters: [
         {
           name: "Image",

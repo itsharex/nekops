@@ -32,6 +32,10 @@ export const startEmbeddedSSH = (
   if (client.workspaceKnownHostsFile) {
     sshArgs.push("-o", `UserKnownHostsFile=${client.workspaceKnownHostsFile}`);
   }
+  if (client.sshPrivateKey) {
+    // sshArgs.push("-o", "IdentitiesOnly=yes");
+    sshArgs.push("-i", client.sshPrivateKey);
+  }
   if (jumpServer) {
     sshArgs.push(
       "-J",

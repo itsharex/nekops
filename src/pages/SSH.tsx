@@ -45,6 +45,7 @@ const SSHPage = () => {
           settings.current_workspace.data_dir,
           "known_hosts",
         ),
+        sshPrivateKey: settings.current_workspace.ssh_private_key,
         settings: settings.customize.shell,
       },
       server,

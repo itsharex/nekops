@@ -142,6 +142,7 @@ export const newShell = (
             () => stateUpdateOnNewMessage(server.nonce),
             (state) => setShellState(server.nonce, state),
             shellSetTerminateFunc,
+            server.clientOptions,
             server.access,
             server.jumpServer,
           );

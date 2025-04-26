@@ -4,6 +4,7 @@ export type WorkSpace = {
   id: string;
   name: string;
   data_dir: string;
+  ssh_private_key: string;
 };
 
 type SettingsCommon = {
@@ -32,6 +33,7 @@ export const defaultWorkspace: WorkSpace = {
   id: "default",
   name: "Default",
   data_dir: "nekops_data",
+  ssh_private_key: "",
 };
 
 export const defaultSettings: SettingsState = {

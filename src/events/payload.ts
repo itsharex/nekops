@@ -22,6 +22,7 @@ export interface ShellSingleServer extends ServerBase {
 export interface ShellClientOptions {
   type: ShellClientType;
   workspaceKnownHostsFile?: string;
+  sshPrivateKey: string;
   settings: ShellSettings;
 }
 

@@ -303,7 +303,7 @@
     "workspaceDataDirectoryLabel": "数据目录",
     "workspaceDataDirectoryActionSelect": "$t(common.select)$t(settings.workspaceDataDirectoryLabel)",
     "workspaceSSHPrivateKeyLabel": "SSH 私钥",
-    "workspaceSSHPrivateKeySelect": "$t(common.select)$t(settings.workspaceSSHPrivateKeyLabel)",
+    "workspaceSSHPrivateKeySelect": "$t(common.select) $t(settings.workspaceSSHPrivateKeyLabel)",
     "sectionCurrentWorkspace": "当前$t(common.workspaces)",
     "currentWorkspacePasswordLabel": "密码",
     "currentWorkspaceUnlockLabel": "解锁",

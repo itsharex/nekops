@@ -26,9 +26,9 @@ export const startEmbeddedSSH = (
   themeColor: string,
   jumpServer?: AccessRegular,
 ) => {
-  let alreadyTerminated = false;
+  let isTerminated = false;
   setTerminateSSHFunc(() => {
-    alreadyTerminated = true;
+    isTerminated = true;
   });
 
   const sshArgs = [];
@@ -64,38 +64,40 @@ export const startEmbeddedSSH = (
   sshCommand.on("close", (data) => {
     setShellState("terminated");
 
-    // Print to terminal
-    terminal.writeln(
-      `Process exited ${
-        data.code === 0
-          ? "\x1B[32msuccessfully\x1B[0m"
-          : `with code \x1B[1;31m${data.code}\x1B[0m`
-      }.`,
-    );
+    if (!isTerminated) {
+      // Print to terminal
+      terminal.writeln(
+        `Process exited ${
+          data.code === 0
+            ? "\x1B[32msuccessfully\x1B[0m"
+            : `with code \x1B[1;31m${data.code}\x1B[0m`
+        }.`,
+      );
 
-    // Send notification
-    if (data.code === 0) {
-      notifications.show({
-        color: "green",
-        title: (
-          <>
-            {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
-          </>
-        ),
-        message: i18next.t("sshEvents.processClose_success"),
-      });
-    } else {
-      notifications.show({
-        color: "red",
-        title: (
-          <>
-            {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
-          </>
-        ),
-        message: i18next.t("sshEvents.processClose_error", {
-          code: data.code,
-        }),
-      });
+      // Send notification
+      if (data.code === 0) {
+        notifications.show({
+          color: "green",
+          title: (
+            <>
+              {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
+            </>
+          ),
+          message: i18next.t("sshEvents.processClose_success"),
+        });
+      } else {
+        notifications.show({
+          color: "red",
+          title: (
+            <>
+              {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
+            </>
+          ),
+          message: i18next.t("sshEvents.processClose_error", {
+            code: data.code,
+          }),
+        });
+      }
     }
 
     // Invalidate terminate func
@@ -216,7 +218,7 @@ export const startEmbeddedSSH = (
 
   // Start SSH process
   sshCommand.spawn().then((sshProcess) => {
-    if (alreadyTerminated) {
+    if (isTerminated) {
       // Already sent terminate signal, but still loading, so should stop immediately
       sshProcess.kill();
       return;
@@ -234,6 +236,7 @@ export const startEmbeddedSSH = (
 
       // Terminate when close
       setTerminateSSHFunc(() => {
+        isTerminated = true;
         sshProcess.kill();
 
         (async () => {

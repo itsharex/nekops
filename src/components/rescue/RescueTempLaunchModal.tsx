@@ -2,9 +2,12 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "@mantine/form";
 import {
   Button,
-  Code,
+  Flex,
+  Group,
   Modal,
   PasswordInput,
+  SegmentedControl,
+  Text,
   TextInput,
   useMantineTheme,
 } from "@mantine/core";
@@ -14,6 +17,7 @@ import type { Server } from "@/types/server.ts";
 import { defaultServer } from "@/types/server.ts";
 
 type TempLaunchForm = {
+  method: "VNC" | "IPMI"; // Only support these for now
   address: string;
   username: string;
   password: string;
@@ -36,6 +40,7 @@ const RescueTempLaunchModal = ({
   const form = useForm<TempLaunchForm>({
     mode: "uncontrolled",
     initialValues: {
+      method: "VNC",
       address: "",
       username: "",
       password: "",
@@ -56,7 +61,7 @@ const RescueTempLaunchModal = ({
       access: {
         regular: defaultServer.access.regular,
         emergency: {
-          method: "VNC", // Only support this for now
+          method: values.method,
           address: values.address,
           username: values.username,
           password: values.password,
@@ -72,21 +77,41 @@ const RescueTempLaunchModal = ({
     <Modal
       opened={isOpen}
       onClose={close}
-      title={
-        <>
-          {t("tempLaunch")} <Code>{t("accessType_VNC")}</Code>
-        </>
-      }
+      title={t("tempLaunch")}
       size="lg"
       centered
     >
       <form onSubmit={form.onSubmit(launchSubmit)}>
-        <TextInput
-          label={t("tempLaunchAddressLabel")}
-          required
-          withAsterisk={false}
-          {...form.getInputProps("address")}
-        />
+        <Group>
+          <Flex direction="column">
+            <Text size="sm" fw={500} mb={2}>
+              {t("modalTypeLabel")}
+            </Text>
+            <SegmentedControl
+              data={[
+                {
+                  label: t("accessType_VNC"),
+                  value: "VNC",
+                },
+                // {
+                //   label: t("accessType_IPMI"),
+                //   value: "IPMI",
+                // },
+              ]}
+              {...form.getInputProps("method")}
+            />
+          </Flex>
+
+          <TextInput
+            label={t("tempLaunchAddressLabel")}
+            required
+            withAsterisk={false}
+            style={{
+              flexGrow: 1,
+            }}
+            {...form.getInputProps("address")}
+          />
+        </Group>
 
         <TextInput
           label={t("tempLaunchUsernameLabel")}

@@ -25,7 +25,7 @@ const AboutModal = ({ isOpen, close }: AboutModalProps) => {
   const [version, setVersion] = useState("Loading...");
 
   const clickVersion = () => {
-    open("https://candymade.net/nekops");
+    open("https://nekops.app");
     // TODO: replace with check-update actions
   };
 

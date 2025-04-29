@@ -17,8 +17,6 @@ import { IconBuilding, IconMapPin } from "@tabler/icons-react";
 
 import type { Server } from "@/types/server.ts";
 
-import WorldMap from "./WorldMap.tsx";
-
 type LocationAndCount = {
   region: string;
   count: number;
@@ -173,16 +171,6 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
             ))}
           </SimpleGrid>
         </Box>
-
-        <WorldMap
-          dots={servers
-            .filter((s) => s.location.latitude && s.location.longitude)
-            .map((s) => ({
-              latitude: s.location.latitude!,
-              longitude: s.location.longitude!,
-              // color: s.color,
-            }))}
-        />
       </Flex>
     </Card>
   );

@@ -1,4 +1,4 @@
-import type { Server } from "@/types/server.ts";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -14,7 +14,10 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { IconBuilding, IconMapPin } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
+
+import type { Server } from "@/types/server.ts";
+
+import WorldMap from "./WorldMap.tsx";
 
 type LocationAndCount = {
   region: string;
@@ -170,18 +173,19 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
             ))}
           </SimpleGrid>
         </Box>
+
+        <WorldMap
+          dots={servers
+            .filter((s) => s.location.latitude && s.location.longitude)
+            .map((s) => ({
+              latitude: s.location.latitude!,
+              longitude: s.location.longitude!,
+              // color: s.color,
+            }))}
+        />
       </Flex>
     </Card>
   );
 };
 
-interface GeneralStaticsProps {
-  servers: Server[];
-}
-const Geolocation = ({ servers }: GeneralStaticsProps) => (
-  <Flex direction="column" gap="md">
-    <RegionCard servers={servers} />
-  </Flex>
-);
-
-export default Geolocation;
+export default RegionCard;

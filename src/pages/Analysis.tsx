@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { RootState } from "@/store.ts";
 
 import GeneralStatics from "@/components/analysis/GeneralStatics.tsx";
-import Geolocation from "@/components/analysis/Geolocation.tsx";
+import Geolocation from "@/components/analysis/Geolocation";
 import Billing from "@/components/analysis/Billing.tsx";
 import GroupDivider from "@/components/GroupDivider.tsx";
 

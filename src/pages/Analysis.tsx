@@ -6,7 +6,7 @@ import type { RootState } from "@/store.ts";
 
 import GeneralStatics from "@/components/analysis/GeneralStatics.tsx";
 import Geolocation from "@/components/analysis/Geolocation";
-import Billing from "@/components/analysis/Billing.tsx";
+import Billing from "@/components/analysis/Billing";
 import GroupDivider from "@/components/GroupDivider.tsx";
 
 const AnalysisPage = () => {

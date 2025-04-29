@@ -20,7 +20,7 @@ import { searchServers } from "@/search/servers.ts";
 import type { Server } from "@/types/server.ts";
 import { decryptServer } from "@/slices/encryptionSlice.ts";
 import UnlockModal from "@/components/UnlockModal.tsx";
-import RescueModal from "@/components/rescue/RescueModal.tsx";
+import RescueModal from "@/components/rescue/RescueModal";
 import ServerCardsVirtualScroll from "@/components/ServerCardsVirtualScroll";
 import { startVNCSession } from "@/components/rescue/startVNCSession.tsx";
 import { actionIconStyle } from "@/common/actionStyles.ts";

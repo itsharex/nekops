@@ -1,5 +1,4 @@
 import {
-  ActionIcon,
   Button,
   Code,
   Flex,
@@ -11,96 +10,12 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { IconKeyboard } from "@tabler/icons-react";
-import { useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
 
 import type { Server } from "@/types/server.ts";
-import CopyButton from "@/components/CopyButton.tsx";
 
-interface CopyProps {
-  value?: string;
-}
-const Copy = ({ value }: CopyProps) => (
-  <Flex
-    style={{
-      alignSelf: "end",
-    }}
-  >
-    <CopyButton value={value || ""} />
-  </Flex>
-);
-
-interface KeyboardProps {
-  text: string;
-}
-const Keyboard = ({ text }: KeyboardProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "rescue" });
-
-  const [inputCountdown, setInputCountdown] = useState(0);
-
-  const increaseIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
-    null,
-  );
-  const releaseIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
-    null,
-  );
-
-  const increase = () => {
-    setInputCountdown(3); // Set minimal count
-    if (releaseIntervalRef.current !== null) {
-      clearInterval(releaseIntervalRef.current);
-    }
-    increaseIntervalRef.current = setInterval(() => {
-      setInputCountdown((currentCount) => currentCount + 1);
-    }, 1000);
-  };
-
-  const finishCountDown = () => {
-    // Stop current interval
-    if (releaseIntervalRef.current !== null) {
-      clearInterval(releaseIntervalRef.current);
-      releaseIntervalRef.current = null;
-    }
-    // Trigger keyboard event
-    invoke("keyboard_text", {
-      text,
-    });
-  };
-
-  const release = () => {
-    if (increaseIntervalRef.current !== null) {
-      clearInterval(increaseIntervalRef.current);
-    }
-    releaseIntervalRef.current = setInterval(() => {
-      setInputCountdown((currentCount) => {
-        if (currentCount > 0) {
-          return currentCount - 1;
-        } else {
-          finishCountDown();
-          return 0;
-        }
-      });
-    }, 1000);
-  };
-
-  return (
-    <Tooltip label={t("actionKeyboardText")} openDelay={500}>
-      <ActionIcon
-        size="lg"
-        color="yellow"
-        style={{
-          alignSelf: "end",
-        }}
-        onMouseDown={increase}
-        onMouseUp={release}
-      >
-        {inputCountdown || <IconKeyboard />}
-      </ActionIcon>
-    </Tooltip>
-  );
-};
+import Copy from "./Copy.tsx";
+import Keyboard from "./Keyboard.tsx";
 
 interface RescueModalProps {
   isOpen: boolean;

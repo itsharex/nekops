@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Box,
   Button,
   Code,
   Flex,
@@ -24,13 +23,13 @@ interface CopyProps {
   value?: string;
 }
 const Copy = ({ value }: CopyProps) => (
-  <Box
+  <Flex
     style={{
       alignSelf: "end",
     }}
   >
     <CopyButton value={value || ""} />
-  </Box>
+  </Flex>
 );
 
 interface KeyboardProps {

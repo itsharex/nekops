@@ -9,12 +9,20 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store.ts";
+import { useMemo } from "react";
 
-interface BasicInfoFormProps extends InputFormProps {
-  knownTags: string[];
-}
-const BasicInfoForm = ({ form, knownTags }: BasicInfoFormProps) => {
+interface BasicInfoFormProps extends InputFormProps {}
+const BasicInfoForm = ({ form }: BasicInfoFormProps) => {
   const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
+
+  const servers = useSelector((state: RootState) => state.servers);
+
+  const knownTags = useMemo(
+    () => [...new Set(servers.map((s) => s.tags).flat())],
+    [servers],
+  );
 
   const theme = useMantineTheme();
 

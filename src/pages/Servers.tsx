@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
@@ -116,40 +116,6 @@ const ServersPage = () => {
   // Search related
   const [searchInput, setSearchInput] = useState("");
 
-  // Autofill related
-  const knownTags = useRef<string[]>([]);
-  const knownProviders = useRef<string[]>([]);
-  const knownRegions = useRef<string[]>([]);
-  const knownSSHUsers = useRef<string[]>([]);
-
-  useEffect(() => {
-    for (const server of servers) {
-      for (const tag of server.tags) {
-        if (!knownTags.current.includes(tag)) {
-          knownTags.current.push(tag);
-        }
-      }
-      if (
-        server.provider.name !== "" &&
-        !knownProviders.current.includes(server.provider.name)
-      ) {
-        knownProviders.current.push(server.provider.name);
-      }
-      if (
-        server.location.region !== "" &&
-        !knownRegions.current.includes(server.location.region)
-      ) {
-        knownRegions.current.push(server.location.region);
-      }
-      if (
-        server.access.regular.user !== "" &&
-        !knownSSHUsers.current.includes(server.access.regular.user)
-      ) {
-        knownSSHUsers.current.push(server.access.regular.user);
-      }
-    }
-  }, [servers]);
-
   return (
     <>
       <Flex direction="column" h="100%">
@@ -201,10 +167,6 @@ const ServersPage = () => {
         close={closeEditServerModal}
         serverInfo={activeServer}
         save={confirm}
-        knownTags={knownTags.current}
-        knownProviders={knownProviders.current}
-        knownRegions={knownRegions.current}
-        knownSSHUsers={knownSSHUsers.current}
       />
 
       {/*Server Card Modal*/}

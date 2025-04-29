@@ -1,4 +1,3 @@
-import type { InputFormProps } from "../inputFormProps.ts";
 import {
   Autocomplete,
   Checkbox,
@@ -13,19 +12,79 @@ import {
 import { IconCurrencyDollar } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { DatePickerInput, DatesProvider } from "@mantine/dates";
+import { useSelector } from "react-redux";
+import { useMemo, useState } from "react";
+
 import "dayjs/locale/en.js";
 import "dayjs/locale/zh-cn.js";
 
-interface ProductFormProps extends InputFormProps {
-  knownProviders: string[];
-  knownRegions: string[];
-}
-const ProductForm = ({
-  form,
-  knownProviders,
-  knownRegions,
-}: ProductFormProps) => {
+import type { InputFormProps } from "../inputFormProps.ts";
+
+import type { RootState } from "@/store.ts";
+
+interface ProductFormProps extends InputFormProps {}
+const ProductForm = ({ form }: ProductFormProps) => {
   const { t, i18n } = useTranslation("main", { keyPrefix: "editServerModal" });
+
+  const servers = useSelector((state: RootState) => state.servers);
+
+  const knownProviders = useMemo(
+    () => [...new Set(servers.map((s) => s.provider.name).filter(Boolean))],
+    [servers],
+  );
+  const knownRegions = useMemo(
+    () => [...new Set(servers.map((s) => s.location.region).filter(Boolean))],
+    [servers],
+  );
+
+  const [knownDatacenters, setKnownDatacenters] = useState<string[]>([]);
+  const updateKnownDatacenters = () => {
+    if (form.values.provider.name && form.values.location.region) {
+      setKnownDatacenters([
+        ...new Set(
+          servers
+            .filter(
+              (s) =>
+                s.provider.name === form.values.provider.name &&
+                s.location.region === form.values.location.region,
+            )
+            .map((s) => s.location.datacenter),
+        ),
+      ]);
+    } else {
+      setKnownDatacenters([]); // Clear
+    }
+  };
+
+  const checkExistingGeolocation = () => {
+    // Check status
+    if (
+      form.values.provider.name &&
+      form.values.location.region &&
+      form.values.location.datacenter &&
+      !form.values.location.latitude &&
+      !form.values.location.longitude
+    ) {
+      const matchGeolocation = servers.find(
+        (s) =>
+          s.provider.name === form.values.provider.name &&
+          s.location.region === form.values.location.region &&
+          s.location.datacenter === form.values.location.datacenter &&
+          s.location.latitude &&
+          s.location.longitude,
+      );
+      if (matchGeolocation) {
+        form.setFieldValue(
+          "location.latitude",
+          matchGeolocation.location.latitude,
+        );
+        form.setFieldValue(
+          "location.longitude",
+          matchGeolocation.location.longitude,
+        );
+      }
+    }
+  };
 
   return (
     <>
@@ -165,15 +224,37 @@ const ProductForm = ({
             />
           </Grid.Col>
           <Grid.Col span={4}>
-            <TextInput
+            <Autocomplete
               label={t("productLocationDatacenterLabel")}
+              placeholder={t("productLocationDatacenterPlaceholder")}
+              data={knownDatacenters}
               {...form.getInputProps("location.datacenter")}
+              onFocus={updateKnownDatacenters}
+              onBlur={checkExistingGeolocation}
             />
           </Grid.Col>
           <Grid.Col span={6}>
             <TextInput
               label={t("productLocationHostSystemLabel")}
               {...form.getInputProps("location.host_system")}
+            />
+          </Grid.Col>
+        </Grid>
+        <Grid>
+          <Grid.Col span={3}>
+            <NumberInput
+              label={t("productLocationLatitudeLabel")}
+              min={-90}
+              max={90}
+              {...form.getInputProps("location.latitude")}
+            />
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <NumberInput
+              label={t("productLocationLongitudeLabel")}
+              min={-180}
+              max={180}
+              {...form.getInputProps("location.longitude")}
             />
           </Grid.Col>
         </Grid>

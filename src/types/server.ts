@@ -24,6 +24,9 @@ export type Location = {
   region: string;
   datacenter: string;
   host_system: string;
+  latitude?: number;
+  longitude?: number;
+  // altitude: number;
 };
 
 export type CPU = {

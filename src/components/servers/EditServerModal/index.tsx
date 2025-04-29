@@ -41,20 +41,12 @@ interface EditServerModalProps {
   close: () => void;
   serverInfo?: Server | null;
   save: (info: Server) => boolean;
-  knownTags: string[];
-  knownProviders: string[];
-  knownRegions: string[];
-  knownSSHUsers: string[];
 }
 const EditServerModal = ({
   isOpen,
   close,
   serverInfo,
   save,
-  knownTags,
-  knownProviders,
-  knownRegions,
-  knownSSHUsers,
 }: EditServerModalProps) => {
   const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
 
@@ -153,17 +145,13 @@ const EditServerModal = ({
                 label={t("sectionBasicInfo")}
                 icon={<IconServerBolt />}
               >
-                <BasicInfoForm form={form} knownTags={knownTags} />
+                <BasicInfoForm form={form} />
               </Stepper.Step>
               <Stepper.Step
                 label={t("sectionProduct")}
                 icon={<IconBuildingStore />}
               >
-                <ProductForm
-                  form={form}
-                  knownProviders={knownProviders}
-                  knownRegions={knownRegions}
-                />
+                <ProductForm form={form} />
               </Stepper.Step>
               <Stepper.Step label={t("sectionHardware")} icon={<IconCpu />}>
                 <HardwareForm form={form} />
@@ -172,11 +160,7 @@ const EditServerModal = ({
                 <NetworksForm form={form} />
               </Stepper.Step>
               <Stepper.Step label={t("sectionAccess")} icon={<IconKey />}>
-                <AccessForm
-                  form={form}
-                  knownSSHUsers={knownSSHUsers}
-                  isCreatingNew={!serverInfo}
-                />
+                <AccessForm form={form} isCreatingNew={!serverInfo} />
               </Stepper.Step>
               <Stepper.Completed>
                 <Flex direction="column" gap="md">

@@ -12,17 +12,16 @@ import {
   Textarea,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store.ts";
 
 interface AccessFormProps extends InputFormProps {
-  knownSSHUsers: string[];
   isCreatingNew: boolean;
 }
-const AccessForm = ({
-  form,
-  knownSSHUsers,
-  isCreatingNew,
-}: AccessFormProps) => {
+const AccessForm = ({ form, isCreatingNew }: AccessFormProps) => {
   const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
+
+  const servers = useSelector((state: RootState) => state.servers);
 
   const publicAccessEndpoints = [
     ...new Set(form.values.network.public.map((ip) => ip.alias || ip.address)),
@@ -31,6 +30,10 @@ const AccessForm = ({
   const privateAccessEndpoints = [
     ...new Set(form.values.network.private.map((ip) => ip.alias || ip.address)),
   ].filter((endpoint) => !publicAccessEndpoints.includes(endpoint));
+
+  const knownSSHUsers = [
+    ...new Set(servers.map((s) => s.access.regular.user).filter(Boolean)),
+  ];
 
   return (
     <>

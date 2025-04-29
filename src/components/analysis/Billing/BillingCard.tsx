@@ -114,7 +114,7 @@ const BillingCard = ({ servers }: BillingCardProps) => {
         othersSum += sumProviderArray[i].priceSum;
       }
       countByProviderPending.push({
-        label: "Others",
+        label: t("billingOthers"),
         text: othersSum.toFixed(2),
         part: (othersSum / sum) * 100,
         color: colors[i],

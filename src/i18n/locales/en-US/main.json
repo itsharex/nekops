@@ -252,6 +252,7 @@
     "billingDS": "Dedicated Server",
     "billingByServerTypes": "By Server Types",
     "billingByServerProviders": "By Server Providers",
+    "billingOthers": "Others",
     "billingMVSAll": "All servers",
     "billingMVSTop": "Top {{limit}} valuable servers",
     "billingMVSServerName": "Server Name",

@@ -265,6 +265,7 @@
     "billingDS": "独立$t(common.server)",
     "billingByServerTypes": "根据$t(editServerModal.productTypeLabel)分类",
     "billingByServerProviders": "根据$t(editServerModal.productProviderLabel)分类",
+    "billingOthers": "其他",
     "billingMVSAll": "所有$t(common.server)",
     "billingMVSTop": "最昂贵的 {{limit}} 个$t(common.server)",
     "billingMVSServerName": "$t(common.server)$t(common.name)",

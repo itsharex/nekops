@@ -16,9 +16,9 @@ const WorldMap = ({ dots }: WorldMapProps) => {
 
   const theme = useMantineTheme();
 
-  useEffect(() => {
-    const map = new DottedMap({ map: JSON.parse(mapJsonString) });
+  const map = new DottedMap({ map: JSON.parse(mapJsonString) });
 
+  useEffect(() => {
     for (const dot of dots) {
       map.addPin({
         lat: dot.latitude,

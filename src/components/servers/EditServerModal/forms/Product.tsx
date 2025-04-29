@@ -5,6 +5,7 @@ import {
   Fieldset,
   Flex,
   Grid,
+  Group,
   NumberInput,
   SegmentedControl,
   Text,
@@ -12,6 +13,9 @@ import {
 } from "@mantine/core";
 import { IconCurrencyDollar } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { DatePickerInput, DatesProvider } from "@mantine/dates";
+import "dayjs/locale/en.js";
+import "dayjs/locale/zh-cn.js";
 
 interface ProductFormProps extends InputFormProps {
   knownProviders: string[];
@@ -22,7 +26,7 @@ const ProductForm = ({
   knownProviders,
   knownRegions,
 }: ProductFormProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
+  const { t, i18n } = useTranslation("main", { keyPrefix: "editServerModal" });
 
   return (
     <>
@@ -70,11 +74,38 @@ const ProductForm = ({
             </Flex>
           </Grid.Col>
         </Grid>
-        <TextInput
-          mt="md"
-          label={t("productProductLabel")}
-          {...form.getInputProps("provider.product")}
-        />
+        <Group mt="md">
+          <TextInput
+            label={t("productProductLabel")}
+            style={{
+              flexGrow: 1,
+            }}
+            {...form.getInputProps("provider.product")}
+          />
+          <DatesProvider
+            settings={{
+              locale: i18n.language === "zh-CN" ? "zh-cn" : "en",
+            }}
+          >
+            <DatePickerInput
+              label={t("productStartSinceLabel")}
+              // valueFormat="YYYY-MM-DD"
+              value={
+                form.getInputProps("provider.start_since").value
+                  ? new Date(form.getInputProps("provider.start_since").value)
+                  : new Date() // Use current date if not set
+              }
+              onChange={(newDate) => {
+                if (newDate) {
+                  form.setFieldValue(
+                    "provider.start_since",
+                    `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
+                  );
+                }
+              }}
+            />
+          </DatesProvider>
+        </Group>
       </Fieldset>
 
       <Fieldset mt="lg" legend={t("productTraffic")}>

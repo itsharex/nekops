@@ -167,6 +167,7 @@
     "productTypeDS": "DS",
     "productPriceLabel": "Monthly Price",
     "productProductLabel": "Product",
+    "productStartSinceLabel": "Start Since",
     "productTraffic": "Traffic",
     "productTrafficLimitLabel": "Traffic Limit",
     "productTrafficDoubleRateLabel": "Double Rate",

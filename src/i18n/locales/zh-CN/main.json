@@ -179,6 +179,7 @@
     "productTypeDS": "独服",
     "productPriceLabel": "月费",
     "productProductLabel": "产品",
+    "productStartSinceLabel": "开始日期",
     "productTraffic": "网络流量",
     "productTrafficLimitLabel": "流量限制",
     "productTrafficDoubleRateLabel": "双向计费",

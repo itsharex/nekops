@@ -12,6 +12,7 @@ export type Provider = {
     type: "VPS" | "DS";
     product: string;
     price: number; // $/mo
+    start_since: string; // JSON cannot handle Date directly, so use string instead.
   };
 };
 
@@ -141,6 +142,7 @@ export const defaultServer: Server = {
     type: "VPS",
     product: "",
     price: 0,
+    start_since: "",
   },
 
   traffic: {

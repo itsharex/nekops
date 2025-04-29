@@ -7,29 +7,23 @@ export type BaseInfo = {
 };
 
 export type Provider = {
-  provider: {
-    name: string;
-    type: "VPS" | "DS";
-    product: string;
-    price: number; // $/mo
-    start_since: string; // JSON cannot handle Date directly, so use string instead.
-  };
+  name: string;
+  type: "VPS" | "DS";
+  product: string;
+  price: number; // $/mo
+  start_since: string; // JSON cannot handle Date directly, so use string instead.
 };
 
 export type Traffic = {
-  traffic: {
-    limit: number; // TB
-    double_rate: boolean;
-    bandwidth: number; // Mbps
-  };
+  limit: number; // TB
+  double_rate: boolean;
+  bandwidth: number; // Mbps
 };
 
 export type Location = {
-  location: {
-    region: string;
-    datacenter: string;
-    host_system: string;
-  };
+  region: string;
+  datacenter: string;
+  host_system: string;
 };
 
 export type CPU = {
@@ -58,11 +52,9 @@ export type Disk = {
 };
 
 export type Hardware = {
-  hardware: {
-    cpu: CPU;
-    memory: Memory;
-    disk: Disk[];
-  };
+  cpu: CPU;
+  memory: Memory;
+  disk: Disk[];
 };
 
 export type IP = {
@@ -74,10 +66,8 @@ export type IP = {
 };
 
 export type Network = {
-  network: {
-    public: IP[];
-    private: IP[];
-  };
+  public: IP[];
+  private: IP[];
 };
 
 export type AccessRegular = {
@@ -98,19 +88,20 @@ export type AccessEmergency = {
 };
 
 export type Access = {
-  access: {
-    regular: AccessRegular;
-    emergency: AccessEmergency;
-  };
+  regular: AccessRegular;
+  emergency: AccessEmergency;
 };
 
-export type Server = BaseInfo &
-  Provider &
-  Traffic &
-  Location &
-  Hardware &
-  Network &
-  Access;
+export type DetailsInfo = {
+  provider: Provider;
+  traffic: Traffic;
+  location: Location;
+  hardware: Hardware;
+  network: Network;
+  access: Access;
+};
+
+export type Server = BaseInfo & DetailsInfo;
 
 export const defaultDisk: Disk = {
   count: 1,

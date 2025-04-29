@@ -89,7 +89,7 @@ const Keyboard = ({ text }: KeyboardProps) => {
     <Tooltip label={t("actionKeyboardText")} openDelay={500}>
       <ActionIcon
         size="lg"
-        color="green"
+        color="yellow"
         style={{
           alignSelf: "end",
         }}

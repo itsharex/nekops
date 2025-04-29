@@ -5,7 +5,6 @@ import {
   Fieldset,
   Flex,
   Grid,
-  Group,
   NumberInput,
   SegmentedControl,
   Text,
@@ -74,38 +73,42 @@ const ProductForm = ({
             </Flex>
           </Grid.Col>
         </Grid>
-        <Group mt="md">
-          <TextInput
-            label={t("productProductLabel")}
-            style={{
-              flexGrow: 1,
-            }}
-            {...form.getInputProps("provider.product")}
-          />
-          <DatesProvider
-            settings={{
-              locale: i18n.language === "zh-CN" ? "zh-cn" : "en",
-            }}
-          >
-            <DatePickerInput
-              label={t("productStartSinceLabel")}
-              // valueFormat="YYYY-MM-DD"
-              value={
-                form.getInputProps("provider.start_since").value
-                  ? new Date(form.getInputProps("provider.start_since").value)
-                  : new Date() // Use current date if not set
-              }
-              onChange={(newDate) => {
-                if (newDate) {
-                  form.setFieldValue(
-                    "provider.start_since",
-                    `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
-                  );
-                }
+        <Grid>
+          <Grid.Col span={9}>
+            <TextInput
+              label={t("productProductLabel")}
+              style={{
+                flexGrow: 1,
               }}
+              {...form.getInputProps("provider.product")}
             />
-          </DatesProvider>
-        </Group>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <DatesProvider
+              settings={{
+                locale: i18n.language === "zh-CN" ? "zh-cn" : "en",
+              }}
+            >
+              <DatePickerInput
+                label={t("productStartSinceLabel")}
+                // valueFormat="YYYY-MM-DD"
+                value={
+                  form.getInputProps("provider.start_since").value
+                    ? new Date(form.getInputProps("provider.start_since").value)
+                    : new Date() // Use current date if not set
+                }
+                onChange={(newDate) => {
+                  if (newDate) {
+                    form.setFieldValue(
+                      "provider.start_since",
+                      `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
+                    );
+                  }
+                }}
+              />
+            </DatesProvider>
+          </Grid.Col>
+        </Grid>
       </Fieldset>
 
       <Fieldset mt="lg" legend={t("productTraffic")}>

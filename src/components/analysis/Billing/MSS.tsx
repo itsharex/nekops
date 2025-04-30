@@ -123,7 +123,7 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
                   onClick={() => setIsExpand(true)}
                   leftSection={<IconPlus size={15} />}
                 >
-                  {t("billingButtonExpand")}
+                  {t("buttonExpand")}
                 </Button>
               }
             />

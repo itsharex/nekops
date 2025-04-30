@@ -13,8 +13,9 @@ import {
 import { useEffect, useState } from "react";
 import { IconBusinessplan, IconCurrencyDollar } from "@tabler/icons-react";
 
-import type { SectionData } from "./BillingSection.tsx";
-import BillingSection from "./BillingSection.tsx";
+import type { SectionData } from "../PercentSection.tsx";
+import PercentSection from "../PercentSection.tsx";
+import CornerIcon from "@/components/analysis/CornerIcon.tsx";
 
 interface BillingCardProps {
   servers: Server[];
@@ -41,6 +42,13 @@ const BillingCard = ({ servers }: BillingCardProps) => {
   const [billingCountByProvider, setBillingCountByProvider] = useState<
     SectionData[]
   >([]);
+
+  const providersColors = [
+    theme.colors.green[6],
+    theme.colors.cyan[6],
+    theme.colors.violet[6],
+    theme.colors.pink[6],
+  ];
 
   useEffect(() => {
     if (servers.length > 0) {
@@ -71,83 +79,60 @@ const BillingCard = ({ servers }: BillingCardProps) => {
       setBillingCountByType([
         {
           label: t("billingDS"),
-          text: sumDS.toFixed(2),
+          text: "$" + sumDS.toFixed(2),
           part: (sumDS / sum) * 100,
           color: "#3b5bdb", // indigo
         },
         {
           label: t("billingVPS"),
-          text: sumVPS.toFixed(2),
+          text: "$" + sumVPS.toFixed(2),
           part: (sumVPS / sum) * 100,
           color: "#66a811", // lime
         },
       ]);
 
       // Count by provider
-      const sumProviderArray = [];
-      for (const [provider, priceSum] of sumProviderMap.entries()) {
-        sumProviderArray.push({
+      const sumProviderArray = Array.from(sumProviderMap.entries())
+        .map(([provider, priceSum]) => ({
           provider,
           priceSum,
-        });
-      }
-      sumProviderArray.sort((a, b) => b.priceSum - a.priceSum);
-      const colors = [
-        theme.colors.green[6],
-        theme.colors.cyan[6],
-        theme.colors.violet[6],
-        theme.colors.pink[6],
-      ];
+        }))
+        .sort((a, b) => b.priceSum - a.priceSum);
+
       let i = 0;
       const countByProviderPending: SectionData[] = [];
-      for (; i < colors.length - 1 && i < sumProviderArray.length - 1; i++) {
+      for (
+        ;
+        i < providersColors.length - 1 && i < sumProviderArray.length;
+        i++
+      ) {
         countByProviderPending.push({
           label: sumProviderArray[i].provider,
-          text: sumProviderArray[i].priceSum.toFixed(2),
+          text: "$" + sumProviderArray[i].priceSum.toFixed(2),
           part: (sumProviderArray[i].priceSum / sum) * 100,
-          color: colors[i],
+          color: providersColors[i],
         });
       }
       // Merge all remains into one "Others"
-      let othersSum = 0;
-      for (let j = i; j < sumProviderArray.length; j++) {
-        othersSum += sumProviderArray[i].priceSum;
+      if (i < sumProviderArray.length) {
+        let othersSum = 0;
+        for (let j = i; j < sumProviderArray.length; j++) {
+          othersSum += sumProviderArray[i].priceSum;
+        }
+        countByProviderPending.push({
+          label: t("others"),
+          text: "$" + othersSum.toFixed(2),
+          part: (othersSum / sum) * 100,
+          color: providersColors[i],
+        });
       }
-      countByProviderPending.push({
-        label: t("billingOthers"),
-        text: othersSum.toFixed(2),
-        part: (othersSum / sum) * 100,
-        color: colors[i],
-      });
       setBillingCountByProvider(countByProviderPending);
     }
   }, [servers]);
 
   return (
     <Card withBorder p="md" radius="md">
-      <Box
-        bg="#62b6e7"
-        style={{
-          height: rem(16 * 16),
-          width: rem(16 * 16),
-          borderRadius: rem(16 * 16),
-          justifyContent: "center",
-          position: "absolute",
-          right: rem(-6.5 * 16),
-          top: rem(-6.5 * 16),
-        }}
-      />
-      <IconBusinessplan
-        color="white"
-        opacity="30%"
-        style={{
-          width: rem(6 * 16),
-          height: rem(6 * 16),
-          position: "absolute",
-          top: rem(0.5 * 16),
-          right: rem(0.5 * 16),
-        }}
-      />
+      <CornerIcon icon={IconBusinessplan} />
       <Flex direction="column" gap="xl">
         <Group justify="space-between">
           <Box>
@@ -169,11 +154,11 @@ const BillingCard = ({ servers }: BillingCardProps) => {
           </Box>
         </Group>
 
-        <BillingSection
+        <PercentSection
           title={t("billingByServerTypes")}
           data={billingCountByType}
         />
-        <BillingSection
+        <PercentSection
           title={t("billingByServerProviders")}
           data={billingCountByProvider}
         />

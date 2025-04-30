@@ -4,23 +4,19 @@ import {
   Card,
   Flex,
   Group,
-  Progress,
   rem,
-  SimpleGrid,
   Text,
   Title,
-  Tooltip,
   useMantineTheme,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { IconBuilding, IconMapPin } from "@tabler/icons-react";
 
 import type { Server } from "@/types/server.ts";
-
-type LocationAndCount = {
-  region: string;
-  count: number;
-};
+import CornerIcon from "@/components/analysis/CornerIcon.tsx";
+import PercentSection, {
+  SectionData,
+} from "@/components/analysis/PercentSection.tsx";
 
 interface CountByRegionProps {
   servers: Server[];
@@ -29,27 +25,6 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
   const { t } = useTranslation("main", { keyPrefix: "analysis" });
 
   const theme = useMantineTheme();
-
-  const [locationCount, setLocationCount] = useState<LocationAndCount[]>([]);
-
-  useEffect(() => {
-    const locntsMap = new Map<string, number>();
-    for (const server of servers) {
-      locntsMap.set(
-        server.location.region || t("geolocationWorld"),
-        (locntsMap.get(server.location.region) || 0) + 1,
-      );
-    }
-    const locntsArray: LocationAndCount[] = [];
-    for (const [loc, cnt] of locntsMap.entries()) {
-      locntsArray.push({
-        region: loc,
-        count: cnt,
-      });
-    }
-    locntsArray.sort((a, b) => b.count - a.count);
-    setLocationCount(locntsArray);
-  }, [servers]);
 
   const predefinedColors = [
     theme.colors.red[6],
@@ -67,31 +42,52 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
     theme.colors.orange[6],
   ];
 
+  const [totalDatacenters, setTotalDatacenters] = useState(0);
+  const [locationCount, setLocationCount] = useState<SectionData[]>([]);
+
+  useEffect(() => {
+    const locntsMap = new Map<string, number>();
+    for (const server of servers) {
+      const locationKey = server.location.region || t("geolocationWorld");
+      locntsMap.set(locationKey, (locntsMap.get(locationKey) || 0) + 1);
+    }
+    const locntsArray = Array.from(locntsMap.entries())
+      .map(([loc, cnt]) => ({
+        region: loc,
+        count: cnt,
+      }))
+      .sort((a, b) => b.count - a.count);
+    setTotalDatacenters(locntsArray.length);
+
+    let i = 0;
+    const locationPending: SectionData[] = [];
+    for (; i < predefinedColors.length - 1 && i < locntsArray.length; i++) {
+      locationPending.push({
+        label: locntsArray[i].region,
+        text: locntsArray[i].count.toString(),
+        part: (locntsArray[i].count / servers.length) * 100,
+        color: predefinedColors[i],
+      });
+    }
+    if (i < locntsArray.length) {
+      let otherSum = 0;
+      for (let j = i; j < locntsArray.length; j++) {
+        otherSum += locntsArray[i].count;
+      }
+      locationPending.push({
+        label: t("others"),
+        text: otherSum.toString(),
+        part: (otherSum / servers.length) * 100,
+        color: predefinedColors[i],
+      });
+    }
+
+    setLocationCount(locationPending);
+  }, [servers]);
+
   return (
     <Card withBorder p="md" radius="md">
-      <Box
-        bg="#62b6e7"
-        style={{
-          height: rem(16 * 16),
-          width: rem(16 * 16),
-          borderRadius: rem(16 * 16),
-          justifyContent: "center",
-          position: "absolute",
-          right: rem(-6.5 * 16),
-          top: rem(-6.5 * 16),
-        }}
-      />
-      <IconMapPin
-        color="white"
-        opacity="30%"
-        style={{
-          width: rem(6 * 16),
-          height: rem(6 * 16),
-          position: "absolute",
-          top: rem(0.5 * 16),
-          right: rem(0.5 * 16),
-        }}
-      />
+      <CornerIcon icon={IconMapPin} />
 
       <Flex direction="column" gap="xl">
         <Group justify="space-between">
@@ -108,69 +104,16 @@ const RegionCard = ({ servers }: CountByRegionProps) => {
                   fontSize: rem(36),
                 }}
               >
-                {locationCount.length}
+                {totalDatacenters}
               </Text>
             </Group>
           </Box>
         </Group>
 
-        <Box>
-          <Title c="dimmed" order={3} size="h6">
-            {t("geolocationServerCountByRegion")}
-          </Title>
-
-          <Progress.Root size={34} mt={16}>
-            {locationCount.map((segment, index) => (
-              <Tooltip
-                key={segment.region}
-                label={segment.region}
-                withArrow
-                arrowSize={6}
-              >
-                <Progress.Section
-                  value={(segment.count / servers.length) * 100}
-                  color={predefinedColors[index % predefinedColors.length]}
-                />
-              </Tooltip>
-            ))}
-          </Progress.Root>
-
-          <SimpleGrid
-            cols={{
-              base: 1,
-              xs: 2,
-              md: 4,
-            }}
-            mt="md"
-          >
-            {locationCount.map((segment, index) => (
-              <Box
-                key={segment.region}
-                pb={rem("5px")}
-                style={{
-                  borderBottom: `${rem("3px")} solid ${
-                    predefinedColors[index % predefinedColors.length]
-                  }`,
-                }}
-              >
-                <Text fz="xs" c="dimmed" fw={700}>
-                  {segment.region}
-                </Text>
-
-                <Group justify="space-between" align="flex-end" gap={0}>
-                  <Text fw={700}>{segment.count}</Text>
-                  <Text
-                    c={predefinedColors[index % predefinedColors.length]}
-                    fw={700}
-                    size="sm"
-                  >
-                    {((segment.count / servers.length) * 100).toFixed(1)}%
-                  </Text>
-                </Group>
-              </Box>
-            ))}
-          </SimpleGrid>
-        </Box>
+        <PercentSection
+          title={t("geolocationServerCountByRegion")}
+          data={locationCount}
+        />
       </Flex>
     </Card>
   );

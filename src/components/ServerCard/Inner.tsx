@@ -108,7 +108,15 @@ const Inner = ({ server }: ServerCardInnerProps) => (
               />
               <Text>
                 {server.hardware.cpu.count * server.hardware.cpu.core_count}C
-                {server.hardware.cpu.count * server.hardware.cpu.thread_count}T
+                {server.hardware.cpu.core_count !==
+                  server.hardware.cpu.thread_count && (
+                  <>
+                    (
+                    {server.hardware.cpu.count *
+                      server.hardware.cpu.thread_count}
+                    T)
+                  </>
+                )}
               </Text>
             </Flex>
           </Tooltip>

@@ -253,7 +253,6 @@
     "billingDS": "Dedicated Server",
     "billingByServerTypes": "By Server Types",
     "billingByServerProviders": "By Server Providers",
-    "billingOthers": "Others",
     "billingMVSAll": "All servers",
     "billingMVSTop": "Top {{limit}} valuable servers",
     "billingMVSServerName": "Server Name",
@@ -267,7 +266,16 @@
     "billingMSSBillingMonths": "Billing Months",
     "billingMSSPaidAnnually": "Paid Annually",
     "billingMSSTotalSpent": "Total Spent",
-    "billingButtonExpand": "Expand"
+    "sectionResource": "Resource",
+    "resourceHardware": "Hardware Resource",
+    "resourceHardwareCPUCountByManufacturer": "CPU Count By Manufacturer",
+    "resourceHardwareRAMSizeByGeneration": "RAM Size By Generation",
+    "resourceHardwareDiskSizeByType": "Disk Size By Type",
+    "resourceHardwareUnknown": "Unknown",
+    "resourceHardwareCPUCore": "Cores",
+    "resourceHardwareCPUThread": "Threads",
+    "others": "Others",
+    "buttonExpand": "Expand"
   },
   "settings": {
     "sectionGlobal": "Global",

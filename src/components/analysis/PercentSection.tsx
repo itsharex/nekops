@@ -15,11 +15,12 @@ export interface SectionData {
   part: number;
   color: string;
 }
-interface BillingSectionProps {
+
+interface PercentSectionProps {
   title: string;
   data: SectionData[];
 }
-const BillingSection = ({ title, data }: BillingSectionProps) => (
+const PercentSection = ({ title, data }: PercentSectionProps) => (
   <Box>
     <Title c="dimmed" order={3} size="h6">
       {title}
@@ -41,8 +42,9 @@ const BillingSection = ({ title, data }: BillingSectionProps) => (
     <SimpleGrid
       cols={{
         base: 1,
-        xs: data.length >= 2 ? 2 : data.length,
-        md: data.length,
+        xs: data.length > 2 ? 2 : data.length,
+        md: data.length > 4 ? 4 : data.length,
+        xl: data.length > 6 ? 6 : data.length,
       }}
       mt="md"
     >
@@ -59,7 +61,7 @@ const BillingSection = ({ title, data }: BillingSectionProps) => (
           </Text>
 
           <Group justify="space-between" align="flex-end" gap={0}>
-            <Text fw={700}>${segment.text}</Text>
+            <Text fw={700}>{segment.text}</Text>
             <Text c={segment.color} fw={700} size="sm">
               {segment.part.toFixed(1)}%
             </Text>
@@ -70,4 +72,4 @@ const BillingSection = ({ title, data }: BillingSectionProps) => (
   </Box>
 );
 
-export default BillingSection;
+export default PercentSection;

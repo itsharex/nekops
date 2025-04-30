@@ -22,6 +22,9 @@ import HDDIcon from "@/assets/icons/hdd.svg";
 import SSDIcon from "@/assets/icons/ssd.svg";
 import DeleteItemButton from "@/components/DeleteItemButton.tsx";
 import { i18nDefaultDisk } from "@/components/servers/EditServerModal/helpers.ts";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store.ts";
+import { useMemo } from "react";
 
 interface DiskItemProps extends InputFormProps {
   disk: Disk;
@@ -132,6 +135,17 @@ const HardwareForm = ({ form }: InputFormProps) => {
   const { t } = useTranslation("main", { keyPrefix: "editServerModal" });
   const defaultDisk = i18nDefaultDisk();
 
+  const servers = useSelector((state: RootState) => state.servers);
+
+  const knownCPUManufacturers = useMemo(
+    () => [
+      ...new Set(
+        servers.map((s) => s.hardware.cpu.manufacturer).filter(Boolean),
+      ),
+    ],
+    [servers],
+  );
+
   return (
     <>
       <Fieldset legend={t("hardwareCPU")}>
@@ -150,7 +164,7 @@ const HardwareForm = ({ form }: InputFormProps) => {
           <Grid.Col span={2}>
             <Autocomplete
               label={t("hardwareCPUManufacturerLabel")}
-              data={["Intel", "AMD"]}
+              data={knownCPUManufacturers}
               {...form.getInputProps("hardware.cpu.manufacturer")}
             />
           </Grid.Col>

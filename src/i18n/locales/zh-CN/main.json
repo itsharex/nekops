@@ -266,7 +266,6 @@
     "billingDS": "独立$t(common.server)",
     "billingByServerTypes": "根据$t(editServerModal.productTypeLabel)分类",
     "billingByServerProviders": "根据$t(editServerModal.productProviderLabel)分类",
-    "billingOthers": "其他",
     "billingMVSAll": "所有$t(common.server)",
     "billingMVSTop": "$t(analysis.billingMVSPrice)最高的 {{limit}} 个$t(common.server)",
     "billingMVSServerName": "$t(common.server)$t(common.name)",
@@ -280,7 +279,16 @@
     "billingMSSBillingMonths": "计费月份",
     "billingMSSPaidAnnually": "$t(editServerModal.productPaidAnnuallyLabel)",
     "billingMSSTotalSpent": "总开销",
-    "billingButtonExpand": "展开"
+    "sectionResource": "资源",
+    "resourceHardware": "硬件$t(analysis.sectionResource)",
+    "resourceHardwareCPUCountByManufacturer": "$t(editServerModal.hardwareCPU) 根据$t(editServerModal.hardwareCPUManufacturerLabel)分类计数",
+    "resourceHardwareRAMSizeByGeneration": "$t(editServerModal.hardwareMemory)根据$t(editServerModal.hardwareMemoryGenerationLabel)分类统计$t(editServerModal.hardwareMemorySizeLabel)",
+    "resourceHardwareDiskSizeByType": "$t(editServerModal.hardwareDisk)根据$t(editServerModal.hardwareDiskTypeLabel)分类统计$t(editServerModal.hardwareDiskSizeLabel)",
+    "resourceHardwareUnknown": "未知",
+    "resourceHardwareCPUCore": "核心",
+    "resourceHardwareCPUThread": "线程",
+    "others": "其他",
+    "buttonExpand": "展开"
   },
   "settings": {
     "sectionGlobal": "全局",

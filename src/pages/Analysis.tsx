@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 
 import type { RootState } from "@/store.ts";
 
+import GroupDivider from "@/components/GroupDivider.tsx";
 import GeneralStatics from "@/components/analysis/GeneralStatics.tsx";
 import Geolocation from "@/components/analysis/Geolocation";
 import Billing from "@/components/analysis/Billing";
-import GroupDivider from "@/components/GroupDivider.tsx";
+import Resource from "@/components/analysis/Resource";
 
 const AnalysisPage = () => {
   const { t } = useTranslation("main", { keyPrefix: "analysis" });
@@ -25,12 +26,13 @@ const AnalysisPage = () => {
       />
 
       <GroupDivider label={t("sectionGeolocation")} />
-
       <Geolocation servers={servers} />
 
       <GroupDivider label={t("sectionBilling")} />
-
       <Billing servers={servers} />
+
+      <GroupDivider label={t("sectionResource")} />
+      <Resource servers={servers} />
     </ScrollArea>
   );
 };

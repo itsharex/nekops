@@ -136,7 +136,7 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
                   onClick={() => setIsExpand(true)}
                   leftSection={<IconPlus size={15} />}
                 >
-                  {t("billingButtonExpand")}
+                  {t("buttonExpand")}
                 </Button>
               }
             />

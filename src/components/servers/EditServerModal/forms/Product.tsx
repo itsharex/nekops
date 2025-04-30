@@ -90,7 +90,7 @@ const ProductForm = ({ form }: ProductFormProps) => {
     <>
       <Fieldset legend={t("productProvider")}>
         <Grid>
-          <Grid.Col span={9}>
+          <Grid.Col span={8}>
             <Autocomplete
               label={t("productProviderLabel")}
               placeholder={t("productProviderPlaceholder")}
@@ -98,7 +98,7 @@ const ProductForm = ({ form }: ProductFormProps) => {
               {...form.getInputProps("provider.name")}
             />
           </Grid.Col>
-          <Grid.Col span={3}>
+          <Grid.Col span={4}>
             <Flex gap="md">
               <Flex direction="column">
                 <Text size="sm" fw={500} mb={2}>
@@ -118,6 +118,49 @@ const ProductForm = ({ form }: ProductFormProps) => {
                   {...form.getInputProps("provider.type")}
                 />
               </Flex>
+              <DatesProvider
+                settings={{
+                  locale: i18n.language === "zh-CN" ? "zh-cn" : "en",
+                }}
+              >
+                <DatePickerInput
+                  label={t("productStartSinceLabel")}
+                  // valueFormat="YYYY-MM-DD"
+                  value={
+                    form.getInputProps("provider.start_since").value
+                      ? new Date(
+                          form.getInputProps("provider.start_since").value,
+                        )
+                      : new Date() // Use current date if not set
+                  }
+                  onChange={(newDate) => {
+                    if (newDate) {
+                      form.setFieldValue(
+                        "provider.start_since",
+                        `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
+                      );
+                    }
+                  }}
+                  style={{
+                    flexGrow: 1,
+                  }}
+                />
+              </DatesProvider>
+            </Flex>
+          </Grid.Col>
+        </Grid>
+        <Grid>
+          <Grid.Col span={8}>
+            <TextInput
+              label={t("productProductLabel")}
+              style={{
+                flexGrow: 1,
+              }}
+              {...form.getInputProps("provider.product")}
+            />
+          </Grid.Col>
+          <Grid.Col span={4}>
+            <Flex gap="md">
               <NumberInput
                 label={t("productPriceLabel")}
                 leftSection={<IconCurrencyDollar />}
@@ -129,43 +172,18 @@ const ProductForm = ({ form }: ProductFormProps) => {
                 }}
                 {...form.getInputProps("provider.price")}
               />
+              <Flex direction="column" justify="end">
+                <Text size="sm" fw={500} mb={1}>
+                  {t("productPaidAnnuallyLabel")}
+                </Text>
+                <Checkbox
+                  size="xl"
+                  {...form.getInputProps("provider.paid_annually", {
+                    type: "checkbox",
+                  })}
+                />
+              </Flex>
             </Flex>
-          </Grid.Col>
-        </Grid>
-        <Grid>
-          <Grid.Col span={9}>
-            <TextInput
-              label={t("productProductLabel")}
-              style={{
-                flexGrow: 1,
-              }}
-              {...form.getInputProps("provider.product")}
-            />
-          </Grid.Col>
-          <Grid.Col span={3}>
-            <DatesProvider
-              settings={{
-                locale: i18n.language === "zh-CN" ? "zh-cn" : "en",
-              }}
-            >
-              <DatePickerInput
-                label={t("productStartSinceLabel")}
-                // valueFormat="YYYY-MM-DD"
-                value={
-                  form.getInputProps("provider.start_since").value
-                    ? new Date(form.getInputProps("provider.start_since").value)
-                    : new Date() // Use current date if not set
-                }
-                onChange={(newDate) => {
-                  if (newDate) {
-                    form.setFieldValue(
-                      "provider.start_since",
-                      `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
-                    );
-                  }
-                }}
-              />
-            </DatesProvider>
           </Grid.Col>
         </Grid>
       </Fieldset>

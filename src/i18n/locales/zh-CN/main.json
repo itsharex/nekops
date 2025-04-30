@@ -181,6 +181,7 @@
     "productPriceLabel": "月费",
     "productProductLabel": "产品",
     "productStartSinceLabel": "开始日期",
+    "productPaidAnnuallyLabel": "年付",
     "productTraffic": "网络流量",
     "productTrafficLimitLabel": "流量限制",
     "productTrafficDoubleRateLabel": "双向计费",
@@ -277,6 +278,7 @@
     "billingMSSServerName": "$t(common.server)$t(common.name)",
     "billingMSSStartSince": "$t(editServerModal.productStartSinceLabel)",
     "billingMSSBillingMonths": "计费月份",
+    "billingMSSPaidAnnually": "$t(editServerModal.productPaidAnnuallyLabel)",
     "billingMSSTotalSpent": "总开销",
     "billingButtonExpand": "展开"
   },

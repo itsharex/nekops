@@ -11,6 +11,7 @@ export type Provider = {
   type: "VPS" | "DS";
   product: string;
   price: number; // $/mo
+  paid_annually: boolean; // Paid by year rather than month.
   start_since: string; // JSON cannot handle Date directly, so use string instead.
 };
 
@@ -136,6 +137,7 @@ export const defaultServer: Server = {
     type: "VPS",
     product: "",
     price: 0,
+    paid_annually: false,
     start_since: "",
   },
 

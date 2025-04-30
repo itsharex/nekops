@@ -33,9 +33,13 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
     const now = Date.now();
     return servers
       .map((s): ServerWithTotalSpent => {
-        const billingMonths = Math.ceil(
-          (now - new Date(s.provider.start_since).getTime()) / 2592000_000, // 2592000 = 30 * 24 * 3600, change milliseconds to months
+        const currentMonths = Math.ceil(
+          (now - new Date(s.provider.start_since).getTime()) / 2592000_000, // 2592000 = 30 * 24 * 3600, convert milliseconds to months
         );
+
+        const billingMonths = s.provider.paid_annually
+          ? 12 * Math.ceil(currentMonths / 12)
+          : currentMonths;
 
         return {
           ...s,
@@ -88,7 +92,14 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
             <Table.Tr key={server.id}>
               <Table.Td>{server.name}</Table.Td>
               <Table.Td>{server.provider.start_since}</Table.Td>
-              <Table.Td>{server.billingMonths}</Table.Td>
+              <Table.Td>
+                {server.billingMonths}
+                {server.provider.paid_annually && (
+                  <Pill ml="xs" c="yellow">
+                    {t("billingMSSPaidAnnually")}
+                  </Pill>
+                )}
+              </Table.Td>
               <Table.Td>${server.totalSpent.toFixed(2)}</Table.Td>
               <Table.Td width="20%">
                 <Progress.Root>

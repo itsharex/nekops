@@ -168,6 +168,7 @@
     "productPriceLabel": "Monthly Price",
     "productProductLabel": "Product",
     "productStartSinceLabel": "Start Since",
+    "productPaidAnnuallyLabel": "Paid Annually",
     "productTraffic": "Traffic",
     "productTrafficLimitLabel": "Traffic Limit",
     "productTrafficDoubleRateLabel": "Double Rate",
@@ -264,6 +265,7 @@
     "billingMSSServerName": "Server Name",
     "billingMSSStartSince": "Start Since",
     "billingMSSBillingMonths": "Billing Months",
+    "billingMSSPaidAnnually": "Paid Annually",
     "billingMSSTotalSpent": "Total Spent",
     "billingButtonExpand": "Expand"
   },

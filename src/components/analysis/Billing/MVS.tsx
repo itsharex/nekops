@@ -69,7 +69,7 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
         <Table.Tbody>
           {MVS.map((server) => (
             <Table.Tr key={server.id}>
-              <Table.Td c={server.color}>{server.name}</Table.Td>
+              <Table.Td>{server.name}</Table.Td>
               <Table.Td>{server.provider.name}</Table.Td>
               <Table.Td>{server.provider.type}</Table.Td>
               <Table.Td>${server.provider.price.toFixed(2)}</Table.Td>
@@ -77,7 +77,7 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
                 <Progress.Root>
                   <Progress.Section
                     value={(server.provider.price / MVSPriceSum) * 100}
-                    color="teal"
+                    color={server.color}
                   />
                 </Progress.Root>
               </Table.Td>

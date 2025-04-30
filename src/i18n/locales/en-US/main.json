@@ -259,6 +259,12 @@
     "billingMVSProvider": "Provider",
     "billingMVSType": "Type",
     "billingMVSPrice": "Price",
+    "billingMSSAll": "All servers",
+    "billingMSSTop": "Top {{limit}} spent servers",
+    "billingMSSServerName": "Server Name",
+    "billingMSSStartSince": "Start Since",
+    "billingMSSBillingMonths": "Billing Months",
+    "billingMSSTotalSpent": "Total Spent",
     "billingButtonExpand": "Expand"
   },
   "settings": {

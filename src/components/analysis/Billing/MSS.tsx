@@ -12,71 +12,88 @@ import {
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 
-interface MostValuableServersProps {
+interface ServerWithTotalSpent extends Server {
+  billingMonths: number;
+  totalSpent: number;
+}
+
+interface MostSpentServersProps {
   servers: Server[];
   limit: number;
 }
-const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
+const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
   const { t } = useTranslation("main", { keyPrefix: "analysis" });
 
-  const [MVS, setMVS] = useState<Server[]>([]);
-  const [MVSPriceSum, setMVSPriceSum] = useState(0);
+  const [MSS, setMSS] = useState<ServerWithTotalSpent[]>([]);
+  const [MSSPriceSum, setMSSPriceSum] = useState(0);
 
   const [isExpand, setIsExpand] = useState(false);
 
-  const serverSortByPrice = useMemo(
-    () => servers.toSorted((a, b) => b.provider.price - a.provider.price),
-    [servers],
-  );
+  const serverSortBySpent = useMemo(() => {
+    const now = Date.now();
+    return servers
+      .map((s): ServerWithTotalSpent => {
+        const billingMonths = Math.ceil(
+          (now - new Date(s.provider.start_since).getTime()) / 2592000_000, // 2592000 = 30 * 24 * 3600, change milliseconds to months
+        );
+
+        return {
+          ...s,
+          billingMonths,
+          totalSpent: billingMonths * s.provider.price,
+        };
+      })
+      .toSorted((a, b) => b.totalSpent - a.totalSpent);
+  }, [servers]);
 
   useEffect(() => {
-    if (serverSortByPrice.length > 0) {
+    if (serverSortBySpent.length > 0) {
       let sum = 0;
-      const mvs = isExpand
-        ? serverSortByPrice
-        : serverSortByPrice.slice(0, limit);
-      for (const valuableServer of mvs) {
-        sum += valuableServer.provider.price;
+      const mss = isExpand
+        ? serverSortBySpent
+        : serverSortBySpent.slice(0, limit);
+      for (const valuableServer of mss) {
+        sum += valuableServer.totalSpent;
       }
-      setMVS(mvs);
-      setMVSPriceSum(sum);
+      setMSS(mss);
+      setMSSPriceSum(sum);
     }
-  }, [serverSortByPrice, isExpand]);
+  }, [serverSortBySpent, isExpand]);
 
   return (
     <Card withBorder p="md" radius="md">
       <Title c="dimmed" order={3} size="h5" fw={700}>
         {isExpand || servers.length <= limit
-          ? t("billingMVSAll")
-          : t("billingMVSTop", {
+          ? t("billingMSSAll")
+          : t("billingMSSTop", {
               limit,
             })}
         <Pill ml="sm" c="violet">
-          $ {MVSPriceSum.toFixed(2)}
+          $ {MSSPriceSum.toFixed(2)}
         </Pill>
       </Title>
 
       <Table mt="md">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>{t("billingMVSServerName")}</Table.Th>
-            <Table.Th>{t("billingMVSProvider")}</Table.Th>
-            <Table.Th>{t("billingMVSType")}</Table.Th>
-            <Table.Th>{t("billingMVSPrice")}</Table.Th>
+            <Table.Th>{t("billingMSSServerName")}</Table.Th>
+            <Table.Th>{t("billingMSSStartSince")}</Table.Th>
+            <Table.Th>{t("billingMSSBillingMonths")}</Table.Th>
+            <Table.Th>{t("billingMSSTotalSpent")}</Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {MVS.map((server) => (
+          {MSS.map((server) => (
             <Table.Tr key={server.id}>
               <Table.Td>{server.name}</Table.Td>
-              <Table.Td>{server.provider.name}</Table.Td>
-              <Table.Td>{server.provider.type}</Table.Td>
-              <Table.Td>${server.provider.price.toFixed(2)}</Table.Td>
+              <Table.Td>{server.provider.start_since}</Table.Td>
+              <Table.Td>{server.billingMonths}</Table.Td>
+              <Table.Td>${server.totalSpent.toFixed(2)}</Table.Td>
               <Table.Td width="20%">
                 <Progress.Root>
                   <Progress.Section
-                    value={(server.provider.price / MVSPriceSum) * 100}
+                    value={(server.totalSpent / MSSPriceSum) * 100}
                     color="teal"
                   />
                 </Progress.Root>
@@ -106,4 +123,4 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
   );
 };
 
-export default MostValuableServers;
+export default MostSpentServers;

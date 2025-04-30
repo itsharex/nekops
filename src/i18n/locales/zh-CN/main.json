@@ -272,6 +272,12 @@
     "billingMVSProvider": "$t(editServerModal.productProviderLabel)",
     "billingMVSType": "$t(editServerModal.productTypeLabel)",
     "billingMVSPrice": "$t(editServerModal.productPriceLabel)",
+    "billingMSSAll": "所有$t(common.server)",
+    "billingMSSTop": "花费最多的 {{limit}} 个$t(common.server)",
+    "billingMSSServerName": "$t(common.server)$t(common.name)",
+    "billingMSSStartSince": "$t(editServerModal.productStartSinceLabel)",
+    "billingMSSBillingMonths": "计费月份",
+    "billingMSSTotalSpent": "总开销",
     "billingButtonExpand": "展开"
   },
   "settings": {

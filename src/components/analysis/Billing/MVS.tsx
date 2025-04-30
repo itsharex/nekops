@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Card,
+  Checkbox,
   Divider,
+  Flex,
   Pill,
   Progress,
   Table,
@@ -22,6 +24,9 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
   const [MVS, setMVS] = useState<Server[]>([]);
   const [MVSPriceSum, setMVSPriceSum] = useState(0);
 
+  const [isShowingVPS, setIsShowingVPS] = useState(true);
+  const [isShowingDS, setIsShowingDS] = useState(true);
+
   const [isExpand, setIsExpand] = useState(false);
 
   const serverSortByPrice = useMemo(
@@ -32,29 +37,59 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
   useEffect(() => {
     if (serverSortByPrice.length > 0) {
       let sum = 0;
-      const mvs = isExpand
-        ? serverSortByPrice
-        : serverSortByPrice.slice(0, limit);
+      const filteredServer = serverSortByPrice.filter(
+        (s) =>
+          (isShowingVPS && s.provider.type === "VPS") ||
+          (isShowingDS && s.provider.type === "DS"),
+      );
+      const mvs = isExpand ? filteredServer : filteredServer.slice(0, limit);
       for (const valuableServer of mvs) {
         sum += valuableServer.provider.price;
       }
       setMVS(mvs);
       setMVSPriceSum(sum);
     }
-  }, [serverSortByPrice, isExpand]);
+  }, [serverSortByPrice, isExpand, isShowingVPS, isShowingDS]);
 
   return (
     <Card withBorder p="md" radius="md">
-      <Title c="dimmed" order={3} size="h5" fw={700}>
-        {isExpand || servers.length <= limit
-          ? t("billingMVSAll")
-          : t("billingMVSTop", {
-              limit,
-            })}
-        <Pill ml="sm" c="violet">
-          $ {MVSPriceSum.toFixed(2)}
-        </Pill>
-      </Title>
+      <Flex direction="row" justify="space-between">
+        <Title c="dimmed" order={3} size="h5" fw={700}>
+          {isExpand || servers.length <= limit
+            ? t("billingMVSAll")
+            : t("billingMVSTop", {
+                limit,
+              })}
+          <Pill ml="sm" c="violet">
+            $ {MVSPriceSum.toFixed(2)}
+          </Pill>
+        </Title>
+
+        <Flex direction="row" gap="xs">
+          <Checkbox
+            label={t("billingVPS")}
+            checked={isShowingVPS}
+            onChange={(ev) => {
+              if (ev.target.checked || isShowingDS) {
+                setIsShowingVPS(ev.target.checked);
+              } else {
+                setIsShowingDS(true);
+              }
+            }}
+          />
+          <Checkbox
+            label={t("billingDS")}
+            checked={isShowingDS}
+            onChange={(ev) => {
+              if (ev.target.checked || isShowingVPS) {
+                setIsShowingDS(ev.target.checked);
+              } else {
+                setIsShowingVPS(true);
+              }
+            }}
+          />
+        </Flex>
+      </Flex>
 
       <Table mt="md">
         <Table.Thead>

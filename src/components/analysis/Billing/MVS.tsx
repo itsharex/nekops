@@ -69,7 +69,7 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
         <Table.Tbody>
           {MVS.map((server) => (
             <Table.Tr key={server.id}>
-              <Table.Td>{server.name}</Table.Td>
+              <Table.Td c={server.color}>{server.name}</Table.Td>
               <Table.Td>{server.provider.name}</Table.Td>
               <Table.Td>{server.provider.type}</Table.Td>
               <Table.Td>${server.provider.price.toFixed(2)}</Table.Td>

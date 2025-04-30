@@ -90,7 +90,7 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
         <Table.Tbody>
           {MSS.map((server) => (
             <Table.Tr key={server.id}>
-              <Table.Td>{server.name}</Table.Td>
+              <Table.Td c={server.color}>{server.name}</Table.Td>
               <Table.Td>{server.provider.start_since}</Table.Td>
               <Table.Td>
                 {server.billingMonths}

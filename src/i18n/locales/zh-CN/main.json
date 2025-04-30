@@ -281,7 +281,7 @@
     "billingMSSTotalSpent": "总开销",
     "sectionResource": "资源",
     "resourceHardware": "硬件$t(analysis.sectionResource)",
-    "resourceHardwareCPUCountByManufacturer": "$t(editServerModal.hardwareCPU) 根据$t(editServerModal.hardwareCPUManufacturerLabel)分类计数",
+    "resourceHardwareCPUCountByManufacturer": "$t(editServerModal.hardwareCPU) 根据$t(editServerModal.hardwareCPUManufacturerLabel)分类统计$t(editServerModal.hardwareCPUCountLabel)",
     "resourceHardwareRAMSizeByGeneration": "$t(editServerModal.hardwareMemory)根据$t(editServerModal.hardwareMemoryGenerationLabel)分类统计$t(editServerModal.hardwareMemorySizeLabel)",
     "resourceHardwareDiskSizeByType": "$t(editServerModal.hardwareDisk)根据$t(editServerModal.hardwareDiskTypeLabel)分类统计$t(editServerModal.hardwareDiskSizeLabel)",
     "resourceHardwareUnknown": "未知",

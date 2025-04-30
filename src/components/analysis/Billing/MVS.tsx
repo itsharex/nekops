@@ -71,7 +71,11 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
             <Table.Tr key={server.id}>
               <Table.Td>{server.name}</Table.Td>
               <Table.Td>{server.provider.name}</Table.Td>
-              <Table.Td>{server.provider.type}</Table.Td>
+              <Table.Td>
+                {server.provider.type === "DS"
+                  ? t("billingDS")
+                  : t("billingVPS")}
+              </Table.Td>
               <Table.Td>${server.provider.price.toFixed(2)}</Table.Td>
               <Table.Td width="20%">
                 <Progress.Root>

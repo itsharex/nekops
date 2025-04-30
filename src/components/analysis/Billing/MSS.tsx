@@ -104,7 +104,7 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
               <Table.Td width="20%">
                 <Progress.Root>
                   <Progress.Section
-                    value={(server.totalSpent / MSSPriceSum) * 100}
+                    value={(server.totalSpent / MSS[0].totalSpent) * 100}
                     color={server.color}
                   />
                 </Progress.Root>

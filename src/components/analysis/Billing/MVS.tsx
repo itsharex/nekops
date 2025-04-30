@@ -76,7 +76,9 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
               <Table.Td width="20%">
                 <Progress.Root>
                   <Progress.Section
-                    value={(server.provider.price / MVSPriceSum) * 100}
+                    value={
+                      (server.provider.price / MVS[0].provider.price) * 100
+                    }
                     color={server.color}
                   />
                 </Progress.Root>

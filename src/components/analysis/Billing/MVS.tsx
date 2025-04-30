@@ -70,9 +70,8 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
             label={t("billingVPS")}
             checked={isShowingVPS}
             onChange={(ev) => {
-              if (ev.target.checked || isShowingDS) {
-                setIsShowingVPS(ev.target.checked);
-              } else {
+              setIsShowingVPS(ev.target.checked);
+              if (!ev.target.checked && !isShowingDS) {
                 setIsShowingDS(true);
               }
             }}
@@ -81,9 +80,8 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
             label={t("billingDS")}
             checked={isShowingDS}
             onChange={(ev) => {
-              if (ev.target.checked || isShowingVPS) {
-                setIsShowingDS(ev.target.checked);
-              } else {
+              setIsShowingDS(ev.target.checked);
+              if (!ev.target.checked && !isShowingVPS) {
                 setIsShowingVPS(true);
               }
             }}

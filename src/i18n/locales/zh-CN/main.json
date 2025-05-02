@@ -62,7 +62,7 @@
   "multirun": {
     "serverName": "$t(table.serverName)",
     "order": "顺序",
-    "gridLocation": "窗口位置",
+    "gridLocation": "矩阵位置",
     "state": "状态",
     "addRow": "$t(common.add)行",
     "addCol": "$t(common.add)列",

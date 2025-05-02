@@ -2,12 +2,12 @@ import type { Server } from "@/types/server.ts";
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Badge,
   Button,
   Card,
   Checkbox,
   Divider,
   Flex,
-  Pill,
   Progress,
   Table,
   Title,
@@ -60,9 +60,9 @@ const MostValuableServers = ({ servers, limit }: MostValuableServersProps) => {
             : t("billingMVSTop", {
                 limit,
               })}
-          <Pill ml="sm" c="violet">
+          <Badge ml="sm" color="violet">
             $ {MVSPriceSum.toFixed(2)}
-          </Pill>
+          </Badge>
         </Title>
 
         <Flex direction="row" gap="xs">

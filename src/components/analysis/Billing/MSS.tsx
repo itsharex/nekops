@@ -2,10 +2,10 @@ import type { Server } from "@/types/server.ts";
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Badge,
   Button,
   Card,
   Divider,
-  Pill,
   Progress,
   Table,
   Title,
@@ -72,9 +72,9 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
           : t("billingMSSTop", {
               limit,
             })}
-        <Pill ml="sm" c="violet">
+        <Badge ml="sm" color="violet">
           $ {MSSPriceSum.toFixed(2)}
-        </Pill>
+        </Badge>
       </Title>
 
       <Table mt="md">
@@ -95,9 +95,9 @@ const MostSpentServers = ({ servers, limit }: MostSpentServersProps) => {
               <Table.Td>
                 {server.billingMonths}
                 {server.provider.paid_annually && (
-                  <Pill ml="xs" c="yellow">
+                  <Badge ml="xs" color="yellow">
                     {t("billingMSSPaidAnnually")}
-                  </Pill>
+                  </Badge>
                 )}
               </Table.Td>
               <Table.Td>${server.totalSpent.toFixed(2)}</Table.Td>

@@ -83,7 +83,8 @@ jobs:
       - name: Convert path
         id: path
         run: |
-          echo "paths=$(echo '${{ steps.build.outputs.artifactPaths }}' | jq -c '.[]' | sed 's/"//g')" >> $GITHUB_OUTPUT
+          paths=$(echo '${{ steps.build.outputs.artifactPaths }}' | jq -c '.[]' | sed 's/"//g')
+          echo "paths=$paths" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

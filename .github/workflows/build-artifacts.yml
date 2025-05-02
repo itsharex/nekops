@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -54,11 +56,14 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
           run_install: false
 
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build embedded binaries
+        run: make prepare
 
       # If tagName and releaseId are omitted tauri-action will only build the app and won't try to upload any assets.
       - name: Just build

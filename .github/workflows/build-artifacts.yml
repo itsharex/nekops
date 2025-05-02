@@ -39,6 +39,9 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Setup go
+        uses: actions/setup-go@v5
+
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:

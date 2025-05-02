@@ -20,10 +20,13 @@ jobs:
         include:
           - platform: "macos-latest" # for Arm based macs (M1 and above).
             args: "--target aarch64-apple-darwin"
+            identifier: "macos-aarch64"
           - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
             args: ""
+            identifier: "linux"
           - platform: "windows-latest"
             args: ""
+            identifier: "windows"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -69,23 +72,21 @@ jobs:
         run: make prepare
 
       # If tagName and releaseId are omitted tauri-action will only build the app and won't try to upload any assets.
-      - name: Just build
-        if: "!startsWith(github.event.ref, 'refs/tags/')"
+      - name: Build
+        id: build
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: ${{ matrix.args }}
 
-      - name: Create release with artifacts
-        if: startsWith(github.event.ref, 'refs/tags/')
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Convert path
+        id: path
+        run: |
+          echo "paths=$(echo '${{ steps.build.outputs.artifactPaths }}' | jq -c '.[]' | sed 's/"//g')" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tagName: ${{ github.ref }}
-          releaseName: "Nekops v__VERSION__" # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseBody: "请检视资源列表以下载并安装此版本应用程序。"
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
+          name: ${{ matrix.identifier }}
+          path: ${{ steps.path.outputs.paths }}

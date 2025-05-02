@@ -11,7 +11,25 @@ on:
       - main
 
 jobs:
-  build-tauri:
+  prepare:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.ver.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src-tauri/tauri.conf.json
+
+      - name: Prepare version tag
+        id: ver
+        run: echo "tag=$(jq .version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
+
+  build:
+    needs: [prepare]
     permissions:
       contents: write
     strategy:
@@ -80,14 +98,26 @@ jobs:
         with:
           args: ${{ matrix.args }}
 
-      - name: Convert path
-        id: path
-        run: |
-          paths=$(echo '${{ steps.build.outputs.artifactPaths }}' | jq -c '.[]' | sed 's/"//g')
-          echo "paths=$paths" >> $GITHUB_OUTPUT
-
-      - name: Upload artifacts
+      - name: Upload artifacts (Windows)
+        if: matrix.identifier == 'windows'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.identifier }}
-          path: ${{ steps.path.outputs.paths }}
+          path: |
+            src-tauri/target/release/bundle/msi/Nekops_${{ needs.prepare.outputs.tag }}_x64_en-US.msi
+
+      - name: Upload artifacts (macOS ARM)
+        if: matrix.identifier == 'macos-aarch64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.identifier }}
+          path: |
+            src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Nekops_${{ needs.prepare.outputs.tag }}_aarch64.dmg
+
+      - name: Upload artifacts (Linux)
+        if: matrix.identifier == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.identifier }}
+          path: |
+            src-tauri/target/release/bundle/appimage/Nekops_${{ needs.prepare.outputs.tag }}_amd64.AppImage

@@ -1,7 +1,5 @@
-use tauri::{Manager, Emitter};
-use enigo::{
-    Enigo, Keyboard, Settings,
-};
+use enigo::{Enigo, Keyboard, Settings};
+use tauri::{Emitter, Manager};
 
 #[tauri::command]
 fn keyboard_text(text: &str) {
@@ -20,6 +18,7 @@ const EVENT_WINDOW_CLOSE_RESCUE: &str = "windowCloseRescue";
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -30,18 +29,28 @@ pub fn run() {
                 let window_label = window.label();
                 match window_label {
                     LABEL_WINDOW_MAIN => {
-                        if window.app_handle().webview_windows().len() > 1 { // Is not the only window
+                        if window.app_handle().webview_windows().len() > 1 {
+                            // Is not the only window
                             // window.minimize().unwrap(); // Minimize main window
-                            window.app_handle().emit(EVENT_WINDOW_CLOSE_MAIN, false).unwrap(); // Trigger an event for frontend to handle
+                            window
+                                .app_handle()
+                                .emit(EVENT_WINDOW_CLOSE_MAIN, false)
+                                .unwrap(); // Trigger an event for frontend to handle
                             api.prevent_close(); // And prevent close
                         }
                     }
                     LABEL_WINDOW_SHELL => {
-                        window.app_handle().emit(EVENT_WINDOW_CLOSE_SHELL, false).unwrap();
+                        window
+                            .app_handle()
+                            .emit(EVENT_WINDOW_CLOSE_SHELL, false)
+                            .unwrap();
                         api.prevent_close();
                     }
                     LABEL_WINDOW_RESCUE => {
-                        window.app_handle().emit(EVENT_WINDOW_CLOSE_RESCUE, false).unwrap();
+                        window
+                            .app_handle()
+                            .emit(EVENT_WINDOW_CLOSE_RESCUE, false)
+                            .unwrap();
                         api.prevent_close();
                     }
                     _ => {}

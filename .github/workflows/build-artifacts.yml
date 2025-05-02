@@ -11,7 +11,25 @@ on:
       - main
 
 jobs:
-  build-tauri:
+  prepare:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.ver.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src-tauri/tauri.conf.json
+
+      - name: Prepare version tag
+        id: ver
+        run: echo "tag=$(jq .version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
+
+  build:
+    needs: [prepare]
     permissions:
       contents: write
     strategy:
@@ -20,12 +38,13 @@ jobs:
         include:
           - platform: "macos-latest" # for Arm based macs (M1 and above).
             args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest" # for Intel based macs.
-            args: "--target x86_64-apple-darwin"
+            identifier: "macos-aarch64"
           - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
             args: ""
+            identifier: "linux"
           - platform: "windows-latest"
             args: ""
+            identifier: "windows"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -48,7 +67,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || '' }}
 
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
@@ -71,23 +90,116 @@ jobs:
         run: make prepare
 
       # If tagName and releaseId are omitted tauri-action will only build the app and won't try to upload any assets.
-      - name: Just build
-        if: "!startsWith(github.event.ref, 'refs/tags/')"
+      - name: Build
+        id: build
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           args: ${{ matrix.args }}
 
-      - name: Create release with artifacts
-        if: startsWith(github.event.ref, 'refs/tags/')
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifacts (Windows)
+        if: matrix.identifier == 'windows'
+        uses: actions/upload-artifact@v4
         with:
-          tagName: ${{ github.ref }}
-          releaseName: "Nekops v__VERSION__" # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseBody: "请检视资源列表以下载并安装此版本应用程序。"
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
+          name: ${{ matrix.identifier }}
+          path: |
+            src-tauri/target/release/bundle/msi/Nekops_${{ needs.prepare.outputs.tag }}_x64_en-US.msi
+            src-tauri/target/release/bundle/msi/Nekops_${{ needs.prepare.outputs.tag }}_x64_en-US.msi.sig
+            src-tauri/target/release/bundle/nsis/Nekops_${{ needs.prepare.outputs.tag }}_x64-setup.exe
+            src-tauri/target/release/bundle/nsis/Nekops_${{ needs.prepare.outputs.tag }}_x64-setup.exe.sig
+
+      - name: Upload artifacts (macOS ARM)
+        if: matrix.identifier == 'macos-aarch64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.identifier }}
+          path: |
+            src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Nekops_${{ needs.prepare.outputs.tag }}_aarch64.dmg
+            src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Nekops.app.tar.gz
+            src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Nekops.app.tar.gz.sig
+
+      - name: Upload artifacts (Linux)
+        if: matrix.identifier == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.identifier }}
+          path: |
+            src-tauri/target/release/bundle/appimage/Nekops_${{ needs.prepare.outputs.tag }}_amd64.AppImage
+            src-tauri/target/release/bundle/appimage/Nekops_${{ needs.prepare.outputs.tag }}_amd64.AppImage.sig
+            src-tauri/target/release/bundle/deb/Nekops_${{ needs.prepare.outputs.tag }}_amd64.deb
+            src-tauri/target/release/bundle/rpm/Nekops-${{ needs.prepare.outputs.tag }}-1.x86_64.rpm
+
+  release:
+    needs: [prepare, build]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create update manifest
+        run: |
+          VERSION="v${{ needs.prepare.outputs.tag }}"
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+          cat > artifacts/release.json << EOF
+          {
+            "version": "${VERSION}",
+            "notes": "${{ inputs.release_notes }}",
+            "pub_date": "${CURRENT_DATE}",
+            "platforms": {
+              "windows-x86_64": {
+                "signature": "$(cat artifacts/windows/msi/Nekops_${{ needs.prepare.outputs.tag }}_x64_en-US.msi.sig)",
+                "url": "https://github.com/Candinya/nekops/releases/download/${VERSION}/Nekops-windows-x64.msi"
+              },
+              "darwin-aarch64": {
+                "signature": "$(cat artifacts/macos-aarch64/macos/Nekops.app.tar.gz.sig)",
+                "url": "https://github.com/Candinya/nekops/releases/download/${VERSION}/Nekops-macos-aarch64.tar.gz"
+              },
+              "linux-x86_64": {
+                "signature": "$(cat artifacts/linux/appimage/Nekops_${{ needs.prepare.outputs.tag }}_amd64.AppImage.sig)",
+                "url": "https://github.com/Candinya/nekops/releases/download/${VERSION}/Nekops-linux-x64.AppImage"
+              }
+            }
+          }
+          EOF
+
+      - name: Upload update manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: artifacts/release.json
+
+      - name: Rename artifacts
+        run: |
+          mv "artifacts/windows/msi/Nekops_${{ needs.prepare.outputs.tag }}_x64_en-US.msi"     "artifacts/windows/Nekops-windows-x64.msi"
+          mv "artifacts/windows/nsis/Nekops_${{ needs.prepare.outputs.tag }}_x64-setup.exe"    "artifacts/windows/Nekops-windows-x64.exe"
+          mv "artifacts/macos-aarch64/dmg/Nekops_${{ needs.prepare.outputs.tag }}_aarch64.dmg" "artifacts/macos-aarch64/Nekops-macos-aarch64.dmg"
+          mv "artifacts/macos-aarch64/macos/Nekops.app.tar.gz"                                 "artifacts/macos-aarch64/Nekops-macos-aarch64.tar.gz"
+          mv "artifacts/linux/appimage/Nekops_${{ needs.prepare.outputs.tag }}_amd64.AppImage" "artifacts/linux/Nekops-linux-x64.AppImage"
+          mv "artifacts/linux/deb/Nekops_${{ needs.prepare.outputs.tag }}_amd64.deb"           "artifacts/linux/Nekops-linux-x64.deb"
+          mv "artifacts/linux/rpm/Nekops-${{ needs.prepare.outputs.tag }}-1.x86_64.rpm"        "artifacts/linux/Nekops-linux-x64.rpm"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          name: "Nekops ${{ github.ref_name }}"
+          generate_release_notes: true
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            artifacts/windows/Nekops-windows-x64.msi
+            artifacts/windows/Nekops-windows-x64.exe
+            artifacts/macos-aarch64/Nekops-macos-aarch64.dmg
+            artifacts/macos-aarch64/Nekops-macos-aarch64.tar.gz
+            artifacts/linux/Nekops-linux-x64.AppImage
+            artifacts/linux/Nekops-linux-x64.deb
+            artifacts/linux/Nekops-linux-x64.rpm
+            artifacts/release.json

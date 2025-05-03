@@ -149,11 +149,12 @@ jobs:
         run: |
           VERSION="v${{ needs.prepare.outputs.tag }}"
           CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+          VERSION_HYPHEN=$(echo "${VERSION}" | sed 's/\./-/g')
 
           cat > artifacts/release.json << EOF
           {
             "version": "${VERSION}",
-            "notes": "${{ inputs.release_notes }}",
+            "notes": "https://docs.nekops.app/changelog#${VERSION_HYPHEN}",
             "pub_date": "${CURRENT_DATE}",
             "platforms": {
               "windows-x86_64": {

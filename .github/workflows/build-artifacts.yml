@@ -193,7 +193,6 @@ jobs:
         uses: actions/attest-build-provenance@v2
         if: github.ref_type == 'tag'
         with:
-          subject-name: "Nekops ${{ github.ref_name }}"
           subject-path: |
             artifacts/windows/Nekops-windows-x64.msi
             artifacts/windows/Nekops-windows-x64.exe

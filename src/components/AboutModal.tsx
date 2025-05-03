@@ -8,26 +8,22 @@ import {
   rem,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 import { IconHeartFilled } from "@tabler/icons-react";
-import { open } from "@tauri-apps/plugin-shell";
 import { useTranslation } from "react-i18next";
 
 interface AboutModalProps {
   isOpen: boolean;
   close: () => void;
+  checkUpdate: () => void;
 }
-const AboutModal = ({ isOpen, close }: AboutModalProps) => {
+const AboutModal = ({ isOpen, close, checkUpdate }: AboutModalProps) => {
   const { t } = useTranslation("main", { keyPrefix: "about" });
 
-  const [version, setVersion] = useState("Loading...");
-
-  const clickVersion = () => {
-    open("https://nekops.app");
-    // TODO: replace with check-update actions
-  };
+  const [version, setVersion] = useState("...");
 
   useEffect(() => {
     (async () => {
@@ -53,15 +49,17 @@ const AboutModal = ({ isOpen, close }: AboutModalProps) => {
           <Flex direction="column" align="center">
             <Title order={1}>Nekops</Title>
             <Text>Ops' now nyaing</Text>
-            <Badge
-              mt={rem(4)}
-              style={{
-                cursor: "pointer",
-              }}
-              onClick={clickVersion}
-            >
-              {version}
-            </Badge>
+            <Tooltip label={t("checkUpdate")} openDelay={500}>
+              <Badge
+                mt={rem(4)}
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={checkUpdate}
+              >
+                {version}
+              </Badge>
+            </Tooltip>
           </Flex>
         </Flex>
         <Divider my="lg" variant="dotted" label={t("about")} />

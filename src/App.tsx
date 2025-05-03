@@ -3,7 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import Router from "@/Router.tsx";
 import Header from "@/components/Header.tsx";
 import Nav from "@/components/Nav";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store.ts";
 import { readSettings } from "@/slices/settingsSlice.ts";
@@ -19,10 +19,23 @@ import {
 } from "@/events/name.ts";
 import TerminateAndExitModal from "@/components/TerminateAndExitModal.tsx";
 import { Window } from "@tauri-apps/api/window";
+import type { Update } from "@tauri-apps/plugin-updater";
+import { check } from "@tauri-apps/plugin-updater";
+import UpdateModal from "@/components/UpdateModal.tsx";
+import { notifications } from "@mantine/notifications";
+import {
+  CheckFailedNotification,
+  LatestVersionNotification,
+  LoadingNotification,
+} from "@/notifications/update.tsx";
 
 const App = () => {
   const [isAboutModalOpen, { open: openAboutModal, close: closeAboutModal }] =
     useDisclosure(false);
+  const [
+    isUpdateModalOpen,
+    { open: openUpdateModal, close: closeUpdateModal },
+  ] = useDisclosure(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -63,6 +76,32 @@ const App = () => {
     };
   }, []);
 
+  // Check update
+  const [update, setUpdate] = useState<Update | null>(null);
+  const checkUpdate = async () => {
+    const loadingNotify = notifications.show(LoadingNotification);
+
+    try {
+      const update = await check();
+      if (update) {
+        setUpdate(update);
+        openUpdateModal();
+        notifications.hide(loadingNotify);
+      } else {
+        notifications.update({
+          ...LatestVersionNotification,
+          id: loadingNotify,
+        });
+      }
+    } catch (e) {
+      console.warn(e);
+      notifications.update({
+        ...CheckFailedNotification,
+        id: loadingNotify,
+      });
+    }
+  };
+
   return (
     <>
       <AppShell
@@ -89,7 +128,16 @@ const App = () => {
         </AppShell.Main>
       </AppShell>
 
-      <AboutModal isOpen={isAboutModalOpen} close={closeAboutModal} />
+      <AboutModal
+        isOpen={isAboutModalOpen}
+        close={closeAboutModal}
+        checkUpdate={checkUpdate}
+      />
+      <UpdateModal
+        isOpen={isUpdateModalOpen}
+        close={closeUpdateModal}
+        update={update}
+      />
       <TerminateAndExitModal
         isOpen={isPreCloseModalOpen}
         onClose={closePreCloseModal}

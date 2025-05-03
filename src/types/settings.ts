@@ -11,6 +11,7 @@ type SettingsCommon = {
   workspaces: WorkSpace[];
   default_ssh_action: "copy" | "start";
   default_ssh_client: ShellClientType;
+  check_update_at_startup: boolean;
   customize: {
     font_family: {
       common: string;
@@ -41,6 +42,7 @@ export const defaultSettings: SettingsState = {
   current_workspace: defaultWorkspace,
   default_ssh_action: "copy",
   default_ssh_client: "embedded",
+  check_update_at_startup: false,
   customize: {
     font_family: {
       common: "",

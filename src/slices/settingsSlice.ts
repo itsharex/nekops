@@ -52,6 +52,9 @@ export const readSettings = createAsyncThunk(
           default_ssh_client:
             settingsSaved.default_ssh_client ||
             defaultSettings.default_ssh_client,
+          check_update_at_startup:
+            settingsSaved.check_update_at_startup ||
+            defaultSettings.check_update_at_startup,
           customize: settingsSaved.customize
             ? {
                 font_family:
@@ -94,6 +97,7 @@ export const saveSettings = createAsyncThunk(
       current_workspace_id: state.current_workspace.id,
       default_ssh_action: state.default_ssh_action,
       default_ssh_client: state.default_ssh_client,
+      check_update_at_startup: state.check_update_at_startup,
       customize: {
         font_family: state.customize.font_family,
         shell: state.customize.shell,

@@ -1,4 +1,4 @@
-import { Fieldset, Flex, SegmentedControl, Text } from "@mantine/core";
+import { Fieldset, Flex, SegmentedControl, Switch, Text } from "@mantine/core";
 import {
   IconCode,
   IconFlare,
@@ -67,6 +67,15 @@ const GlobalGroup = ({ form }: GlobalGroupProps) => {
             {...form.getInputProps("default_ssh_client")}
           />
         </Flex>
+
+        {/*Check update*/}
+        <Switch
+          label={t("globalCheckUpdateAtStartup")}
+          size="md"
+          {...form.getInputProps("check_update_at_startup", {
+            type: "checkbox",
+          })}
+        />
       </Flex>
     </Fieldset>
   );

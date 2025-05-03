@@ -307,6 +307,7 @@
     "globalDefaultSSHClient": "Default SSH Client",
     "globalDefaultSSHClient_embedded": "Embedded",
     "globalDefaultSSHClient_system": "System",
+    "globalCheckUpdateAtStartup": "Check Update at Startup",
     "sectionCustomize": "Customize",
     "customizeFontFamily": "Font Family",
     "customizeFontFamily_common": "Common",

@@ -28,6 +28,7 @@ import {
   LatestVersionNotification,
   LoadingNotification,
 } from "@/notifications/update.tsx";
+import type { SettingsState } from "@/types/settings.ts";
 
 const App = () => {
   const [isAboutModalOpen, { open: openAboutModal, close: closeAboutModal }] =
@@ -41,10 +42,13 @@ const App = () => {
 
   // Initialize
   useEffect(() => {
-    dispatch(readSettings()).then(() => {
+    dispatch(readSettings()).then(({ payload: settings }) => {
       dispatch(readServers());
       dispatch(readSnippets());
       dispatch(readEncryption());
+      if ((settings as SettingsState).check_update_at_startup) {
+        checkUpdate(true);
+      }
     });
   }, []);
 
@@ -78,16 +82,21 @@ const App = () => {
 
   // Check update
   const [update, setUpdate] = useState<Update | null>(null);
-  const checkUpdate = async () => {
-    const loadingNotify = notifications.show(LoadingNotification);
+  const checkUpdate = async (silent: boolean = false) => {
+    let loadingNotify: string | undefined = undefined;
+    if (!silent) {
+      loadingNotify = notifications.show(LoadingNotification);
+    }
 
     try {
       const update = await check();
       if (update) {
         setUpdate(update);
         openUpdateModal();
-        notifications.hide(loadingNotify);
-      } else {
+        if (loadingNotify) {
+          notifications.hide(loadingNotify);
+        }
+      } else if (!silent && loadingNotify) {
         notifications.update({
           ...LatestVersionNotification,
           id: loadingNotify,

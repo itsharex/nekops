@@ -320,6 +320,7 @@
     "globalDefaultSSHClient": "默认 SSH 客户端",
     "globalDefaultSSHClient_embedded": "集成",
     "globalDefaultSSHClient_system": "系统",
+    "globalCheckUpdateAtStartup": "启动时检查更新",
     "sectionCustomize": "自定义",
     "customizeFontFamily": "字体",
     "customizeFontFamily_common": "通常",

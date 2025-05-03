@@ -55,7 +55,7 @@ const AboutModal = ({ isOpen, close, checkUpdate }: AboutModalProps) => {
                 style={{
                   cursor: "pointer",
                 }}
-                onClick={checkUpdate}
+                onClick={() => checkUpdate()}
               >
                 {version}
               </Badge>

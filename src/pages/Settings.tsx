@@ -87,6 +87,7 @@ const SettingsPage = () => {
       current_workspace: targetWorkspace,
       default_ssh_action: newSettings.default_ssh_action,
       default_ssh_client: newSettings.default_ssh_client,
+      check_update_at_startup: newSettings.check_update_at_startup,
       customize: newSettings.customize,
     };
     await dispatch(saveSettings(newSettingsState)).unwrap();

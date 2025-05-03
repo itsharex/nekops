@@ -135,7 +135,9 @@ jobs:
   release:
     needs: [prepare, build]
     permissions:
+      id-token: write
       contents: write
+      attestations: write
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -185,6 +187,21 @@ jobs:
           mv "artifacts/linux/appimage/Nekops_${{ needs.prepare.outputs.tag }}_amd64.AppImage" "artifacts/linux/Nekops-linux-x64.AppImage"
           mv "artifacts/linux/deb/Nekops_${{ needs.prepare.outputs.tag }}_amd64.deb"           "artifacts/linux/Nekops-linux-x64.deb"
           mv "artifacts/linux/rpm/Nekops-${{ needs.prepare.outputs.tag }}-1.x86_64.rpm"        "artifacts/linux/Nekops-linux-x64.rpm"
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        if: github.ref_type == 'tag'
+        with:
+          subject-name: "Nekops ${{ github.ref_name }}"
+          subject-path: |
+            artifacts/windows/Nekops-windows-x64.msi
+            artifacts/windows/Nekops-windows-x64.exe
+            artifacts/macos-aarch64/Nekops-macos-aarch64.dmg
+            artifacts/macos-aarch64/Nekops-macos-aarch64.tar.gz
+            artifacts/linux/Nekops-linux-x64.AppImage
+            artifacts/linux/Nekops-linux-x64.deb
+            artifacts/linux/Nekops-linux-x64.rpm
+            artifacts/release.json
 
       - name: Create Release
         uses: softprops/action-gh-release@v2

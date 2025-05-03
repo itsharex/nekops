@@ -24,7 +24,8 @@
     "core:window:allow-set-focus",
     "core:window:allow-destroy",
     "shell:allow-open",
-    "dialog:allow-open"
+    "dialog:allow-open",
+    "process:default"
   ],
   "platforms": [
     "linux",

@@ -22,7 +22,21 @@
     "about": "关于",
     "aboutNekops": "关于 Nekops",
     "author_before": "由 @Candinya 用",
-    "author_after": "打造"
+    "author_after": "打造",
+    "checkUpdate": "检查更新"
+  },
+  "update": {
+    "notificationLoadingMessage": "正在检查更新…",
+    "notificationCheckFailedTitle": "更新检查失败",
+    "notificationCheckFailedMessage": "请稍后再试，或尝试手动更新。",
+    "notificationLatestMessage": "您使用的 Nekops 是最新版本！",
+    "notificationDownloadFailedTitle": "更新下载失败",
+    "notificationDownloadFailedMessage": "请稍后再试，或尝试手动更新。",
+    "notificationDownloadFinishTitle": "更新下载完成",
+    "notificationDownloadFinishMessage": "成功下载更新包，即将执行更新程序…",
+    "newVersionFound": "发现新版本",
+    "releaseNotes": "发布日志",
+    "startDownload": "开始下载"
   },
   "table": {
     "serverName": "$t(common.server)$t(common.name)",

@@ -9,7 +9,21 @@
     "about": "About",
     "aboutNekops": "About Nekops",
     "author_before": "Crafted by @Candinya with",
-    "author_after": ""
+    "author_after": "",
+    "checkUpdate": "Check Update"
+  },
+  "update": {
+    "notificationLoadingMessage": "Checking update...",
+    "notificationCheckFailedTitle": "Update check failed",
+    "notificationCheckFailedMessage": "Please try again later or try update manually.",
+    "notificationLatestMessage": "You are already using the latest version of Nekops!",
+    "notificationDownloadFailedTitle": "Update download failed",
+    "notificationDownloadFailedMessage": "Please try again later or try update manually.",
+    "notificationDownloadFinishTitle": "Update download complete",
+    "notificationDownloadFinishMessage": "Updater downloaded successfully, program is preparing to update...",
+    "newVersionFound": "New Version Found",
+    "releaseNotes": "Release Notes",
+    "startDownload": "Start Download"
   },
   "table": {
     "serverName": "Server Name",

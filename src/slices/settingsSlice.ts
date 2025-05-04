@@ -73,7 +73,10 @@ export const readSettings = createAsyncThunk(
       // Initialize file
       const initSettings = structuredClone(defaultSettings);
       initSettings.workspaces[0].data_dir = await path.join(parentDir, "data");
-      await writeTextFile(settingsFilePath, JSON.stringify(initSettings));
+      await writeTextFile(
+        settingsFilePath,
+        JSON.stringify(initSettings, null, 2),
+      );
       return initSettings;
     }
   },

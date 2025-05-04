@@ -1,6 +1,3 @@
-// Using tweetnacl.js before Web Crypto API supports cv25519 or use a rust implementation later
-// https://github.com/dchest/tweetnacl-js#secret-key-authenticated-encryption-secretbox
-
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "@/store.ts";

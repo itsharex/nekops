@@ -3,6 +3,7 @@ import { Button, ButtonGroup, Flex, ScrollArea } from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 
 import type { SettingsState } from "@/types/settings.ts";
 import { defaultWorkspace } from "@/types/settings.ts";
@@ -109,6 +110,14 @@ const SettingsPage = () => {
     { open: openUnlockModal, close: closeUnlockModal },
   ] = useDisclosure(false);
 
+  const currentWorkspaceIndex = useMemo(
+    () =>
+      settings.workspaces.findIndex(
+        (w) => w.id === settings.current_workspace.id,
+      ),
+    [settings.workspaces, settings.current_workspace],
+  );
+
   return (
     <>
       <ScrollArea p="md" h="100%">
@@ -124,6 +133,7 @@ const SettingsPage = () => {
               form={form}
               isUnlocked={encryption.isUnlocked}
               openUnlockModal={openUnlockModal}
+              currentWorkspaceIndex={currentWorkspaceIndex}
             />
           </Flex>
 

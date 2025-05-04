@@ -17,9 +17,9 @@ export const getPrivateBits = (keyMaterial: CryptoKey) =>
   crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
-      hash: "SHA-256",
+      hash: "SHA-512",
       salt: keySalt.buffer,
-      iterations: 1024,
+      iterations: 210000, // https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
     },
     keyMaterial,
     256, // 32 bytes

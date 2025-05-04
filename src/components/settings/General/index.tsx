@@ -13,12 +13,12 @@ import { transformSegmentedControlOptions } from "@/components/settings/utils.ts
 import ColorSchemeSelector from "./ColorSchemeSelector.tsx";
 import LanguageSelector from "./LanguageSelector.tsx";
 
-interface GlobalGroupProps extends SettingsFormProps {}
-const GlobalGroup = ({ form }: GlobalGroupProps) => {
+interface GeneralGroupProps extends SettingsFormProps {}
+const GeneralGroup = ({ form }: GeneralGroupProps) => {
   const { t } = useTranslation("main", { keyPrefix: "settings" });
 
   return (
-    <Fieldset legend={t("sectionGlobal")}>
+    <Fieldset legend={t("sectionGeneral")}>
       <Flex direction="column" gap="md">
         <LanguageSelector />
 
@@ -27,18 +27,18 @@ const GlobalGroup = ({ form }: GlobalGroupProps) => {
         {/*Default SSH Action*/}
         <Flex direction="column">
           <Text size="sm" fw={500} mb={2}>
-            {t("globalDefaultSSHAction")}
+            {t("generalDefaultSSHAction")}
           </Text>
           <SegmentedControl
             data={transformSegmentedControlOptions([
               {
                 icon: IconCode,
-                text: t("globalDefaultSSHAction_copy"),
+                text: t("generalDefaultSSHAction_copy"),
                 value: "copy",
               },
               {
                 icon: IconRocket,
-                text: t("globalDefaultSSHAction_start"),
+                text: t("generalDefaultSSHAction_start"),
                 value: "start",
               },
             ])}
@@ -49,18 +49,18 @@ const GlobalGroup = ({ form }: GlobalGroupProps) => {
         {/*Default SSH Client*/}
         <Flex direction="column">
           <Text size="sm" fw={500} mb={2}>
-            {t("globalDefaultSSHClient")}
+            {t("generalDefaultSSHClient")}
           </Text>
           <SegmentedControl
             data={transformSegmentedControlOptions([
               {
                 icon: IconFlare,
-                text: t("globalDefaultSSHClient_embedded"),
+                text: t("generalDefaultSSHClient_embedded"),
                 value: "embedded",
               },
               {
                 icon: IconMessageCircle,
-                text: t("globalDefaultSSHClient_system"),
+                text: t("generalDefaultSSHClient_system"),
                 value: "system",
               },
             ])}
@@ -70,7 +70,7 @@ const GlobalGroup = ({ form }: GlobalGroupProps) => {
 
         {/*Check update*/}
         <Switch
-          label={t("globalCheckUpdateAtStartup")}
+          label={t("generalCheckUpdateAtStartup")}
           size="md"
           {...form.getInputProps("check_update_at_startup", {
             type: "checkbox",
@@ -81,4 +81,4 @@ const GlobalGroup = ({ form }: GlobalGroupProps) => {
   );
 };
 
-export default GlobalGroup;
+export default GeneralGroup;

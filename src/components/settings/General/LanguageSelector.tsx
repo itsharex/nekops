@@ -9,7 +9,7 @@ const LanguageSelector = () => {
 
   return (
     <Select
-      label={t("globalLanguage")}
+      label={t("generalLanguage")}
       data={Object.entries(languageName).map(([id, name]) => ({
         value: id,
         label: name,

@@ -25,7 +25,7 @@ import { readSnippets } from "@/slices/snippetsSlice.ts";
 
 import type { SettingsExtended } from "@/components/settings/types.ts";
 import WorkspaceGroup from "@/components/settings/Workspace";
-import GlobalGroup from "@/components/settings/Global";
+import GeneralGroup from "@/components/settings/General";
 import CurrentWorkspaceGroup from "@/components/settings/CurrentWorkspace";
 import CustomizeGroup from "@/components/settings/Customize";
 
@@ -123,7 +123,7 @@ const SettingsPage = () => {
       <ScrollArea p="md" h="100%">
         <form onSubmit={form.onSubmit(save)}>
           <Flex direction="column" gap="md">
-            <GlobalGroup form={form} />
+            <GeneralGroup form={form} />
 
             <CustomizeGroup form={form} />
 

@@ -19,23 +19,23 @@ const ColorSchemeSelector = () => {
   return (
     <Flex direction="column">
       <Text size="sm" fw={500} mb={2}>
-        {t("globalColorScheme")}
+        {t("generalColorScheme")}
       </Text>
       <SegmentedControl
         data={transformSegmentedControlOptions([
           {
             icon: IconSun,
-            text: t("globalColorScheme_light"),
+            text: t("generalColorScheme_light"),
             value: "light",
           },
           {
             icon: IconBolt,
-            text: t("globalColorScheme_auto"),
+            text: t("generalColorScheme_auto"),
             value: "auto",
           },
           {
             icon: IconMoon,
-            text: t("globalColorScheme_dark"),
+            text: t("generalColorScheme_dark"),
             value: "dark",
           },
         ])}

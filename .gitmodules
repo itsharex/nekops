@@ -4,3 +4,6 @@
 [submodule "src-tauri/embedded/workspace/pipessh"]
 	path = src-tauri/embedded/workspace/pipessh
 	url = https://github.com/nekops-app/pipessh.git
+[submodule "src/i18n/locales"]
+	path = src/i18n/locales
+	url = https://github.com/nekops-app/translations.git

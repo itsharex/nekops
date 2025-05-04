@@ -17,6 +17,18 @@ const SettingsFileName = "settings.json";
 
 const AppName = "Nekops";
 
+const convertStateToSave = (state: SettingsState): SettingsSave => ({
+  workspaces: state.workspaces,
+  current_workspace_id: state.current_workspace.id,
+  default_ssh_action: state.default_ssh_action,
+  default_ssh_client: state.default_ssh_client,
+  check_update_at_startup: state.check_update_at_startup,
+  customize: {
+    font_family: state.customize.font_family,
+    shell: state.customize.shell,
+  },
+});
+
 export const readSettings = createAsyncThunk(
   "settings/read",
   async (): Promise<SettingsState> => {
@@ -75,7 +87,7 @@ export const readSettings = createAsyncThunk(
       initSettings.workspaces[0].data_dir = await path.join(parentDir, "data");
       await writeTextFile(
         settingsFilePath,
-        JSON.stringify(initSettings, null, 2),
+        JSON.stringify(convertStateToSave(initSettings), null, 2),
       );
       return initSettings;
     }
@@ -95,20 +107,9 @@ export const saveSettings = createAsyncThunk(
     );
     const settingsFilePath = await path.join(parentDir, SettingsFileName);
     await checkParentDir(parentDir);
-    const settingsSave: SettingsSave = {
-      workspaces: state.workspaces,
-      current_workspace_id: state.current_workspace.id,
-      default_ssh_action: state.default_ssh_action,
-      default_ssh_client: state.default_ssh_client,
-      check_update_at_startup: state.check_update_at_startup,
-      customize: {
-        font_family: state.customize.font_family,
-        shell: state.customize.shell,
-      },
-    };
     await writeTextFile(
       settingsFilePath,
-      JSON.stringify(settingsSave, null, 2),
+      JSON.stringify(convertStateToSave(state), null, 2),
     );
     return state;
   },

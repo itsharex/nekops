@@ -140,6 +140,13 @@ jobs:
       attestations: write
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare link to changelog
+        id: changelog
+        run: |
+          VERSION_HYPHEN=$(echo "${{ needs.prepare.outputs.tag }}" | sed 's/\./-/g')
+          CHANGELOG_LINK="https://docs.nekops.app/changelog#v${VERSION_HYPHEN}"
+          echo "changelog=${CHANGELOG_LINK}" >> $GITHUB_OUTPUT
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -149,12 +156,11 @@ jobs:
         run: |
           VERSION="v${{ needs.prepare.outputs.tag }}"
           CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
-          VERSION_HYPHEN=$(echo "${VERSION}" | sed 's/\./-/g')
 
           cat > artifacts/release.json << EOF
           {
             "version": "${VERSION}",
-            "notes": "https://docs.nekops.app/changelog#${VERSION_HYPHEN}",
+            "notes": "${{ steps.changelog.outputs.changelog }}",
             "pub_date": "${CURRENT_DATE}",
             "platforms": {
               "windows-x86_64": {
@@ -208,6 +214,7 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           name: "Nekops ${{ github.ref_name }}"
+          body: "更新日志： ${{ steps.changelog.outputs.changelog }}"
           generate_release_notes: true
           draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}

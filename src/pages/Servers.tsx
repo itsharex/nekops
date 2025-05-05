@@ -55,10 +55,12 @@ const ServersPage = () => {
   const notifyDupID = (dupServerName: string) => {
     notifications.show({
       color: "yellow",
-      title: t("duplicateID"),
+      title: t("duplicateIDTitle"),
       message: (
         <>
-          Specified ID is conflict with server <Code>{dupServerName}</Code>.
+          {t("duplicateIDMessage_before")}
+          <Code>{dupServerName}</Code>
+          {t("duplicateIDMessage_after")}
         </>
       ),
     });

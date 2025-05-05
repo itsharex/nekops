@@ -1,4 +1,6 @@
 import {
+  ActionIcon,
+  ActionIconGroup,
   Badge,
   Center,
   Divider,
@@ -12,8 +14,17 @@ import {
 } from "@mantine/core";
 import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
-import { IconHeartFilled } from "@tabler/icons-react";
+import {
+  IconCode,
+  IconHeartFilled,
+  IconHome,
+  IconNotebook,
+  IconShare,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-shell";
+
+import { actionIconStyle } from "@/common/actionStyles.ts";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -21,7 +32,7 @@ interface AboutModalProps {
   checkUpdate: () => void;
 }
 const AboutModal = ({ isOpen, close, checkUpdate }: AboutModalProps) => {
-  const { t } = useTranslation("main", { keyPrefix: "about" });
+  const { t } = useTranslation("main", { keyPrefix: "aboutModal" });
 
   const [version, setVersion] = useState("...");
 
@@ -60,6 +71,48 @@ const AboutModal = ({ isOpen, close, checkUpdate }: AboutModalProps) => {
                 {version}
               </Badge>
             </Tooltip>
+            <ActionIconGroup mt="sm">
+              <Tooltip label={t("linkHomepage")} openDelay={500}>
+                <ActionIcon
+                  variant="filled"
+                  size="sm"
+                  color="cyan"
+                  onClick={() => open("https://nekops.app")}
+                >
+                  <IconHome style={actionIconStyle} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={t("linkSourceCode")} openDelay={500}>
+                <ActionIcon
+                  variant="filled"
+                  size="sm"
+                  color="lime"
+                  onClick={() => open("https://github.com/Candinya/nekops")}
+                >
+                  <IconCode style={actionIconStyle} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={t("linkDocuments")} openDelay={500}>
+                <ActionIcon
+                  variant="filled"
+                  size="sm"
+                  color="yellow"
+                  onClick={() => open("https://docs.nekops.app")}
+                >
+                  <IconNotebook style={actionIconStyle} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={t("linkCommunity")} openDelay={500}>
+                <ActionIcon
+                  variant="filled"
+                  size="sm"
+                  color="orange"
+                  // onClick={() => open("https://forum.nekops.app")} // TODO
+                >
+                  <IconShare style={actionIconStyle} />
+                </ActionIcon>
+              </Tooltip>
+            </ActionIconGroup>
           </Flex>
         </Flex>
         <Divider my="lg" variant="dotted" label={t("about")} />

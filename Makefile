@@ -1,6 +1,6 @@
-## Prepare: build all embedded resources
-.PHONY: prepare
-prepare: ./src-tauri/embedded/bin/websockify-* ./src-tauri/embedded/bin/pipessh-*
+## Embedded: build all embedded resources
+.PHONY: embedded
+embedded: ./src-tauri/embedded/bin/websockify-* ./src-tauri/embedded/bin/pipessh-*
 
 ## Build embedded websockify
 ./src-tauri/embedded/bin/websockify-*: ./src-tauri/embedded/workspace/websockify/
@@ -13,5 +13,5 @@ prepare: ./src-tauri/embedded/bin/websockify-* ./src-tauri/embedded/bin/pipessh-
 	node ./utils/sidecar-rename.mjs pipessh
 
 .PHONY: release
-release:
+release: embedded
 	pnpm tauri build

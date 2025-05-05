@@ -166,7 +166,9 @@ const EditServerModal = ({
                 <Flex direction="column" gap="md">
                   <ServerCard server={form.values} />
                   <Center>
-                    <Button type="submit">{t("buttonSave")}</Button>
+                    <Button type="submit" disabled={!form.isValid()}>
+                      {t("buttonSave")}
+                    </Button>
                   </Center>
                 </Flex>
               </Stepper.Completed>

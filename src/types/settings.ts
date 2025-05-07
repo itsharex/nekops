@@ -40,9 +40,9 @@ export const defaultWorkspace: WorkSpace = {
 export const defaultSettings: SettingsState = {
   workspaces: [defaultWorkspace],
   current_workspace: defaultWorkspace,
-  default_ssh_action: "copy",
+  default_ssh_action: "start",
   default_ssh_client: "embedded",
-  check_update_at_startup: false,
+  check_update_at_startup: true,
   customize: {
     font_family: {
       common: "",

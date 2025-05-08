@@ -107,7 +107,7 @@ const AboutModal = ({ isOpen, close, checkUpdate }: AboutModalProps) => {
                   variant="filled"
                   size="sm"
                   color="orange"
-                  // onClick={() => open("https://forum.nekops.app")} // TODO
+                  onClick={() => open("https://community.nekops.app")}
                 >
                   <IconShare style={actionIconStyle} />
                 </ActionIcon>

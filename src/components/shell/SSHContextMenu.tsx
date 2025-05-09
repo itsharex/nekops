@@ -1,9 +1,16 @@
 import { Menu } from "@mantine/core";
-import { IconCode, IconRocket } from "@tabler/icons-react";
+import {
+  IconArrowBounce,
+  IconCode,
+  IconFlare,
+  IconMessageCircle,
+  IconRocket,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import type { Server } from "@/types/server.ts";
 import { menuIconStyle } from "@/common/actionStyles.ts";
+import type { ShellClientType } from "@/types/shell.ts";
 
 interface SSHContextMenuProps {
   isOpen: boolean;
@@ -16,7 +23,7 @@ interface SSHContextMenuProps {
   jumpServers: Server[];
 
   onClickCopy: () => void;
-  onClickStart: () => void;
+  onClickStart: (clientType?: ShellClientType) => void;
   onClickJumpServer: (jumpServer: Server) => void;
 }
 const SSHContextMenu = ({
@@ -44,30 +51,61 @@ const SSHContextMenu = ({
         />
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Label>{t("contextMenuConnectDirectly")}</Menu.Label>
+        {/*<Menu.Label>{t("contextMenuConnectDirectly")}</Menu.Label>*/}
         <Menu.Item
           leftSection={<IconCode style={menuIconStyle} />}
           onClick={onClickCopy}
         >
           {t("contextMenuCopyCommand")}
         </Menu.Item>
-        <Menu.Item
-          leftSection={<IconRocket style={menuIconStyle} />}
-          onClick={onClickStart}
-        >
-          {t("contextMenuStartSession")}
-        </Menu.Item>
-        {jumpServers.length > 0 && (
-          <>
-            <Menu.Divider />
-            <Menu.Label>{t("contextMenuConnectWithJumpServer")}</Menu.Label>
-            {jumpServers.map((js) => (
-              <Menu.Item key={js.id} onClick={() => onClickJumpServer(js)}>
-                {js.name}
-              </Menu.Item>
-            ))}
-          </>
-        )}
+        <Menu.Sub>
+          <Menu.Sub.Target>
+            <Menu.Sub.Item
+              leftSection={<IconRocket style={menuIconStyle} />}
+              onClick={() => onClickStart()}
+              closeMenuOnClick={true}
+            >
+              {t("contextMenuStartSession")}
+            </Menu.Sub.Item>
+          </Menu.Sub.Target>
+
+          <Menu.Sub.Dropdown>
+            <Menu.Item
+              leftSection={<IconFlare style={menuIconStyle} />}
+              onClick={() => onClickStart("embedded")}
+            >
+              {t("contextMenuStartSession_embedded")}
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<IconMessageCircle style={menuIconStyle} />}
+              onClick={() => onClickStart("system")}
+            >
+              {t("contextMenuStartSession_system")}
+            </Menu.Item>
+          </Menu.Sub.Dropdown>
+        </Menu.Sub>
+
+        <Menu.Sub>
+          <Menu.Sub.Target>
+            <Menu.Sub.Item
+              leftSection={<IconArrowBounce style={menuIconStyle} />}
+            >
+              {t("contextMenuConnectWithJumpServer")}
+            </Menu.Sub.Item>
+          </Menu.Sub.Target>
+
+          <Menu.Sub.Dropdown>
+            {jumpServers.length > 0 ? (
+              jumpServers.map((js) => (
+                <Menu.Item key={js.id} onClick={() => onClickJumpServer(js)}>
+                  {js.name}
+                </Menu.Item>
+              ))
+            ) : (
+              <Menu.Item disabled>{t("contextMenuNoJumpServer")}</Menu.Item>
+            )}
+          </Menu.Sub.Dropdown>
+        </Menu.Sub>
       </Menu.Dropdown>
     </Menu>
   );

@@ -26,3 +26,15 @@ export const FailNotification: NotificationData = {
   color: "red",
   message: i18next.t("ssh.notificationFailMessage"),
 };
+
+export const CopySuccessNotification: NotificationData = {
+  color: "green",
+  title: i18next.t("ssh.notificationCopySuccessTitle"),
+  message: i18next.t("ssh.notificationCopySuccessMessage"),
+};
+
+export const CopyFailNotification: NotificationData = {
+  color: "red",
+  title: i18next.t("ssh.notificationCopyFailTitle"),
+  message: i18next.t("ssh.notificationCopyFailMessage"),
+};

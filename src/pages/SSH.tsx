@@ -17,6 +17,7 @@ import type { Server } from "@/types/server.ts";
 import { actionIconStyle } from "@/common/actionStyles.ts";
 import { IconRocket } from "@tabler/icons-react";
 import SSHTempLaunchModal from "@/components/shell/SSHTempLaunchModal.tsx";
+import { ShellClientType } from "@/types/shell.ts";
 
 const SSHPage = () => {
   const { t } = useTranslation("main", { keyPrefix: "ssh" });
@@ -37,10 +38,14 @@ const SSHPage = () => {
     { open: openTempLaunchModal, close: closeTempLaunchModal },
   ] = useDisclosure(false);
 
-  const startSSH = async (server: Server, jumpServer?: Server) => {
+  const startSSH = async (
+    server: Server,
+    jumpServer?: Server,
+    clientType?: ShellClientType,
+  ) => {
     startSSHSession(
       {
-        type: settings.default_ssh_client,
+        type: clientType || settings.default_ssh_client,
         workspaceKnownHostsFile: await path.join(
           settings.current_workspace.data_dir,
           "known_hosts",
@@ -135,9 +140,9 @@ const SSHPage = () => {
             copySSHCommand(currentSelectedServer.current);
           }
         }}
-        onClickStart={() => {
+        onClickStart={(clientType) => {
           if (currentSelectedServer.current) {
-            startSSH(currentSelectedServer.current);
+            startSSH(currentSelectedServer.current, undefined, clientType);
           }
         }}
         onClickJumpServer={(jumpServer: Server) => {

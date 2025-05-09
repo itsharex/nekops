@@ -1,6 +1,11 @@
-import type { Server } from "@/types/server.ts";
 import { notifications } from "@mantine/notifications";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+
+import type { Server } from "@/types/server.ts";
+import {
+  CopyFailNotification,
+  CopySuccessNotification,
+} from "@/notifications/shell.tsx";
 
 export const copySSHCommand = async (server: Server, jumpServer?: Server) => {
   const command = ["ssh"];
@@ -23,16 +28,8 @@ export const copySSHCommand = async (server: Server, jumpServer?: Server) => {
   );
   try {
     await writeText(command.join(" "));
-    notifications.show({
-      color: "green",
-      title: "SSH command copied!",
-      message: "Paste into your favorite shell and let's start!",
-    });
+    notifications.show(CopySuccessNotification);
   } catch (e) {
-    notifications.show({
-      color: "red",
-      title: "Failed to copy...",
-      message: "Maybe let the server's id to remind of something?",
-    });
+    notifications.show(CopyFailNotification);
   }
 };

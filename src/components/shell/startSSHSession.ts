@@ -1,16 +1,17 @@
-import type { Server } from "@/types/server.ts";
-import { openShellWindow } from "@/utils/openWindow/shell.ts";
 import { emit, once } from "@tauri-apps/api/event";
+import { notifications } from "@mantine/notifications";
+
 import type {
   EventPayloadShellNew,
   ShellClientOptions,
 } from "@/events/payload.ts";
-import { notifications } from "@mantine/notifications";
+import type { Server } from "@/types/server.ts";
 import {
   EventNameShellNew,
   EventNameShellReadyRequest,
   EventNameShellReadyResponse,
 } from "@/events/name.ts";
+import { openShellWindow } from "@/utils/openWindow/shell.ts";
 import { randomString } from "@/utils/randomString.ts";
 import {
   FailNotification,

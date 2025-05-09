@@ -125,22 +125,12 @@ const ProductForm = ({ form }: ProductFormProps) => {
               >
                 <DatePickerInput
                   label={t("productStartSinceLabel")}
-                  // valueFormat="YYYY-MM-DD"
+                  valueFormat="YYYY-MM-DD"
                   value={
-                    form.getInputProps("provider.start_since").value
-                      ? new Date(
-                          form.getInputProps("provider.start_since").value,
-                        )
-                      : new Date() // Use current date if not set
+                    form.getInputProps("provider.start_since").value ||
+                    new Date() // Use current date if not set
                   }
-                  onChange={(newDate) => {
-                    if (newDate) {
-                      form.setFieldValue(
-                        "provider.start_since",
-                        `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
-                      );
-                    }
-                  }}
+                  onChange={form.getInputProps("provider.start_since").onChange}
                   style={{
                     flexGrow: 1,
                   }}

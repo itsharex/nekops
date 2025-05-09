@@ -229,7 +229,7 @@ const HardwareCard = ({ servers }: HardwareCardProps) => {
                       fontSize: rem(36),
                     }}
                   >
-                    {totalDiskTB}TB
+                    {totalDiskTB.toFixed(3)}TB
                   </Text>
                 </Group>
               </Flex>

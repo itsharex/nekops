@@ -216,7 +216,6 @@ jobs:
           name: "Nekops ${{ github.ref_name }}"
           body: "更新日志： ${{ steps.changelog.outputs.changelog }}"
           generate_release_notes: true
-          draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
             artifacts/windows/Nekops-windows-x64.msi

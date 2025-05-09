@@ -19,6 +19,7 @@ import SSD from "@/icons/SSD.tsx";
 import { useEffect, useState } from "react";
 import type { SectionData } from "@/components/analysis/PercentSection.tsx";
 import PercentSection from "@/components/analysis/PercentSection.tsx";
+import { showDiskSize } from "./utils.ts";
 
 interface HardwareCardProps {
   servers: Server[];
@@ -177,7 +178,7 @@ const HardwareCard = ({ servers }: HardwareCardProps) => {
       setDiskSizeByType(
         diskSizeTypeArray.map((v, index) => ({
           label: v.type,
-          text: `${v.size}TB`,
+          text: showDiskSize(v.size),
           part: (v.size / diskTBSum) * 100,
           color: diskColors[index % diskColors.length],
         })),
@@ -229,7 +230,7 @@ const HardwareCard = ({ servers }: HardwareCardProps) => {
                       fontSize: rem(36),
                     }}
                   >
-                    {totalDiskTB.toFixed(3)}TB
+                    {showDiskSize(totalDiskTB)}
                   </Text>
                 </Group>
               </Flex>

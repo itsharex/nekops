@@ -91,6 +91,13 @@ const ServersPage = () => {
       // Create
       dispatch(addServer(encryptServer(encryption, newServerInfo)));
     }
+
+    // Remove the old file
+    if (activeServer && newServerInfo.id !== activeServer.id) {
+      dispatch(deleteServerFile(activeServer.id));
+    }
+
+    // Save the new
     dispatch(saveServers([newServerInfo.id]));
     return true;
   };

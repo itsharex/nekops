@@ -76,17 +76,7 @@ export const startEmbeddedSSH = (
       );
 
       // Send notification
-      if (data.code === 0) {
-        notifications.show({
-          color: "green",
-          title: (
-            <>
-              {serverName} <Code>{i18next.t("sshEvents.source_process")}</Code>
-            </>
-          ),
-          message: i18next.t("sshEvents.processClose_success"),
-        });
-      } else {
+      if (data.code !== 0) {
         notifications.show({
           color: "red",
           title: (

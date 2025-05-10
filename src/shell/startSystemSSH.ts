@@ -90,7 +90,7 @@ export const startSystemSSH = (
       sshProcess.kill();
       return;
     } else {
-      // Listen to multirun commands // TODO: move into caller component after xterm upgrade
+      // Listen to multirun commands
       const stopSendCommandByNonceListener =
         listen<EventPayloadShellSendCommandByNonce>(
           EventNameShellSendCommandByNonce,

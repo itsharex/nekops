@@ -62,6 +62,7 @@ export const startEmbeddedSSH = (
     encoding: "raw",
   });
   sshCommand.on("close", (data) => {
+    stateUpdateOnNewMessage();
     setShellState("terminated");
 
     if (!isTerminated) {

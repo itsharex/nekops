@@ -25,6 +25,7 @@ export const EventNameShellTabsListResponse = "shellTabsListResponse";
 
 // Send special command to shell by nonce
 export const EventNameShellSelectAllByNonce = "shellSelectAllByNonce";
+export const EventNameShellSTTYFitByNonce = "shellSTTYFitByNonce";
 
 // Shell grid system
 export const EventNameShellGridModify = "shellGridModify"; // Add 1 row

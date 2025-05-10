@@ -18,6 +18,7 @@ import {
   EventNameShellReadyResponse,
   EventNameShellSelectAllByNonce,
   EventNameShellSetActiveTabByNonce,
+  EventNameShellSTTYFitByNonce,
   EventNameShellTabsListRequest,
   EventNameShellTabsListResponse,
   EventNameWindowCloseShell,
@@ -656,6 +657,18 @@ const ShellTabs = () => {
             );
           }
         }}
+        onClickSTTYFit={
+          currentSelectedTab.current?.clientOptions.type === "embedded"
+            ? null
+            : () => {
+                if (currentSelectedTab.current) {
+                  emit(
+                    EventNameShellSTTYFitByNonce,
+                    currentSelectedTab.current.nonce,
+                  );
+                }
+              }
+        }
         onClickTerminate={() => {
           if (currentSelectedTab.current) {
             terminateByNonce(currentSelectedTab.current.nonce);

@@ -7,7 +7,10 @@ import type {
   EventPayloadShellSendCommandByNonce,
   ShellClientOptions,
 } from "@/events/payload.ts";
-import { EventNameShellSendCommandByNonce } from "@/events/name.ts";
+import {
+  EventNameShellSendCommandByNonce,
+  EventNameShellSTTYFitByNonce,
+} from "@/events/name.ts";
 
 export const startSystemSSH = (
   nonce: string,
@@ -101,12 +104,25 @@ export const startSystemSSH = (
           },
         );
 
+      // Listen to fit event
+      const stopShellSTTYFitByNonceListener = listen<string>(
+        EventNameShellSTTYFitByNonce,
+        (ev) => {
+          if (ev.payload === nonce) {
+            sshProcess.write(
+              `stty columns ${terminal.cols} rows ${terminal.rows}\n`,
+            );
+          }
+        },
+      );
+
       // Terminate when close
       setTerminateSSHFunc(() => {
         sshProcess.kill();
 
         (async () => {
           (await stopSendCommandByNonceListener)();
+          (await stopShellSTTYFitByNonceListener)();
         })();
       });
     }

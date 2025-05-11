@@ -65,7 +65,7 @@ export const readSettings = createAsyncThunk(
             settingsSaved.default_ssh_client ||
             defaultSettings.default_ssh_client,
           check_update_at_startup:
-            settingsSaved.check_update_at_startup ||
+            settingsSaved.check_update_at_startup ??
             defaultSettings.check_update_at_startup,
           customize: settingsSaved.customize
             ? {

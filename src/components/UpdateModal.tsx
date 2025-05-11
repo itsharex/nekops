@@ -87,6 +87,9 @@ const UpdateModal = ({ isOpen, close, update }: UpdateModalProps) => {
               : undefined
           }
           icon={<IconInfoCircle />}
+          style={{
+            whiteSpace: "pre-wrap",
+          }}
         >
           {update?.body}
         </Blockquote>

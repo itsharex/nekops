@@ -273,9 +273,12 @@ const RescueTabs = () => {
       >
         <DragDropContext
           onDragEnd={({ destination, source }) => {
+            if (!destination) {
+              return;
+            }
             const reorderOption = {
               from: source.index,
-              to: destination?.index || 0,
+              to: destination.index,
             };
 
             tabsDataHandlers.reorder(reorderOption);

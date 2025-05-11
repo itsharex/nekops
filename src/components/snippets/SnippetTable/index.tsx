@@ -26,10 +26,10 @@ const SnippetTable = ({
   return (
     <DragDropContext
       onDragEnd={({ destination, source }) => {
-        reorder(
-          snippets[source.index].name,
-          snippets[destination?.index || 0].name,
-        );
+        if (!destination) {
+          return;
+        }
+        reorder(snippets[source.index].name, snippets[destination.index].name);
       }}
     >
       <Table stickyHeader stickyHeaderOffset={0} highlightOnHover>

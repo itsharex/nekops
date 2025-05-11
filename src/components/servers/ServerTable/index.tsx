@@ -29,7 +29,10 @@ const ServerTable = ({
   return (
     <DragDropContext
       onDragEnd={({ destination, source }) => {
-        reorder(servers[source.index].id, servers[destination?.index || 0].id);
+        if (!destination) {
+          return;
+        }
+        reorder(servers[source.index].id, servers[destination.index].id);
       }}
     >
       <Table stickyHeader stickyHeaderOffset={0} highlightOnHover>

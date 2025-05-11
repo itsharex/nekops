@@ -140,12 +140,34 @@ jobs:
       attestations: write
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare link to changelog
-        id: changelog
+      - name: Checkout changelog file
+        uses: actions/checkout@v4
+        with:
+          repository: "nekops-app/docs"
+          sparse-checkout: |
+            changelog.md
+
+      - name: Extract changelog for current version
         run: |
-          VERSION_HYPHEN=$(echo "${{ needs.prepare.outputs.tag }}" | sed 's/\./-/g')
-          CHANGELOG_LINK="https://docs.nekops.app/changelog#v${VERSION_HYPHEN}"
-          echo "changelog=${CHANGELOG_LINK}" >> $GITHUB_OUTPUT
+          TITLE_PREFIX="#+\s+v"
+          VERSION_ESCAPED=$(echo "${{ needs.prepare.outputs.tag }}" | sed 's/\./\\\./g')
+          # Extract current version
+          sed -nr "
+          /${TITLE_PREFIX}${VERSION_ESCAPED}/ {
+              N
+              s///p
+              :nextline
+              /${TITLE_PREFIX}.+/! {
+                  N
+                  b nextline 
+              }
+              s///p
+          }
+          " changelog.md |
+          # Delete release date
+          sed '/^>/d' |
+          # Trim spaces
+          sed -e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba' > changelog-current.md
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -160,7 +182,7 @@ jobs:
           cat > artifacts/release.json << EOF
           {
             "version": "${VERSION}",
-            "notes": "${{ steps.changelog.outputs.changelog }}",
+            "notes": "$(jq -sR . changelog-current.md)",
             "pub_date": "${CURRENT_DATE}",
             "platforms": {
               "windows-x86_64": {
@@ -214,7 +236,7 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           name: "Nekops ${{ github.ref_name }}"
-          body: "更新日志： ${{ steps.changelog.outputs.changelog }}"
+          body_path: changelog-current.md
           generate_release_notes: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: |

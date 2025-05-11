@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Flex, ScrollArea } from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
 import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import type { SettingsState } from "@/types/settings.ts";
 import { defaultWorkspace } from "@/types/settings.ts";
@@ -29,7 +29,7 @@ import GeneralGroup from "@/components/settings/General";
 import CurrentWorkspaceGroup from "@/components/settings/CurrentWorkspace";
 import CustomizeGroup from "@/components/settings/Customize";
 
-const passwordUnchanged = "keep-unchanged";
+const passwordUnchanged = "(keep-unchanged)";
 
 const SettingsPage = () => {
   const { t } = useTranslation("main", { keyPrefix: "settings" });
@@ -47,10 +47,24 @@ const SettingsPage = () => {
     },
   });
 
+  // Listen for encryption state change events
+  useEffect(() => {
+    const newPasswordState = encryption.isEncryptionEnabled
+      ? passwordUnchanged
+      : "";
+    form.setInitialValues({
+      ...form.getInitialValues(),
+      password: newPasswordState,
+    });
+    // Also update the password field value
+    form.setFieldValue("password", newPasswordState);
+  }, [encryption.isEncryptionEnabled]);
+
   const save = async (newSettings: SettingsExtended) => {
     if (
-      (encryption.isEncryptionEnabled || newSettings.password !== "") &&
-      newSettings.password !== passwordUnchanged
+      (encryption.isEncryptionEnabled || // Already encrypted
+        newSettings.password !== "") && // Newly encrypt
+      newSettings.password !== passwordUnchanged // Hope nobody will use this as a password
     ) {
       // Set new password
       const newEncryptionState = await dispatch(

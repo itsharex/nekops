@@ -31,8 +31,6 @@ import { encryptServer } from "@/slices/encryptionSlice.ts";
 import { notifications } from "@mantine/notifications";
 import ServerTable from "@/components/servers/ServerTable";
 
-// const passwordUnchanged = "keep-unchanged";
-
 const ServersPage = () => {
   const { t } = useTranslation("main", { keyPrefix: "library" });
 

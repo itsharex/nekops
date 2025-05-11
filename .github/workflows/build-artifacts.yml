@@ -182,7 +182,7 @@ jobs:
           cat > artifacts/release.json << EOF
           {
             "version": "${VERSION}",
-            "notes": "$(jq -sR . changelog-current.md)",
+            "notes": $(jq -sR . changelog-current.md),
             "pub_date": "${CURRENT_DATE}",
             "platforms": {
               "windows-x86_64": {

@@ -73,15 +73,24 @@ const SettingsPage = () => {
     if (newSettings.workspaces.length === 0) {
       newSettings.workspaces.push(defaultWorkspace);
     }
-    const currentWorkspaceIndex = settings.workspaces.findIndex(
+    let currentWorkspaceIndex = newSettings.workspaces.findIndex(
       (w) => w.id === settings.current_workspace.id,
     );
-    const targetWorkspace =
-      newSettings.workspaces[
-        newSettings.workspaces.length > currentWorkspaceIndex
-          ? currentWorkspaceIndex
-          : 0 // No match, use first
-      ];
+    if (currentWorkspaceIndex === -1) {
+      // Not found in new workspace list, try to inherit from old
+      currentWorkspaceIndex = settings.workspaces.findIndex(
+        (w) => w.id === settings.current_workspace.id,
+      );
+
+      if (
+        currentWorkspaceIndex === -1 || // Not found
+        currentWorkspaceIndex >= newSettings.workspaces.length // Already deleted
+      ) {
+        // Invalid index, fallback to first
+        currentWorkspaceIndex = 0;
+      }
+    }
+    const targetWorkspace = newSettings.workspaces[currentWorkspaceIndex];
     // Update settings
     const newSettingsState: SettingsState = {
       workspaces: newSettings.workspaces,

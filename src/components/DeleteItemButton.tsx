@@ -54,12 +54,13 @@ const ConfirmDeleteModal = ({
   );
 };
 
-interface AccordionDeleteItemButtonProps {
+interface DeleteItemButtonProps {
   itemName: string;
   size?: number | MantineSize | string | undefined;
   variant?: string | ActionIconVariant | undefined;
   iconStyle?: CSSProperties;
   onClick: () => void;
+  disabled?: boolean;
 }
 const DeleteItemButton = ({
   itemName,
@@ -67,7 +68,8 @@ const DeleteItemButton = ({
   variant,
   iconStyle,
   onClick,
-}: AccordionDeleteItemButtonProps) => {
+  disabled,
+}: DeleteItemButtonProps) => {
   const { t } = useTranslation("main", { keyPrefix: "deleteButton" });
 
   const [
@@ -83,6 +85,7 @@ const DeleteItemButton = ({
           variant={variant}
           color="red"
           onClick={openConfirmModal}
+          disabled={disabled}
         >
           <IconTrash style={iconStyle} />
         </ActionIcon>

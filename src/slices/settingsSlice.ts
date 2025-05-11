@@ -59,10 +59,10 @@ export const readSettings = createAsyncThunk(
           workspaces: settingsSaved.workspaces,
           current_workspace: targetWorkspace,
           default_ssh_action:
-            settingsSaved.default_ssh_action ||
+            settingsSaved.default_ssh_action ??
             defaultSettings.default_ssh_action,
           default_ssh_client:
-            settingsSaved.default_ssh_client ||
+            settingsSaved.default_ssh_client ??
             defaultSettings.default_ssh_client,
           check_update_at_startup:
             settingsSaved.check_update_at_startup ??
@@ -70,10 +70,10 @@ export const readSettings = createAsyncThunk(
           customize: settingsSaved.customize
             ? {
                 font_family:
-                  settingsSaved.customize.font_family ||
+                  settingsSaved.customize.font_family ??
                   defaultSettings.customize.font_family,
                 shell:
-                  settingsSaved.customize.shell ||
+                  settingsSaved.customize.shell ??
                   defaultSettings.customize.shell,
               }
             : defaultSettings.customize,

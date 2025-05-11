@@ -36,6 +36,7 @@ const UpdateModal = ({ isOpen, close, update }: UpdateModalProps) => {
       return;
     }
 
+    setBytesTotal(0);
     setIsDownloading(true);
 
     try {
@@ -80,7 +81,11 @@ const UpdateModal = ({ isOpen, close, update }: UpdateModalProps) => {
       <Flex py="sm" direction="column" gap="sm">
         <Blockquote
           color="blue"
-          cite={t("releaseNotes")}
+          cite={
+            update?.date
+              ? new Date(update.date).toISOString().split("T")[0]
+              : undefined
+          }
           icon={<IconInfoCircle />}
         >
           {update?.body}

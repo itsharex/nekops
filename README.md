@@ -7,6 +7,9 @@
 [![发布版本](https://img.shields.io/github/v/release/Candinya/nekops?style=for-the-badge&logo=github&label=%E6%9C%80%E6%96%B0%E5%8F%91%E5%B8%83)](https://github.com/Candinya/nekops/releases/latest/)
 [![构建流水线](https://img.shields.io/github/actions/workflow/status/Candinya/nekops/build-artifacts.yml?style=for-the-badge&logo=github&label=%E6%9E%84%E5%BB%BA%E6%B5%81%E6%B0%B4%E7%BA%BF)](https://github.com/Candinya/nekops/actions/workflows/build-artifacts.yml)
 
+[![阅读文档](https://img.shields.io/badge/%E9%98%85%E8%AF%BB%E6%96%87%E6%A1%A3-docs.nekops.app-30a46c?style=for-the-badge)](https://docs.nekops.app)
+[![加入社区](https://img.shields.io/badge/%E5%8A%A0%E5%85%A5%E7%A4%BE%E5%8C%BA-community.nekops.app-skyblue?style=for-the-badge)](https://community.nekops.app)
+
 </div>
 
 ## ✨ 功能概览

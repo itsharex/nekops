@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Flex } from "@mantine/core";
 
 import { navs } from "@/routes.ts";
 
@@ -11,11 +12,23 @@ const Nav = () => {
   const { t } = useTranslation("main", { keyPrefix: "nav" });
 
   return (
-    <>
-      {navs.map((route) =>
-        route.subs ? (
-          <NavDir key={route.path} label={t(route.label)} icon={route.icon}>
-            {route.subs.map((route) => (
+    <Flex h="100%" direction="column" justify="space-between">
+      {navs.map((group) => (
+        <div>
+          {group.map((route) =>
+            route.subs ? (
+              <NavDir key={route.path} label={t(route.label)} icon={route.icon}>
+                {route.subs.map((route) => (
+                  <NavItem
+                    key={route.path}
+                    label={t(route.label)}
+                    icon={route.icon}
+                    to={route.path}
+                    isActive={pathname === route.path}
+                  />
+                ))}
+              </NavDir>
+            ) : (
               <NavItem
                 key={route.path}
                 label={t(route.label)}
@@ -23,19 +36,11 @@ const Nav = () => {
                 to={route.path}
                 isActive={pathname === route.path}
               />
-            ))}
-          </NavDir>
-        ) : (
-          <NavItem
-            key={route.path}
-            label={t(route.label)}
-            icon={route.icon}
-            to={route.path}
-            isActive={pathname === route.path}
-          />
-        ),
-      )}
-    </>
+            ),
+          )}
+        </div>
+      ))}
+    </Flex>
   );
 };
 

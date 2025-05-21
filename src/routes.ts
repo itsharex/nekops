@@ -50,53 +50,57 @@ export const routes = [
 ];
 
 export const navs = [
-  {
-    label: "connect",
-    icon: IconCirclesRelation,
-    path: "#/connect",
-    subs: [
-      {
-        label: "ssh",
-        icon: IconTerminal2,
-        path: "/",
-      },
-      {
-        label: "multirun",
-        icon: IconStars,
-        path: "/multirun",
-      },
-      {
-        label: "rescue",
-        icon: IconHeartbeat,
-        path: "/rescue",
-      },
-    ],
-  },
-  {
-    label: "library",
-    icon: IconLibrary,
-    path: "#/library",
-    subs: [
-      {
-        label: "servers",
-        icon: IconServerCog,
-        path: "/servers",
-      },
-      {
-        label: "snippets",
-        icon: IconCodeAsterix,
-        path: "/snippets",
-      },
-    ],
-  },
-  {
-    label: "analysis",
-    icon: IconChartBar,
-    path: "/analysis",
-  },
-  {
-    label: "settings",
-    icon: IconSettings,
-    path: "/settings",
-  },
+  [
+    {
+      label: "connect",
+      icon: IconCirclesRelation,
+      path: "#/connect",
+      subs: [
+        {
+          label: "ssh",
+          icon: IconTerminal2,
+          path: "/",
+        },
+        {
+          label: "multirun",
+          icon: IconStars,
+          path: "/multirun",
+        },
+        {
+          label: "rescue",
+          icon: IconHeartbeat,
+          path: "/rescue",
+        },
+      ],
+    },
+    {
+      label: "library",
+      icon: IconLibrary,
+      path: "#/library",
+      subs: [
+        {
+          label: "servers",
+          icon: IconServerCog,
+          path: "/servers",
+        },
+        {
+          label: "snippets",
+          icon: IconCodeAsterix,
+          path: "/snippets",
+        },
+      ],
+    },
+    {
+      label: "analysis",
+      icon: IconChartBar,
+      path: "/analysis",
+    },
+  ],
+  [
+    {
+      label: "settings",
+      icon: IconSettings,
+      path: "/settings",
+    },
+  ],
 ];

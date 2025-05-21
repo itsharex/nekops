@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Flex } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 
 import { navs } from "@/routes.ts";
 
@@ -12,9 +12,9 @@ const Nav = () => {
   const { t } = useTranslation("main", { keyPrefix: "nav" });
 
   return (
-    <Flex h="100%" direction="column" justify="space-between">
-      {navs.map((group) => (
-        <div>
+    <>
+      {navs.map((group, index, array) => (
+        <AppShell.Section key={index} grow={index === array.length - 2}>
           {group.map((route) =>
             route.subs ? (
               <NavDir key={route.path} label={t(route.label)} icon={route.icon}>
@@ -38,9 +38,9 @@ const Nav = () => {
               />
             ),
           )}
-        </div>
+        </AppShell.Section>
       ))}
-    </Flex>
+    </>
   );
 };
 

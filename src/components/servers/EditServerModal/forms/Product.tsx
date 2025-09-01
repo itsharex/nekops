@@ -19,6 +19,7 @@ import "dayjs/locale/en.js";
 import "dayjs/locale/zh-cn.js";
 
 import type { InputFormProps } from "../inputFormProps.ts";
+import { StartSinceValueFormat } from "../constants.tsx";
 
 import type { RootState } from "@/store.ts";
 
@@ -125,12 +126,8 @@ const ProductForm = ({ form }: ProductFormProps) => {
               >
                 <DatePickerInput
                   label={t("productStartSinceLabel")}
-                  valueFormat="YYYY-MM-DD"
-                  value={
-                    form.getInputProps("provider.start_since").value ||
-                    new Date() // Use current date if not set
-                  }
-                  onChange={form.getInputProps("provider.start_since").onChange}
+                  valueFormat={StartSinceValueFormat}
+                  {...form.getInputProps("provider.start_since")}
                   style={{
                     flexGrow: 1,
                   }}

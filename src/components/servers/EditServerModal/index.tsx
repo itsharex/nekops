@@ -9,7 +9,6 @@ import {
   Stepper,
   Title,
 } from "@mantine/core";
-import type { Server } from "@/types/server.ts";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import {
@@ -24,6 +23,7 @@ import {
   IconServerBolt,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 
 import stepperClasses from "./stepper.module.css";
 import BasicInfoForm from "./forms/BasicInfo.tsx";
@@ -31,8 +31,11 @@ import ProductForm from "./forms/Product.tsx";
 import HardwareForm from "./forms/Hardware.tsx";
 import NetworksForm from "./forms/Networks.tsx";
 import AccessForm from "./forms/Access.tsx";
+import { StartSinceValueFormat } from "./constants.tsx";
 import ServerCard from "@/components/ServerCard";
 import { i18nDefaultServer } from "@/components/servers/EditServerModal/helpers.ts";
+
+import type { Server } from "@/types/server.ts";
 
 const serverIDRegexp = /^\w+([-.]\w+)*$/;
 
@@ -78,6 +81,17 @@ const EditServerModal = ({
     }
   };
 
+  const fillCurrentState = () => {
+    // Set initial fields based on current states
+    if (!form.getValues().provider.start_since) {
+      const now = dayjs();
+      form.setFieldValue(
+        "provider.start_since",
+        now.format(StartSinceValueFormat),
+      );
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       if (!serverInfo) {
@@ -86,6 +100,9 @@ const EditServerModal = ({
         form.setInitialValues(structuredClone(serverInfo));
       }
       form.reset();
+
+      fillCurrentState();
+
       setActiveStep(0);
     }
   }, [isOpen]);

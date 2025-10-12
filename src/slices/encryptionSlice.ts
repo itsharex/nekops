@@ -10,7 +10,7 @@ import {
 import { box, verify } from "tweetnacl";
 import { checkParentDir } from "@/slices/utils.ts";
 import { getKeyMaterial, getPrivateBits } from "@/encrypt/keyHandler.ts";
-import { arrayBufferToBase64, base64ToUint8Array } from "@/encrypt/helper.ts";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "@/encrypt/helper.ts";
 import type { Server } from "@/types/server.ts";
 import { rawDecrypt, rawEncrypt } from "@/encrypt/methods.ts";
 import type { EncryptionState } from "@/types/encryption.ts";
@@ -72,8 +72,8 @@ export const updatePassword = createAsyncThunk(
     const keyPair = box.keyPair.fromSecretKey(new Uint8Array(pb));
 
     const newEncryptionState = {
-      publicKeyBase64: arrayBufferToBase64(keyPair.publicKey),
-      privateKeyBase64: arrayBufferToBase64(keyPair.secretKey),
+      publicKeyBase64: uint8ArrayToBase64(keyPair.publicKey),
+      privateKeyBase64: uint8ArrayToBase64(keyPair.secretKey),
 
       isEncryptionEnabled: true,
       isUnlocked: true,
@@ -108,8 +108,8 @@ export const unlock = createAsyncThunk(
       )
     ) {
       return {
-        publicKeyBase64: arrayBufferToBase64(keyPair.publicKey),
-        privateKeyBase64: arrayBufferToBase64(keyPair.secretKey),
+        publicKeyBase64: uint8ArrayToBase64(keyPair.publicKey),
+        privateKeyBase64: uint8ArrayToBase64(keyPair.secretKey),
 
         isEncryptionEnabled: true,
         isUnlocked: true,

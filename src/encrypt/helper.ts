@@ -6,7 +6,6 @@ export const base64ToUint8Array = (base64: string) =>
       .map((c) => c.charCodeAt(0)),
   );
 
-export const arrayBufferToBase64 = (arrayBuffer: ArrayBuffer) =>
-  window.btoa(
-    String.fromCharCode.apply(null, Array.from(new Uint8Array(arrayBuffer))),
-  );
+export const uint8ArrayToBase64 = (
+  array: Uint8Array<ArrayBuffer | SharedArrayBuffer>,
+) => window.btoa(String.fromCharCode.apply(null, Array.from(array)));

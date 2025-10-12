@@ -1,5 +1,5 @@
 import { box, randomBytes } from "tweetnacl";
-import { arrayBufferToBase64, base64ToUint8Array } from "@/encrypt/helper.ts";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "@/encrypt/helper.ts";
 import { builtInKey } from "@/encrypt/config.ts";
 
 const encoder = new TextEncoder();
@@ -18,7 +18,7 @@ export const rawEncrypt = (publicKey: Uint8Array, rawMessage: string) => {
   fullMessage.set(nonce);
   fullMessage.set(encryptedMessage, nonce.length);
 
-  return arrayBufferToBase64(fullMessage);
+  return uint8ArrayToBase64(fullMessage);
 };
 
 export const rawDecrypt = (

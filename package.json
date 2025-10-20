@@ -14,12 +14,12 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@mantine/core": "^8.3.4",
     "@mantine/dates": "^8.3.4",
-    "@mantine/form": "^8.3.4",
+    "@mantine/form": "^8.3.5",
     "@mantine/hooks": "^8.3.4",
     "@mantine/modals": "^8.3.4",
     "@mantine/notifications": "^8.3.4",
     "@novnc/novnc": "1.5.0",
-    "@reduxjs/toolkit": "^2.9.0",
+    "@reduxjs/toolkit": "^2.9.1",
     "@tabler/icons-react": "^3.35.0",
     "@tanstack/react-virtual": "^3.13.12",
     "@tauri-apps/api": "2.8.0",
@@ -36,7 +36,7 @@
     "prismjs": "^1.30.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-i18next": "^16.0.0",
+    "react-i18next": "^16.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.4",
     "react-simple-code-editor": "^0.14.1",
@@ -50,7 +50,7 @@
     "@types/novnc__novnc": "1.5.0",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.0.4",
     "husky": "^9.1.7",
     "internal-ip": "^8.0.1",
@@ -61,7 +61,7 @@
     "prettier": "3.6.2",
     "react-scan": "^0.4.3",
     "typescript": "^5.9.3",
-    "vite": "^7.1.9"
+    "vite": "^7.1.10"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
